@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balcão e Bandeja</title>
+  <link rel="stylesheet" href="../css/home.css">
+</head>
+<body>
+  <header>
+    <div class="top-header">
+      <div class="logo">
+        <a href="/">
+          <img src="../assets/logo.png" alt="Logo da Loja">
+        </a>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Buscar produtos...">
+        <button id="searchBtn"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"></path></svg></button>
+        <div id="autocompleteList" class="autocomplete-list"></div>
+      </div>
+      <div class="actions">
+        <div class="support">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#333"><path d="M798-120q-125 0-247-54.5T329-329Q229-429 174.5-551T120-798q0-18 12-30t30-12h162q14 0 25 9.5t13 22.5l26 140q2 16-1 27t-11 19l-97 98q20 37 47.5 71.5T387-386q31 31 65 57.5t72 48.5l94-94q9-9 23.5-13.5T670-390l138 28q14 4 23 14.5t9 23.5v162q0 18-12 30t-30 12ZM241-600l66-66-17-94h-89q5 41 14 81t26 79Zm358 358q39 17 79.5 27t81.5 13v-88l-94-19-67 67ZM241-600Zm358 358Z"/></svg>
+          Central de atendimento
+        </div>
+        <div class="login">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#333"><path d="M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Zm80-80h480v-32q0-11-5.5-20T700-306q-54-27-109-40.5T480-360q-56 0-111 13.5T260-306q-9 5-14.5 14t-5.5 20v32Zm240-320q33 0 56.5-23.5T560-640q0-33-23.5-56.5T480-720q-33 0-56.5 23.5T400-640q0 33 23.5 56.5T480-560Zm0-80Zm0 400Z"/></svg>
+          <p id="notLoggedIn" style="display: none;">
+            Olá, bem-vindo(a)! <br> Faça <a href="/login">login</a> ou <a href="/register">cadastre-se</a>
+          </p>
+          <p id="logged" style="display: none;">
+            Olá <span id="nameUser"></span>
+          </p>
+        </div>
+        <div class="cart" id="cartBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#333"><path d="M240-80q-33 0-56.5-23.5T160-160v-480q0-33 23.5-56.5T240-720h80q0-66 47-113t113-47q66 0 113 47t47 113h80q33 0 56.5 23.5T800-640v480q0 33-23.5 56.5T720-80H240Zm0-80h480v-480h-80v80q0 17-11.5 28.5T600-520q-17 0-28.5-11.5T560-560v-80H400v80q0 17-11.5 28.5T360-520q-17 0-28.5-11.5T320-560v-80h-80v480Zm160-560h160q0-33-23.5-56.5T480-800q-33 0-56.5 23.5T400-720ZM240-160v-480 480Z"/></svg>
+          <span class="cart-count" id="cartCount" data-count="0">0</span>
+        </div>
+        <!-- Botão menu hambúrguer -->
+        <div class="menu-toggle" id="menuToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+
+    <nav>
+      <ul id="menuList">
+        <li class="has-submenu">
+          Todos os Departamentos <span class="arrow">▼</span>
+          <ul class="submenu">
+            <li>Balcão de Degustação</li>
+            <li>Balcão de Degustação MDF</li>
+            <li>Bandejas de Degustação</li>
+            <li>Mochila Pirulito</li>
+            <li>Wind Flag</li>
+          </ul>
+        </li>
+        <li>
+          <a href="/categories?categoria=Balcões">Balcão de Degustação</a> <span class="arrow"></span>
+          <ul class="submenu">
+            <li>Acrílico</li>
+            <li>Vidro</li>
+            <li>Madeira</li>
+          </ul>
+        </li>
+        <li>
+          <a href="/categories?=categoria=BalcâoMDF">Balcão Degustação MDF</a> <span class="arrow"></span>
+          <ul class="submenu">
+            <li>Branco</li>
+            <li>Preto</li>
+            <li>Personalizado</li>
+          </ul>
+        </li>
+        <li>
+          <a href="/categories?categoria=Bandejas">Bandejas Degustação</a> <span class="arrow"></span>
+          <ul class="submenu">
+            <li>Quadradas</li>
+            <li>Redondas</li>
+            <li>Personalizadas</li>
+          </ul>
+        </li>
+        <li>
+          <a href="/categories?categoria=Mochilas">Mochila Pirulito</a> <span class="arrow"></span>
+          <ul class="submenu">
+            <li>Simples</li>
+            <li>Com Luz</li>
+            <li>Personalizada</li>
+          </ul>
+        </li>
+        <li>
+          <a href="/categories?categoria=Wind">Wind Flag</a> <span class="arrow"></span>
+          <ul class="submenu">
+            <li>Pequena</li>
+            <li>Média</li>
+            <li>Grande</li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+  </header>
+
+  <!-- Carrinho lateral -->
+  <div class="overlay" id="overlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <button class="close-cart" id="closeCart">✖</button>
+    <h2>Seu Carrinho</h2>
+
+    <div id="cartItemsContainer"></div>
+
+    <div class="cart-summary">
+      <p>Subtotal: <span id="cartSubtotal">R$ 0,00</span></p>
+      <p>Desconto: <span id="cartDiscount">R$ 0,00</span></p>
+      <p>Total: <span id="cartTotal">R$ 0,00</span></p>
+    </div>
+
+    <input type="text" id="couponCode" placeholder="Cupom de desconto" />
+    <button id="applyCouponBtn">Aplicar</button>
+    <button id="checkoutBtn" id="checkoutBtn">Finalizar Compra</button>
+  </div>
+  <!-- Banner principal -->
+  <section class="main-banner">
+    <img src="../assets/banner_principal.webp" alt="Banner principal da loja">
+  </section>
+
+  <!-- Benefícios da Loja -->
+  <section class="store-benefits">
+    <div class="benefit">
+      <svg id="Layer_1" enable-background="new 0 0 512 512" height="512" viewBox="0 0 512 512" width="512" xmlns="http://www.w3.org/2000/svg"><g><path d="m0 141.356h422v30h-422z"></path><path d="m422 102.356c0-24.813-20.187-45-45-45h-332c-24.813 0-45 20.187-45 45v9h422z"></path><path d="m421 242.643c.334 0 .666.01 1 .013v-41.299h-422v123c0 24.813 20.187 45 45 45h255.138c-.089-1.894-.139-3.798-.139-5.713.001-66.721 54.281-121.001 121.001-121.001zm-346-11.286h37.5c8.284 0 15 6.716 15 15s-6.716 15-15 15h-37.5c-8.284 0-15-6.716-15-15s6.716-15 15-15zm85 77.999h-85c-8.284 0-15-6.716-15-15s6.716-15 15-15h85c8.284 0 15 6.716 15 15s-6.716 15-15 15z"></path><path d="m421 272.643c-50.178 0-91 40.823-91 91 0 50.178 40.823 91 91 91s91-40.823 91-91-40.823-91-91-91zm43.607 83.277-36 36c-2.929 2.929-6.768 4.394-10.606 4.394s-7.678-1.464-10.606-4.394l-18.5-18.5c-5.858-5.858-5.858-15.355 0-21.213 5.857-5.858 15.355-5.858 21.213 0l7.894 7.894 25.394-25.394c5.857-5.858 15.355-5.858 21.213 0 5.855 5.858 5.855 15.355-.002 21.213z"></path></g></svg>
+      <p>Até 3x sem juros</p>
+    </div>
+
+    <div class="benefit">
+      <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 488.027 488.027" style="enable-background:new 0 0 488.027 488.027;" xml:space="preserve"><g><g><circle cx="179.163" cy="202.563" r="20.4"></circle><circle cx="308.763" cy="285.363" r="20.4"></circle><path d="M476.963,270.963l-7.4-10.1c-8-11-8.2-25.9-0.3-37.1l7.2-10.2c11-15.6,5.9-37.3-11-46.4l-11-5.9 c-12-6.4-18.6-19.8-16.3-33.3l2.1-12.3c3.2-18.8-10.9-36.2-30-37l-12.5-0.5c-13.6-0.6-25.4-9.8-29.2-22.9l-3.5-12 c-5.3-18.4-25.5-27.9-43.1-20.3l-11.5,4.9c-12.5,5.4-27.1,2.2-36.2-8l-8.3-9.3c-12.7-14.2-35-14.1-47.6,0.4l-8.2,9.4 c-9,10.3-23.5,13.7-36.1,8.5l-11.6-4.8c-17.7-7.3-37.7,2.6-42.8,21l-3.3,12.1c-3.6,13.2-15.2,22.6-28.8,23.3l-12.5,0.7 c-19.1,1.1-32.9,18.7-29.4,37.5l2.3,12.3c2.5,13.4-3.9,26.9-15.8,33.5l-10.9,6.1c-16.7,9.3-21.5,31.1-10.2,46.5l7.4,10.1 c8,11,8.2,25.9,0.3,37.1l-7.2,10.2c-11,15.6-5.9,37.3,11,46.4l11,5.9c12,6.4,18.6,19.8,16.3,33.3l-2.1,12.3 c-3.2,18.8,10.9,36.2,30,37l12.5,0.5c13.6,0.6,25.4,9.8,29.2,22.9l3.5,12c5.3,18.4,25.5,27.9,43.1,20.3l11.5-4.9 c12.5-5.4,27.1-2.2,36.2,8l8.3,9.3c12.8,14.2,35.1,14.1,47.6-0.4l8.2-9.4c9-10.3,23.5-13.7,36.1-8.5l11.6,4.8 c17.7,7.3,37.7-2.6,42.8-21l3.3-12.1c3.6-13.2,15.2-22.6,28.8-23.3l12.5-0.7c19.1-1.1,32.9-18.7,29.4-37.5l-2.3-12.3 c-2.5-13.4,3.9-26.9,15.8-33.5l10.9-6.1C483.463,308.263,488.263,286.463,476.963,270.963z M129.863,202.563 c0-27.2,22-49.2,49.2-49.2s49.2,22,49.2,49.2s-22,49.2-49.2,49.2S129.863,229.663,129.863,202.563z M188.563,329.463 c-4.2,5.1-11.8,5.8-16.9,1.6l0,0c-5.1-4.2-5.8-11.8-1.6-16.9l129.1-155.5c4.2-5.1,11.8-5.8,16.9-1.6s5.8,11.8,1.6,16.9 L188.563,329.463z M308.763,334.563c-27.2,0-49.2-22-49.2-49.2s22-49.2,49.2-49.2s49.2,22,49.2,49.2 S335.963,334.563,308.763,334.563z"></path></g></g></svg>
+      <p>2% de desconto</p>
+    </div>
+
+    <div class="benefit">
+      <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 489.2 489.2" style="enable-background:new 0 0 489.2 489.2;" xml:space="preserve"><g><g><path d="M4.3,320.65v43c0,12.7,10.3,22.5,22.5,22.5H59c7.3,25.5,30.4,43.7,58.3,43.7s51-18.8,58.3-43.7h73.5h73.1c7.3,25.5,30.4,43.7,58.3,43.7s51-18.8,58.3-43.7h27.9c12.8,0,22.5-10.3,22.5-22.5v-28.5c0-11.5-9.1-21.3-20-22.5v-57.7c0-21.9-17.6-39.5-39.5-39.5l-27.2-4.2l-46.9-70.5c-0.6-0.6-1.2-1.8-1.8-2.4c-7.3-9.7-18.8-16.4-32.2-16.4h-55.5c-7.2,0-13,5.8-13,13v105.1c0,32.2-26.1,58.3-58.3,58.3H21.3v0.4C11.5,301.15,4.3,310.25,4.3,320.65z M350.1,369.05c0-16.4,14-30.4,30.4-30.4c17,0,30.4,14,30.4,30.4s-14,30.4-30.4,30.4C363.4,399.45,350.1,385.45,350.1,369.05z M86.8,369.05c0-16.4,14-30.4,30.4-30.4c17,0,30.4,14,30.4,30.4s-13.4,30.4-30.4,30.4S86.8,385.45,86.8,369.05z"></path><path d="M33.2,59.35h154.2c18.3,0,33.2,15.5,33.2,34.6v136c0,19.1-14.9,34.7-33.2,34.7H33.2c-18.3,0-33.2-15.5-33.2-34.7v-13.7v-6.1V93.95C0.1,74.85,14.9,59.35,33.2,59.35z"></path></g></g></svg>
+      <p>Frete grátis</p>
+    </div>
+
+    <div class="benefit">
+      <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 229.5 229.5" style="enable-background:new 0 0 229.5 229.5;" xml:space="preserve"><path d="M214.419,32.12c-0.412-2.959-2.541-5.393-5.419-6.193L116.76,0.275c-1.315-0.366-2.704-0.366-4.02,0L20.5,25.927c-2.878,0.8-5.007,3.233-5.419,6.193c-0.535,3.847-12.74,94.743,18.565,139.961c31.268,45.164,77.395,56.738,79.343,57.209c0.579,0.14,1.169,0.209,1.761,0.209s1.182-0.07,1.761-0.209c1.949-0.471,48.076-12.045,79.343-57.209C227.159,126.864,214.954,35.968,214.419,32.12z M174.233,85.186l-62.917,62.917c-1.464,1.464-3.384,2.197-5.303,2.197s-3.839-0.732-5.303-2.197l-38.901-38.901c-1.407-1.406-2.197-3.314-2.197-5.303s0.791-3.897,2.197-5.303l7.724-7.724c2.929-2.928,7.678-2.929,10.606,0l25.874,25.874l49.89-49.891c1.406-1.407,3.314-2.197,5.303-2.197s3.897,0.79,5.303,2.197l7.724,7.724C177.162,77.508,177.162,82.257,174.233,85.186z"></path><g></g></svg>
+      <p>Site seguro</p>
+    </div>
+  </section>
+
+  <!-- Seção Banners de Produtos -->
+  <section class="product-banners">
+    <div class="banner-item">
+      <a href="#">
+        <img src="../assets/balcao_principal.png" alt="Produto 1">
+        <a href="/categories?categoria=Balcões" class="banner-btn">Clique e confira</a>
+      </a>
+    </div>
+
+    <div class="banner-item">
+      <a href="#">
+        <img src="../assets/wind_flag_principal.png" alt="Produto 2">
+        <a href="/categories?categoria=Wind" class="banner-btn">Clique e confira</a>
+      </a>
+    </div>
+
+    <div class="banner-item">
+      <a href="#">
+        <img src="../assets/bandeja_principal.png" alt="Produto 3">
+        <a href="/categories?categoria=Bandejas" class="banner-btn">Clique e confira</a>
+      </a>
+    </div>
+  </section>
+
+  <!-- Seção Carrossel de Produtos -->
+  <section class="product-carousel-section">
+    <div class="carousel-header">
+      <h2>Confira nossos lançamentos</h2>
+      <div class="header-border"></div>
+    </div>
+
+    <div class="carousel-container">
+      <button class="carousel-btn prev"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#333"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg></button>
+
+      <div class="carousel-track">
+        
+      </div>
+
+      <button class="carousel-btn next"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#333"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg></button>
+    </div>
+
+    <div class="carousel-indicators">
+      <button class="active"></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+      <button></button>
+    </div>
+  </section>
+
+  <section class="dual-banner-section">
+    <div class="banner-container">
+      <div class="banner-item">
+        <img src="https://i.imgur.com/kj60lD5.png" alt="Banner 1">
+        <a href="/categories?categoria=Balcões" class="btn-banner">Confira Aqui</a>
+      </div>
+      <div class="banner-item">
+        <img src="https://i.imgur.com/boFYVMZ.png" alt="Banner 2">
+        <a href="/categories?categoria=Wind" class="btn-banner">Confira Aqui</a>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="best-sellers-section">
+    <div class="bs-header">
+      <h2>Produtos Mais Vendidos</h2>
+      <div class="bs-underline"></div>
+    </div>
+
+    <div class="bs-products-wrapper">
+      
+    </div>
+  </section>
+
+  <section class="reviews-section">
+    <div class="reviews-container">
+      <h2 class="reviews-title">O que nossos clientes dizem</h2>
+      <div class="reviews-grid">
+        
+        <!-- Avaliação 1 -->
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <h3>Mariana Silva</h3>
+              <div class="stars">★★★★★</div>
+            </div>
+          </div>
+          <p>
+            “Produtos incríveis, chegou super rápido e a qualidade é excelente.
+            Voltarei a comprar com certeza!”
+          </p>
+        </div>
+
+        <!-- Avaliação 2 -->
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <h3>Lucas Andrade</h3>
+              <div class="stars">★★★★★</div>
+            </div>
+          </div>
+          <p>
+            “Atendimento muito bom, me ajudaram com todas as dúvidas. 
+            Recomendo bastante a loja!”
+          </p>
+        </div>
+
+        <!-- Avaliação 3 -->
+        <div class="review-card">
+          <div class="review-header">
+            <div>
+              <h3>Ana Paula</h3>
+              <div class="stars">★★★★★</div>
+            </div>
+          </div>
+          <p>
+            “Design moderno e preços justos. 
+            Minha experiência de compra foi maravilhosa!”
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-section">
+    <div class="newsletter-content">
+      <h2>Assine Nossa Newsletter</h2>
+      <p>Receba ofertas exclusivas, novidades e promoções diretamente no seu e-mail.</p>
+      <form class="newsletter-form">
+        <input type="email" placeholder="Digite seu e-mail" required>
+        <button type="submit">Inscreva-se</button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      
+      <!-- Coluna Logo e descrição -->
+      <div class="footer-col footer-about">
+        <img src="../assets/logo.png" alt="Logo Loja">
+        <p>
+          A Balcão e Bandeja oferece produtos de qualidade para impulsionar seus negócios.
+          Garantimos praticidade, design moderno e a confiança que você precisa.
+        </p>
+      </div>
+
+      <!-- Coluna Institucional -->
+      <div class="footer-col">
+        <h3>Institucional</h3>
+        <ul>
+          <li><a href="/somos">Quem Somos</a></li>
+          <li><a href="/politica">Política de Privacidade</a></li>
+          <li><a href="/troca">Política de Trocas</a></li>
+          <li><a href="#">Termos de Uso</a></li>
+        </ul>
+      </div>
+
+      <!-- Coluna Atendimento -->
+      <div class="footer-col">
+        <h3>Atendimento</h3>
+        <ul>
+          <li><a href="/fale_conosco">Fale Conosco</a></li>
+        </ul>
+      </div>
+
+      <!-- Coluna Redes Sociais -->
+      <div class="footer-col">
+        <h3>Acompanhe nas Redes</h3>
+        <div class="footer-socials">
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></a>
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram"></a>
+          <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="YouTube"></a>
+        </div>
+      </div>
+
+      <!-- Coluna Horário -->
+      <div class="footer-col">
+        <h3>Horário de Atendimento</h3>
+        <p>Segunda a Sexta: 9h às 18h</p>
+      </div>
+
+      <!-- Coluna Segurança -->
+      <div class="footer-col footer-security">
+        <h3>Site Protegido</h3>
+        <img src="../assets/site_protegido.png" alt="Site Seguro">
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Balcão e Bandeja - Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+    <!-- Botão do WhatsApp -->
+  <a href="https://wa.me/5511991765332" target="_blank" class="whatsapp-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="35" height="35" viewBox="0 0 48 48">
+    <path fill="#fff" d="M4.9,43.3l2.7-9.8C5.9,30.6,5,27.3,5,24C5,13.5,13.5,5,24,5c5.1,0,9.8,2,13.4,5.6	C41,14.2,43,18.9,43,24c0,10.5-8.5,19-19,19c0,0,0,0,0,0h0c-3.2,0-6.3-0.8-9.1-2.3L4.9,43.3z"></path><path fill="#fff" d="M4.9,43.8c-0.1,0-0.3-0.1-0.4-0.1c-0.1-0.1-0.2-0.3-0.1-0.5L7,33.5c-1.6-2.9-2.5-6.2-2.5-9.6	C4.5,13.2,13.3,4.5,24,4.5c5.2,0,10.1,2,13.8,5.7c3.7,3.7,5.7,8.6,5.7,13.8c0,10.7-8.7,19.5-19.5,19.5c-3.2,0-6.3-0.8-9.1-2.3	L5,43.8C5,43.8,4.9,43.8,4.9,43.8z"></path><path fill="#cfd8dc" d="M24,5c5.1,0,9.8,2,13.4,5.6C41,14.2,43,18.9,43,24c0,10.5-8.5,19-19,19h0c-3.2,0-6.3-0.8-9.1-2.3	L4.9,43.3l2.7-9.8C5.9,30.6,5,27.3,5,24C5,13.5,13.5,5,24,5 M24,43L24,43L24,43 M24,43L24,43L24,43 M24,4L24,4C13,4,4,13,4,24	c0,3.4,0.8,6.7,2.5,9.6L3.9,43c-0.1,0.3,0,0.7,0.3,1c0.2,0.2,0.4,0.3,0.7,0.3c0.1,0,0.2,0,0.3,0l9.7-2.5c2.8,1.5,6,2.2,9.2,2.2	c11,0,20-9,20-20c0-5.3-2.1-10.4-5.8-14.1C34.4,6.1,29.4,4,24,4L24,4z"></path><path fill="#40c351" d="M35.2,12.8c-3-3-6.9-4.6-11.2-4.6C15.3,8.2,8.2,15.3,8.2,24c0,3,0.8,5.9,2.4,8.4L11,33l-1.6,5.8	l6-1.6l0.6,0.3c2.4,1.4,5.2,2.2,8,2.2h0c8.7,0,15.8-7.1,15.8-15.8C39.8,19.8,38.2,15.8,35.2,12.8z"></path><path fill="#fff" fill-rule="evenodd" d="M19.3,16c-0.4-0.8-0.7-0.8-1.1-0.8c-0.3,0-0.6,0-0.9,0	s-0.8,0.1-1.3,0.6c-0.4,0.5-1.7,1.6-1.7,4s1.7,4.6,1.9,4.9s3.3,5.3,8.1,7.2c4,1.6,4.8,1.3,5.7,1.2c0.9-0.1,2.8-1.1,3.2-2.3	c0.4-1.1,0.4-2.1,0.3-2.3c-0.1-0.2-0.4-0.3-0.9-0.6s-2.8-1.4-3.2-1.5c-0.4-0.2-0.8-0.2-1.1,0.2c-0.3,0.5-1.2,1.5-1.5,1.9	c-0.3,0.3-0.6,0.4-1,0.1c-0.5-0.2-2-0.7-3.8-2.4c-1.4-1.3-2.4-2.8-2.6-3.3c-0.3-0.5,0-0.7,0.2-1c0.2-0.2,0.5-0.6,0.7-0.8	c0.2-0.3,0.3-0.5,0.5-0.8c0.2-0.3,0.1-0.6,0-0.8C20.6,19.3,19.7,17,19.3,16z" clip-rule="evenodd"></path>
+    </svg>
+  </a>
+
+  <script src="../js/home.js"></script>
+</body>
+</html>

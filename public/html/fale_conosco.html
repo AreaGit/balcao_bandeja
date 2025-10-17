@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fale Conosco - Balcão e Bandeja</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif,sans-serif;}
+    body{background:#f9fafb;color:#111827;line-height:1.6;}
+
+    header{
+      background:#fff;
+      padding:20px 40px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    header img{width:180px;}
+
+    .hero{
+      text-align:center;
+      padding:80px 20px;
+      background:linear-gradient(135deg,#E7FF14,#f9fafb);
+    }
+    .hero h1{font-size:36px;color:#1E1939;margin-bottom:15px;}
+    .hero p{max-width:700px;margin:0 auto;font-size:18px;color:#374151;}
+
+    .contact-section{
+      max-width:1100px;
+      margin:60px auto;
+      padding:0 20px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:50px;
+    }
+    .contact-info{
+      display:flex;
+      flex-direction:column;
+      gap:25px;
+    }
+    .contact-card{
+      background:#fff;
+      padding:25px;
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      display:flex;
+      align-items:center;
+      gap:15px;
+      transition:transform 0.3s, box-shadow 0.3s;
+    }
+    .contact-card:hover{transform:translateY(-5px);box-shadow:0 8px 20px rgba(0,0,0,0.15);}
+    .contact-card i{font-size:24px;color:#E7FF14;}
+    .contact-card h3{font-size:18px;color:#1E1939;margin-bottom:5px;}
+    .contact-card p{font-size:14px;color:#444;}
+
+    form{
+      background:#fff;
+      padding:30px;
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+    }
+    form label{font-weight:600;color:#1E1939;}
+    form input,form textarea{
+      width:100%;
+      padding:12px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:14px;
+    }
+    form textarea{resize:none;min-height:120px;}
+    form button{
+      background:#E7FF14;
+      color:#1E1939;
+      font-weight:600;
+      border:none;
+      padding:14px;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:16px;
+      transition:background 0.3s;
+    }
+    form button:hover{background:#d6f000;}
+
+    footer{
+      background:#1E1939;
+      color:#fff;
+      text-align:center;
+      padding:30px 20px;
+      margin-top:60px;
+    }
+    footer p{font-size:14px;}
+
+    @media(max-width:900px){
+      .contact-section{grid-template-columns:1fr;}
+      .hero h1{font-size:28px;}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://cdn.awsli.com.br/400x300/2646/2646949/logo/logo-bb-x8dtghds2a.png" alt="Logo Balcão e Bandeja">
+  </header>
+
+  <section class="hero">
+    <h1>Fale Conosco</h1>
+    <p>Entre em contato conosco. Nossa equipe terá o prazer em atender você com rapidez e atenção.</p>
+  </section>
+
+  <section class="contact-section">
+    <!-- Informações de contato -->
+    <div class="contact-info">
+      <div class="contact-card">
+        <i class="fas fa-phone"></i>
+        <div>
+          <h3>Telefone</h3>
+          <p>(11) 4002-8922</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-envelope"></i>
+        <div>
+          <h3>E-mail</h3>
+          <p>contato@balcaoebandeja.com.br</p>
+        </div>
+      </div>
+      <div class="contact-card">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>
+          <h3>Endereço</h3>
+          <p>Rua Exemplo, 123 - São Paulo/SP</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <form>
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" placeholder="Seu nome" required>
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="Seu melhor e-mail" required>
+
+      <label for="mensagem">Mensagem</label>
+      <textarea id="mensagem" placeholder="Escreva sua mensagem aqui..." required></textarea>
+
+      <button type="submit">Enviar</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Balcão e Bandeja - Todos os direitos reservados</p>
+  </footer>
+
+</body>
+</html>

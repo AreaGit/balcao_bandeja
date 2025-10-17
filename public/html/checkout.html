@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="../css/checkout.css">
+</head>
+<body>
+    <header>
+      <div class="logo">
+        <a href="/"><img src="https://cdn.awsli.com.br/400x300/2646/2646949/logo/logo-bb-x8dtghds2a.png" alt="Logo da Loja"></a>
+      </div>
+    </header>
+
+  <div class="checkout-wrapper">
+    <!-- steps -->
+    <div class="steps">
+      <!-- Barra de progresso -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-step active" id="progress-1" data-step="1">Dados</div>
+          <div class="progress-step" id="progress-2" data-step="2">Pagamento</div>
+          <div class="progress-step" id="progress-3" data-step="3">Revisão</div>
+        </div>
+        <div class="progress-line">
+          <div class="progress-line-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step active" id="step-1">
+        <h2>Dados Pessoais e Endereço</h2>
+
+        <div class="form-group"><label>Nome completo</label><input type="text" id="nome"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="email"></div>
+        <div class="form-group"><label>Telefone</label><input type="text" id="telefone"></div>
+        
+        <div class="form-group"><label>CEP</label><input type="text" id="cep" onblur="buscarEndereco()"></div>
+        <div class="form-group"><label>Endereço</label><input type="text" id="endereco"></div>
+        <div class="form-group"><label>Cidade</label><input type="text" id="cidade"></div>
+        <div class="form-group"><label>Estado</label><input type="text" id="estado"></div>
+
+          <div class="frete-section" id="frete-section" style="display:none;">
+            <h3>Opções de Frete</h3>
+            <div id="frete-opcoes"></div>
+          </div>
+        <div class="btn-row">
+          <button class="btn" onclick="nextStep(2)">Próximo</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step-2">
+        <h2>Forma de Pagamento</h2>
+        <div class="payment-options">
+          <div class="payment-option" onclick="selectPayment(this,'Cartão')"><i class="fa-solid fa-credit-card"></i> Cartão</div>
+          <div class="payment-option" onclick="selectPayment(this,'Pix')"><i class="fa-brands fa-pix"></i> Pix</div>
+          <div class="payment-option" onclick="selectPayment(this,'Boleto')"><i class="fa-solid fa-barcode"></i> Boleto</div>
+        </div>
+
+        <!-- Form cartão -->
+        <div class="card-form" id="card-form">
+          <div class="form-group"><label>Nome no cartão</label><input id="nomeCartao" type="text"></div>
+          <div class="form-group"><label>Número do cartão</label><input id="numeroCartao" type="text"></div>
+          <div class="form-group"><label>Validade Mês</label><input id="mesValidade" type="text"></div>
+          <div class="form-group"><label>Validade Ano</label><input id="anoValidade" type="text"></div>
+          <div class="form-group"><label>CVV</label><input id="cvvCartao" type="text"></div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn secondary" onclick="prevStep(1)">Voltar</button>
+          <button class="btn" onclick="nextStep(3)">Próximo</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step-3">
+        <h2>Revisar e Finalizar</h2>
+
+        <div class="review-box">
+          <h4>Endereço de Entrega</h4>
+          <div class="review-item" id="review-endereco"></div>
+        </div>
+
+        <div class="review-box">
+          <h4>Forma de Pagamento</h4>
+          <div class="review-item" id="review-pagamento"></div>
+        </div>
+
+        <div class="review-box" id="resumoStep3">
+          <h4>Resumo do Pedido</h4>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn secondary" onclick="prevStep(2)">Voltar</button>
+          <button class="btn" id="btnFinalizar">Finalizar Compra</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- resumo fixo -->
+    <aside class="summary">
+      <h3>Resumo do Pedido</h3>
+      <div class="summary-item"><span></span><span></span></div>
+      <div class="summary-item"><span></span><span></span></div>
+      <div class="summary-total"><span></span><span></span></div>
+    </aside>
+  </div>
+
+  <script src="../js/checkout.js"></script>
+</body>
+</html>

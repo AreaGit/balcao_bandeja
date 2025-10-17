@@ -1,0 +1,255 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+.confirmation-header {
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #1E1939 0%, #463c7c 100%);
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  margin-bottom: 40px;
+  transition: transform 0.3s ease;
+}
+
+.confirmation-header:hover {
+  transform: translateY(-3px);
+}
+
+.confirmation-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.confirmation-header p {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.pedido-detalhes {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.pedido-detalhes h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.pedido-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.pedido-info div {
+  background: #fafafa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.pedido-info div span {
+  display: block;
+  font-weight: 600;
+  color: #555;
+}
+
+.pedido-info div p {
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.itens-pedido {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  margin-bottom: 30px;
+}
+
+.itens-pedido h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  background: #fafafa;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.item:hover {
+  background: #f2f5fa;
+  transform: translateY(-2px);
+}
+
+.item:last-child {
+  margin-bottom: 0;
+}
+
+.item img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  flex-shrink: 0;
+}
+
+.item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-details h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #2a2a2a;
+}
+
+.item-details p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.item-meta {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.item-quantidade {
+  font-size: 16px;
+  font-weight: bold;
+  background: #eaf2ff;
+  padding: 5px 10px;
+  border-radius: 8px;
+  color: #2575fc;
+}
+
+.item-preco {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2575fc;
+}
+
+@media (max-width: 768px) {
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .item img {
+    width: 100%;
+    height: auto;
+  }
+
+  .item-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+}
+
+.resumo-pedido {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  margin-top: 40px;
+}
+
+.resumo-pedido h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+.resumo-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.resumo-total {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2575fc;
+  border-top: 2px solid #eee;
+  padding-top: 15px;
+}
+
+.botao-voltar {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 14px 28px;
+  background: #1E1939;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.botao-voltar:hover {
+  background: #463c7c;
+  transform: translateY(-2px);
+}
+
+.frete-logo {
+  max-width: 120px;
+  height: auto;
+  display: block;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .pedido-info {
+    grid-template-columns: 1fr;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item img {
+    width: 100%;
+    height: auto;
+  }
+}

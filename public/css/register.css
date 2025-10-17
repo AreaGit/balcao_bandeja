@@ -1,0 +1,215 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #fff;
+    color: #333;
+}
+
+header {
+    width: 100%;
+    position: relative;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    margin-top: 60px;
+    margin-bottom: 60px;
+    cursor: pointer;
+}
+
+.logo img {
+    width: 100%;
+    max-width: 250px;
+}
+
+.register-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fb, #eef1f7);
+}
+
+.register-container {
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  max-width: 650px;
+  width: 100%;
+  text-align: center;
+}
+
+.register-container h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+  color: #1E1939;
+}
+
+.register-container p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1E1939;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #E7FF14;
+  outline: none;
+  box-shadow: 0 0 8px rgba(231,255,20,0.4);
+}
+
+.form-group select   {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.form-group select  :focus {
+  border-color: #E7FF14;
+  outline: none;
+  box-shadow: 0 0 8px rgba(231,255,20,0.4);
+}
+
+.btn-register {
+  background: linear-gradient(135deg, #E7FF14, #c7e600);
+  color: #1E1939;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-register:hover {
+  background: #d6f000;
+  transform: translateY(-2px);
+}
+
+.register-login {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #444;
+}
+
+.register-login a {
+  color: #1E1939;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.register-login a:hover {
+  color: #E7FF14;
+}
+
+.input-password {
+  position: relative;
+  width: 100%;
+}
+
+.input-password input {
+  width: 100%;
+  padding-right: 40px; /* espaço pro ícone */
+  box-sizing: border-box;
+}
+
+.input-password .toggle-senha {
+  position: absolute;
+  right: 10px;
+  top: 55%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+}
+
+.toggle-senha {
+  background-color: transparent;
+  border: none;
+}
+
+/* Container das notificações */
+#notifications {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999;
+}
+
+/* Estilo base das notificações */
+.notification {
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  animation: slideIn 0.4s ease, fadeOut 0.5s ease 4.5s forwards;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Tipos de mensagem */
+.notification.success {
+  background-color: #28a745;
+}
+
+.notification.error {
+  background-color: #dc3545;
+}
+
+.notification.info {
+  background-color: #007bff;
+}
+
+/* Animações */
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(100%); }
+}

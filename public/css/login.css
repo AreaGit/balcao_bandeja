@@ -1,0 +1,236 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.logo {
+  margin-top: 60px;
+  margin-bottom: 60px;
+  cursor: pointer;
+}
+
+.logo img {
+  width: 100%;
+  max-width: 250px;
+}
+
+.login-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 80vh;
+  background: linear-gradient(135deg, #f8f9fb, #eef1f7);
+}
+
+.login-container {
+  background: #fff;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.login-container h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+  color: #1E1939;
+}
+
+.login-container p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  position: relative;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #1E1939;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 40px 12px 12px; /* espaço para ícone */
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+  border-color: #E7FF14;
+  outline: none;
+  box-shadow: 0 0 8px rgba(231,255,20,0.4);
+}
+
+/* Ícone mostrar/esconder senha */
+.toggle-senha {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  fill: #1E1939;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, #E7FF14, #c7e600);
+  color: #1E1939;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-login:hover {
+  background: #d6f000;
+  transform: translateY(-2px);
+}
+
+.login-links {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login-links a {
+  color: #1E1939;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-links a:hover {
+  color: #E7FF14;
+}
+
+.login-register {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #444;
+}
+
+.login-register a {
+  color: #1E1939;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.login-register a:hover {
+  color: #E7FF14;
+}
+
+/* Input 2FA dinâmico */
+#twofa-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#twofa-container input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+#twofa-container button {
+  background: linear-gradient(135deg, #E7FF14, #c7e600);
+  color: #1E1939;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s, transform 0.2s;
+}
+
+#twofa-container button:hover {
+  background: #d6f000;
+  transform: translateY(-2px);
+}
+
+/* Container de notificações fixo no topo direito */
+#notifications {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilo base da notificação */
+.notification {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0.95;
+  min-width: 250px;
+  max-width: 320px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+/* Tipos de notificação */
+.notification.info {
+  background: #1E90FF; /* azul */
+}
+
+.notification.success {
+  background: #28a745; /* verde */
+}
+
+.notification.error {
+  background: #dc3545; /* vermelho */
+}
+
+/* Pequena animação de entrada */
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}

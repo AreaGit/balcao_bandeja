@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="tltPag">Pedido Confirmado</title>
+  <link rel="stylesheet" href="../css/pedido-confirmado.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Cabeçalho -->
+  <div class="confirmation-header">
+    <h1 id="tltPed">Pedido Confirmado 🎉</h1>
+    <p id="subTltPed">Obrigado pela sua compra! Seu pedido foi registrado com sucesso.</p>
+  </div>
+
+  <!-- Detalhes do pedido -->
+  <div class="pedido-detalhes">
+    <h2>Detalhes do Pedido</h2>
+    <div class="pedido-info">
+      <div><strong>ID do Pedido:</strong> <span id="pedido-id"></span></div>
+    <div><strong>Nome:</strong> <span id="pedido-nome"></span></div>
+    <div><strong>Email:</strong> <span id="pedido-email"></span></div>
+    <div><strong>Endereço:</strong> <span id="pedido-endereco"></span></div>
+    <div><strong>Frete:</strong> <span id="pedido-frete"></span></div>
+    <div><strong>Prazo de entrega:</strong> <span id="pedido-prazo"></span></div>
+    <div><strong>Empresa de frete:</strong> <span id="pedido-frete-empresa"></span></div>
+    <div><img id="pedido-frete-logo" alt="Logo frete" class="frete-logo"></div>
+    <div><strong>Forma de Pagamento:</strong> <span id="pedido-pagamento"></span></div>
+    <div><strong>Status:</strong> <span id="pedido-status"></span></div>
+    <div><strong>Total:</strong> <span id="pedido-total"></span></div>
+    <div><strong>Data do Pedido:</strong> <span id="pedido-data"></span></div>
+    </div>
+  </div>
+
+  <!-- Lista de Itens -->
+  <section class="itens-pedido">
+    <h2>Itens do Pedido</h2>
+    <div id="pedido-itens-list" class="itens-list"></div>
+  </section>
+
+  <!-- Resumo -->
+  <div class="resumo-pedido">
+    <h2>Resumo do Pedido</h2>
+    <div class="resumo-item">
+      <span>Total:</span>
+      <span id="total-pedido"></span>
+    </div>
+  </div>
+
+  <!-- Botão voltar -->
+  <div style="text-align:center;">
+    <a href="/" class="botao-voltar">Voltar para Loja</a>
+  </div>
+
+</div>
+
+<script src="../js/pedido-confirmado.js"></script>
+</body>
+</html>

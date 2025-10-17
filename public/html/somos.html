@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quem Somos - Balcão e Bandeja</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif,sans-serif;}
+    body{background:#f9fafb;color:#111827;line-height:1.6;}
+
+    header{
+      background:#fff;
+      padding:20px 40px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.05);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    header img{width:180px;}
+
+    .hero{
+      text-align:center;
+      padding:80px 20px;
+      background:linear-gradient(135deg,#E7FF14,#f9fafb);
+    }
+    .hero h1{font-size:36px;color:#1E1939;margin-bottom:15px;}
+    .hero p{max-width:700px;margin:0 auto;font-size:18px;color:#374151;}
+
+    .about-section{
+      max-width:1200px;
+      margin:60px auto;
+      padding:0 20px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:50px;
+      align-items:center;
+    }
+    .about-text h2{font-size:28px;margin-bottom:20px;color:#1E1939;}
+    .about-text p{margin-bottom:15px;color:#444;}
+    .about-img img{width:100%;border-radius:20px;box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+
+    .values{
+      background:#fff;
+      padding:60px 20px;
+    }
+    .values h2{text-align:center;font-size:28px;margin-bottom:40px;color:#1E1939;}
+    .values-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:30px;
+      max-width:1000px;
+      margin:0 auto;
+    }
+    .value-card{
+      background:#f9fafb;
+      padding:30px;
+      border-radius:16px;
+      text-align:center;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      transition:transform 0.3s,box-shadow 0.3s;
+    }
+    .value-card:hover{transform:translateY(-6px);box-shadow:0 8px 20px rgba(0,0,0,0.15);}
+    .value-card i{font-size:32px;color:#E7FF14;margin-bottom:15px;}
+    .value-card h3{margin-bottom:10px;font-size:20px;color:#1E1939;}
+    .value-card p{color:#555;font-size:15px;}
+
+    footer{
+      background:#1E1939;
+      color:#fff;
+      text-align:center;
+      padding:30px 20px;
+      margin-top:60px;
+    }
+    footer p{font-size:14px;}
+
+    @media(max-width:900px){
+      .about-section{grid-template-columns:1fr;}
+      .about-img{order:-1;}
+      .hero h1{font-size:28px;}
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://cdn.awsli.com.br/400x300/2646/2646949/logo/logo-bb-x8dtghds2a.png" alt="Logo Balcão e Bandeja">
+  </header>
+
+  <section class="hero">
+    <h1>Quem Somos</h1>
+    <p>Na <strong>Balcão e Bandeja</strong>, acreditamos que cada detalhe faz a diferença. Nossa missão é oferecer qualidade, praticidade e confiança em todos os produtos que entregamos.</p>
+  </section>
+
+  <section class="about-section">
+    <div class="about-text">
+      <h2>Balcão e Bandeja</h2>
+      <p>A Balcão e Bandeja é uma empresa líder no mercado de soluções para PDV (Ponto de Venda), oferecendo uma ampla gama de produtos cuidadosamente projetados para otimizar a experiência de varejo e aprimorar a visibilidade da marca. Com uma dedicação inabalável à qualidade, inovação e funcionalidade, nos destacamos como parceiros confiáveis para empresas que buscam se destacar em um ambiente competitivo de varejo.</p>
+      <p>Nossa equipe é composta por profissionais experientes, que entendem profundamente as necessidades e desafios únicos enfrentados por nossos clientes. Trabalhamos em estreita colaboração com as marcas para criar soluções personalizadas que não apenas exibem seus produtos de maneira atraente, mas também capturam a essência da sua identidade visual.</p>
+      <p>Do nosso renomado balcão que combina estilo e funcionalidade à nossa ampla variedade de bandejas práticas e leves, nossos produtos são desenvolvidos com a combinação perfeita entre estética e utilidade. As Wind Flags dinâmicas acrescentam um toque de movimento à experiência de compra, chamando a atenção para sua marca mesmo nas áreas mais movimentadas de um estabelecimento. E com nossas mochilas pirulito, oferecemos uma solução inovadora para promover produtos em eventos e feiras, garantindo que sua mensagem seja transmitida de maneira única.</p>
+      <p>Na Balcão e Bandeja, nosso compromisso vai além de fornecer produtos excepcionais. Nós fornecemos soluções completas que influenciam o modo como as empresas interagem com seus clientes no ponto de venda. Ao escolher nossos produtos, você está escolhendo diferenciação, visibilidade e uma parceria que se preocupa genuinamente com o sucesso do seu negócio.</p>
+      <p>Seja você uma marca consolidada ou uma empresa em crescimento, estamos prontos para transformar suas ideias em realidade e impulsionar o impacto visual no seu ponto de venda. Junte-se a nós na jornada para criar experiências de varejo memoráveis que cativam, impressionam e geram resultados tangíveis.</p>
+    </div>
+    <div class="about-img">
+      <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=900&q=80" alt="Equipe Balcão e Bandeja">
+    </div>
+  </section>
+</body>
+</html>

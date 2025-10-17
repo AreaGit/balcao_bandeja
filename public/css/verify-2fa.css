@@ -1,0 +1,156 @@
+body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fff;
+      color: #333;
+    }
+
+    header {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 40px;
+    }
+
+    .logo {
+        margin-top: 60px;
+        margin-bottom: 60px;
+        cursor: pointer;
+    }
+        
+    .logo img {
+        width: 100%;
+        max-width: 250px;
+    }
+    
+    .verify-container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      animation: fadeIn 0.6s ease;
+      margin: auto;
+    }
+    .verify-container img {
+      width: 60px;
+      margin-bottom: 20px;
+    }
+    .verify-container h1 {
+      font-size: 24px;
+      color: #1E1939;
+      margin-bottom: 10px;
+    }
+    .verify-container p {
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 15px;
+    }
+    .code-inputs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
+    .code-inputs input {
+      width: 50px;
+      height: 55px;
+      text-align: center;
+      font-size: 22px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      transition: border 0.3s, transform 0.2s;
+    }
+    .code-inputs input:focus {
+      border-color: #1E1939;
+      outline: none;
+      transform: scale(1.05);
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #E7FF14;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #d6f000;
+    }
+    .resend {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+    .resend a {
+      color: #1E1939;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .resend a:hover {
+      text-decoration: underline;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media(max-width:480px){
+      .code-inputs input {
+        width: 45px;
+        height: 50px;
+        font-size: 20px;
+      }
+    }
+
+/* Container de notificações fixo no topo direito */
+#notifications {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Estilo base da notificação */
+.notification {
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  opacity: 0.95;
+  min-width: 250px;
+  max-width: 320px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+/* Tipos de notificação */
+.notification.info {
+  background: #1E90FF; /* azul */
+}
+
+.notification.success {
+  background: #28a745; /* verde */
+}
+
+.notification.error {
+  background: #dc3545; /* vermelho */
+}
+
+/* Pequena animação de entrada */
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(50px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
