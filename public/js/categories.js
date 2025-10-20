@@ -276,6 +276,10 @@ document.getElementById("logged").addEventListener("click", () => {
   location.href = "/profile";
 });
 
+document.getElementById("Capa_1").addEventListener("click", () => {
+  window.open("https://wa.me/5511991765332");
+});
+
 const searchInput = document.getElementById("searchInput");
 const autocompleteList = document.getElementById("autocompleteList");
 

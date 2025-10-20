@@ -279,3 +279,7 @@ function renderMaisVendidos(produtos) {
 
 // === Executar ===
 carregarDestaques();
+
+document.getElementById("Capa_1").addEventListener("click", () => {
+  window.open("https://wa.me/5511991765332");
+});

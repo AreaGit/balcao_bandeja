@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Montserrat", sans-serif;
     background: #fff;
     color: #333;
 }
@@ -14,7 +14,9 @@ header {
     width: 100%;
     background: #f8f8f8;
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    position: relative;
+    position: sticky; /* Ou sticky */
+    top: 0;
+    left: 0; /* Opcional para alinhar à esquerda */
     z-index: 100;
 }
 
@@ -22,7 +24,7 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 15px 10%;
+    padding: 30px 10%;
     gap: 20px;
 }
 
@@ -47,8 +49,10 @@ header {
     padding: 15px 35px;
     border: 1px solid #ddd;
     border-radius: 30px 0 0 30px;
+    border: 1px solid #a4a4a4ad;
     outline: none;
     font-size: 16px;
+    font-weight: 400;
 }
 
 .search-bar button {
@@ -63,7 +67,8 @@ header {
 }
 
 .search-bar button:hover {
-    background: #555;
+    background: #E7FF14;
+    color: white;
 }
 
 /* === LISTA DE SUGESTÕES === */
@@ -184,7 +189,8 @@ header {
     right: -10px;
     background: #e63946;
     color: #fff;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 600;
     padding: 2px 6px;
     border-radius: 50%;
 }
@@ -241,6 +247,10 @@ nav ul li a {
   text-decoration: none;
 }
 
+nav ul li a:hover {
+  text-decoration: underline;
+}
+
 /* ===== Nav principal ===== */
 nav {
   background: #1E1939;
@@ -253,9 +263,9 @@ nav ul {
   display: flex;
   justify-content: center;
   gap: 30px;
-  padding: 15px 5%;
-  font-size: 18px;
-  font-weight: 500;
+  padding: 20px 5%;
+  font-size: 16px;
+  font-weight: 600;
   position: relative;
 }
 

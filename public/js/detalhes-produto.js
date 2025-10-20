@@ -506,3 +506,7 @@ document.addEventListener("click", (e) => {
     autocompleteList.classList.remove("active");
   }
 });
+
+document.getElementById("Capa_1").addEventListener("click", () => {
+  window.open("https://wa.me/5511991765332");
+});xxxxxxx
