@@ -125,16 +125,19 @@
     <button id="applyCouponBtn">Aplicar</button>
     <button id="checkoutBtn">Finalizar Compra</button>
   </div>
+
   <main class="cat-layout">
     <!-- SIDEBAR FILTROS -->
     <aside class="cat-sidebar">
       <h1 id="categoryName"><span></span></h1>
       <h2>Filtros</h2>
+
       <div class="filter-block">
         <label for="priceRange">Preço até:</label>
         <input type="range" id="priceRange" min="50" max="1000" step="50" value="1000">
         <span id="priceValue">Até R$ 1000</span>
       </div>
+
       <div class="filter-block">
         <label for="sortSelect">Ordenar por:</label>
         <select id="sortSelect">
@@ -150,7 +153,9 @@
     </aside>
 
     <!-- GRID DE PRODUTOS -->
-    <section class="cat-products" id="productGrid"></section>
+    <section class="cat-products" id="productGrid">
+      <!-- Cards são renderizados via JS -->
+    </section>
   </main>
 
       <!-- Botão do WhatsApp -->
@@ -163,5 +168,6 @@
   <script src="../js/categories.js"></script>
 
   <div id="cartAlert">Produto adicionado ao carrinho!</div>
+  <div id="customAlert"></div>
 </body>
 </html>

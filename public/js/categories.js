@@ -163,89 +163,145 @@ async function removeCartItem(itemId) {
 
 // === Carregar Produtos ===
 async function loadProducts() {
-  productGrid.innerHTML = `<p style="opacity:.6">Carregando produtos...</p>`;
+ // === Limpa grid e exibe skeletons enquanto carrega ===
+  productGrid.innerHTML = "";
+  productGrid.style.opacity = 1;
+  productGrid.style.transform = "scale(1)";
+
+  let skeletonCount = 8;
+  if (window.innerWidth < 768) skeletonCount = 4;
+  else if (window.innerWidth < 1024) skeletonCount = 6;
+
+  // Cria skeletons dinamicamente
+  for (let i = 0; i < skeletonCount; i++) {
+    const skeleton = document.createElement("div");
+    skeleton.className = "skeleton-card";
+    skeleton.innerHTML = `
+      <div class="skeleton-img"></div>
+      <div class="skeleton-info">
+        <div class="skeleton-line full"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    `;
+    productGrid.appendChild(skeleton);
+  }
+
   try {
+    // === BUSCA OS PRODUTOS ===
     const endpoint = `/api/products/category?category=${encodeURIComponent(categoria)}&maxPrice=${maxPrice}&sort=${encodeURIComponent(sort)}`;
     const res = await fetch(endpoint);
     if (!res.ok) throw new Error(`Status ${res.status}`);
-    const products = await res.json();
-    productGrid.innerHTML = "";
 
-    if (!Array.isArray(products) || products.length === 0) {
-      productGrid.innerHTML = `<p style="color:#666">Nenhum produto encontrado em "${esc(categoria)}"</p>`;
+    const products = await res.json();
+
+    // === FADE + ZOOM OUT DOS SKELETONS ===
+    productGrid.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+    productGrid.style.opacity = 0;
+    productGrid.style.transform = "scale(0.97)";
+
+    setTimeout(() => {
+      productGrid.innerHTML = "";
+
+      if (!Array.isArray(products) || products.length === 0) {
+        productGrid.innerHTML = `<p style="color:#666">Nenhum produto encontrado em "${esc(categoria)}"</p>`;
+        productGrid.style.opacity = 1;
+        productGrid.style.transform = "scale(1)";
+        return;
+      }
+
+      // === RENDERIZA PRODUTOS COM ANIMAÇÃO CASCATA ===
+      products.forEach(p => {
+        const id = p.id ?? p._id ?? "";
+        const nome = p.nome ?? p.name ?? "Produto";
+        const valor = (Number(p.valor ?? p.price) || 0).toFixed(2);
+        const img = (p.imagens && p.imagens[0]) || p.image || "https://via.placeholder.com/600x400?text=Imagem";
+
+        const card = document.createElement("div");
+        card.className = "cat-card";
+        card.dataset.id = id;
+        card.innerHTML = `
+          <div class="card-media">
+            <img src="${esc(img)}" alt="${esc(nome)}">
+          </div>
+          <div class="cat-card-info">
+            <h3 class="product-title">${esc(nome)}</h3>
+            <p class="price">R$ ${valor}</p>
+          </div>
+          <div class="card-actions">
+            <div class="qty-control">
+              <button class="qty-btn qty-decrease" type="button">−</button>
+              <input class="qty-input" type="number" min="1" value="1" aria-label="Quantidade">
+              <button class="qty-btn qty-increase" type="button">+</button>
+            </div>
+            <button class="btn-add" data-id="${id}" type="button">Adicionar</button>
+          </div>
+        `;
+
+        // Clique na imagem ou nome leva ao produto
+        card.querySelector(".card-media img").addEventListener("click", () => {
+          window.location.href = `/detalhes-produto?id=${id}`;
+        });
+
+        card.querySelector(".product-title").addEventListener("click", () => {
+          window.location.href = `/detalhes-produto?id=${id}`;
+        });
+
+        productGrid.appendChild(card);
+      });
+
+      // === FADE + ZOOM IN SUAVE DOS PRODUTOS ===
+      setTimeout(() => {
+        productGrid.style.opacity = 1;
+        productGrid.style.transform = "scale(1)";
+      }, 80);
+
+    }, 350); // tempo do fade/zoom dos skeletons
+
+  productGrid.addEventListener("click", (e) => {
+    const decrease = e.target.closest(".qty-decrease");
+    const increase = e.target.closest(".qty-increase");
+
+    if (decrease) {
+      const wrapper = decrease.closest(".qty-control");
+      const input = wrapper.querySelector(".qty-input");
+      let v = parseInt(input.value || "1", 10);
+      v = isNaN(v) ? 1 : v - 1;
+      if (v < 1) v = 1;
+      input.value = v;
       return;
     }
 
-    products.forEach(p => {
-      const id = p.id ?? p._id ?? "";
-      const nome = p.nome ?? p.name ?? "Produto";
-      const valor = (Number(p.valor ?? p.price) || 0).toFixed(2);
-      const img = (p.imagens && p.imagens[0]) || p.image || "https://via.placeholder.com/600x400?text=Imagem";
+    if (increase) {
+      const wrapper = increase.closest(".qty-control");
+      const input = wrapper.querySelector(".qty-input");
+      let v = parseInt(input.value || "1", 10);
+      v = isNaN(v) ? 1 : v + 1;
+      input.value = v;
+      return;
+    }
 
-      const card = document.createElement("div");
-      card.className = "cat-card";
-      card.dataset.id = id;
-      card.innerHTML = `
-        <div class="card-media">
-          <img src="${esc(img)}" alt="${esc(nome)}">
-        </div>
-        <div class="cat-card-info">
-          <h3 class="product-title">${esc(nome)}</h3>
-          <p class="price">R$ ${valor}</p>
-        </div>
-        <div class="card-actions">
-          <div class="qty-control">
-            <button class="qty-btn qty-decrease" type="button">−</button>
-            <input class="qty-input" type="number" min="1" value="1" aria-label="Quantidade">
-            <button class="qty-btn qty-increase" type="button">+</button>
-          </div>
-          <button class="btn-add" data-id="${id}" type="button">Adicionar</button>
-        </div>
-      `;
-      
-      card.querySelector(".card-media img").addEventListener("click", () => {
-        window.location.href = `/detalhes-produto?id=${id}`;
-      });
-      
-      card.querySelector(".product-title").addEventListener("click", () => {
-        window.location.href = `/detalhes-produto?id=${id}`;
-      });
+    const addBtn = e.target.closest(".btn-add");
+    if (addBtn) {
+      const card = addBtn.closest(".cat-card");
+      const productId = card.dataset.id;
+      const qtyInput = card.querySelector(".qty-input");
+      const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
 
-      productGrid.appendChild(card);
-    });
+      // === Verificação da categoria ===
+      // Usa a variável global 'categoria' já definida na página
+      if (categoria && categoria.toLowerCase().includes("bandeja")) {
+        showCustomAlert(
+          "Para adicionar esse produto você precisa escolher a cor das Alças!",
+          `/detalhes-produto?id=${productId}`
+        );
+        return;
+      }
 
-productGrid.addEventListener("click", (e) => {
-  const decrease = e.target.closest(".qty-decrease");
-  const increase = e.target.closest(".qty-increase");
-
-  if (decrease) {
-    const wrapper = decrease.closest(".qty-control");
-    const input = wrapper.querySelector(".qty-input");
-    let v = parseInt(input.value || "1", 10);
-    v = isNaN(v) ? 1 : v - 1;
-    if (v < 1) v = 1;
-    input.value = v;
-    return;
-  }
-
-  if (increase) {
-    const wrapper = increase.closest(".qty-control");
-    const input = wrapper.querySelector(".qty-input");
-    let v = parseInt(input.value || "1", 10);
-    v = isNaN(v) ? 1 : v + 1;
-    input.value = v;
-    return;
-  }
-
-  const addBtn = e.target.closest(".btn-add");
-  if (addBtn) {
-    const card = addBtn.closest(".cat-card");
-    const productId = card.dataset.id;
-    const qtyInput = card.querySelector(".qty-input");
-    const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
-    addToCart(productId, qty);
-  }
-});
+      // Caso contrário, adiciona normalmente ao carrinho
+      addToCart(productId, qty);
+    }
+  });
 
   } catch (err) {
     console.error("Erro ao carregar produtos:", err);
@@ -336,3 +392,16 @@ document.addEventListener("click", (e) => {
     autocompleteList.classList.remove("active");
   }
 });
+
+function showCustomAlert(message, redirectUrl = null) {
+  const alertBox = document.getElementById("customAlert");
+  alertBox.textContent = message;
+  alertBox.classList.add("show");
+
+  setTimeout(() => {
+    alertBox.classList.remove("show");
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
+  }, 2000);
+}
