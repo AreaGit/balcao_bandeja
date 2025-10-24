@@ -3,29 +3,42 @@ const db = require("../config/database");
 const PedidoItem = require("./pedidoItem.model");
 
 const Pedido = db.define("pedido", {
-    usuarioId: { type: Sequelize.INTEGER, allowNull: true },
-    endereco: { type: Sequelize.JSON, allowNull: false },
-    frete: { type: Sequelize.JSON, allowNull: false },
-    formaPagamento: { type: Sequelize.STRING, allowNull: false },
-    total: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
-    status: { type: Sequelize.STRING, defaultValue: "pendente" },
+  usuarioId: { type: Sequelize.INTEGER, allowNull: true },
+  endereco: { type: Sequelize.JSON, allowNull: false },
+  frete: { type: Sequelize.JSON, allowNull: false },
+  formaPagamento: { type: Sequelize.STRING, allowNull: false },
+  total: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
+  status: { type: Sequelize.STRING, defaultValue: "pendente" },
 
-    // Campos adicionados para integração ASAAS
-    paymentId: { type: Sequelize.STRING, allowNull: true }, // ID da cobrança no ASAAS
-    paymentStatus: { type: Sequelize.STRING, allowNull: true }, // Ex: RECEIVED, PENDING, OVERDUE, etc
-    paymentDate: { type: Sequelize.DATE, allowNull: true }, // Data de pagamento
-    paymentType: { type: Sequelize.STRING, allowNull: true }, // PIX, BOLETO, CREDIT_CARD, etc
-    externalReference: { type: Sequelize.STRING, allowNull: true }, // ID interno de controle
-    qrCodePayload: { type: Sequelize.TEXT, allowNull: true }, // Código "copia e cola" PIX
-    qrCodeImage: { type: Sequelize.TEXT("long"), allowNull: true } // Imagem Base64 (pode ser grande)
+  // 💳 Campos ASAAS
+  paymentId: { type: Sequelize.STRING, allowNull: true },
+  paymentStatus: { type: Sequelize.STRING, allowNull: true },
+  paymentDate: { type: Sequelize.DATE, allowNull: true },
+  paymentType: { type: Sequelize.STRING, allowNull: true },
+  externalReference: { type: Sequelize.STRING, allowNull: true },
+  qrCodePayload: { type: Sequelize.TEXT, allowNull: true },
+  qrCodeImage: { type: Sequelize.TEXT("long"), allowNull: true },
+
+  // 🏷️ Cupom e desconto
+  cupom: {
+    type: Sequelize.STRING,
+    allowNull: true,
+    comment: "Código do cupom de desconto aplicado"
+  },
+  descontoCupom: {
+    type: Sequelize.DECIMAL(10, 2),
+    allowNull: true,
+    defaultValue: 0.00,
+    comment: "Valor em reais do desconto aplicado pelo cupom"
+  }
 });
 
+// Relacionamento
 Pedido.associate = models => {
-    Pedido.hasMany(PedidoItem, { foreignKey: "pedidoId", as: "itens" });
+  Pedido.hasMany(PedidoItem, { foreignKey: "pedidoId", as: "itens" });
 };
 
-// CRIAR A TABELA
-//Pedido.sync({ force: true });
+// Cria a tabela caso não exista
 Pedido.sync();
 
 module.exports = Pedido;

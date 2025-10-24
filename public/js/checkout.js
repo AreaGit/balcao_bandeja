@@ -24,8 +24,8 @@ document.getElementById("telefone").addEventListener("input", (e) => {
   e.target.value = value;
 });
 
-// Máscara CEP
 document.getElementById("cep").addEventListener("input", (e) => {
+  // Máscara CEP
   e.target.value = e.target.value.replace(/\D/g, "").replace(/^(\d{5})(\d)/, "$1-$2");
 });
 
@@ -141,7 +141,10 @@ function atualizarResumoCheckout() {
       </div>`;
   });
 
-  let total = subtotal + valorDoFrete;
+  // 🟡 DESCONTO DO CUPOM
+  const descontoCupom = Number(currentCart?.desconto || 0);
+
+  let total = subtotal - descontoCupom + valorDoFrete;
   let descontoPix = 0;
 
   if (selectedPayment === "Pix") {
@@ -150,6 +153,7 @@ function atualizarResumoCheckout() {
   }
 
   resumoBox.innerHTML += `
+    ${descontoCupom > 0 ? `<div class="summary-item desconto"><span>Cupom de desconto</span><span>-R$ ${descontoCupom.toFixed(2).replace(".", ",")}</span></div>` : ""}
     <div class="summary-item"><span>Frete</span><span>R$ ${valorDoFrete.toFixed(2).replace(".", ",")}</span></div>
     ${descontoPix > 0 ? `<div class="summary-item desconto"><span>Desconto PIX (3%)</span><span>-R$ ${descontoPix.toFixed(2).replace(".", ",")}</span></div>` : ""}
     <div class="summary-total"><span>Total</span><span>R$ ${total.toFixed(2).replace(".", ",")}</span></div>
@@ -227,47 +231,68 @@ function preencherStep3() {
   let subtotal = 0;
   let descontoPix = 0;
 
+  // 🧾 Itens do carrinho
   const resumoItens = currentCartItems.map(item => {
     const precoTotal = Number(item.precoUnitario || 0) * (item.quantidade || 0);
-    return `<div class="summary-item">
-              <span>${item.nome} x ${item.quantidade}</span>
-              <span>R$ ${precoTotal.toFixed(2).replace(".", ",")}</span>
-            </div>`;
+    return `
+      <div class="summary-item">
+        <span>${item.nome} x ${item.quantidade}</span>
+        <span>R$ ${precoTotal.toFixed(2).replace(".", ",")}</span>
+      </div>
+    `;
   }).join("");
 
-  let total = currentCartItems.reduce((acc, item) => {
+  // 🧮 Subtotal
+  subtotal = currentCartItems.reduce((acc, item) => {
     return acc + (Number(item.precoUnitario || 0) * (item.quantidade || 0));
-  }, 0) + valorDoFrete;
-  
-   if (selectedPayment === "Pix") {
+  }, 0);
+
+  // 🟡 Desconto do cupom (vindo do backend)
+  const descontoCupom = Number(currentCart?.desconto || 0);
+  const nomeCupom = currentCart?.cupom || currentCart?.discountCode || null;
+
+  // 🧮 Total base
+  let total = subtotal - descontoCupom + valorDoFrete;
+
+  // 💸 Desconto Pix
+  if (selectedPayment === "Pix") {
     descontoPix = total * 0.03;
     total -= descontoPix;
   }
 
   atualizarResumoCheckout();
-  
-const resumoHtml = `
-  ${resumoItens}
-  <div class="summary-item">
-    <span>Frete</span>
-    <span>R$ ${valorDoFrete.toFixed(2).replace(".", ",")}</span>
-  </div>
-  ${selectedPayment === "Pix" ? `
-    <div class="summary-item desconto">
-      <span>Desconto Pix (3%)</span>
-      <span>-R$ ${descontoPix.toFixed(2).replace(".", ",")}</span>
+
+  // 🧾 HTML do resumo com cupom + frete + PIX
+  const resumoHtml = `
+    ${resumoItens}
+    <div class="summary-item">
+      <span>Frete</span>
+      <span>R$ ${valorDoFrete.toFixed(2).replace(".", ",")}</span>
     </div>
-    <div class="summary-total destaque">
-      <span>Total com desconto Pix</span>
-      <span>R$ ${total.toFixed(2).replace(".", ",")}</span>
-    </div>
-  ` : `
-    <div class="summary-total">
-      <span>Total</span>
-      <span>R$ ${total.toFixed(2).replace(".", ",")}</span>
-    </div>
-  `}
-`;
+
+    ${descontoCupom > 0 ? `
+      <div class="summary-item desconto">
+        <span>Cupom ${nomeCupom ? `(${nomeCupom})` : ""}</span>
+        <span>-R$ ${descontoCupom.toFixed(2).replace(".", ",")}</span>
+      </div>
+    ` : ""}
+
+    ${selectedPayment === "Pix" ? `
+      <div class="summary-item desconto">
+        <span>Desconto Pix (3%)</span>
+        <span>-R$ ${descontoPix.toFixed(2).replace(".", ",")}</span>
+      </div>
+      <div class="summary-total destaque">
+        <span>Total com desconto Pix</span>
+        <span>R$ ${total.toFixed(2).replace(".", ",")}</span>
+      </div>
+    ` : `
+      <div class="summary-total">
+        <span>Total</span>
+        <span>R$ ${total.toFixed(2).replace(".", ",")}</span>
+      </div>
+    `}
+  `;
 
   document.getElementById("resumoStep3").innerHTML = `<h4>Resumo do Pedido</h4>${resumoHtml}`;
 }
@@ -350,28 +375,41 @@ async function finalizarCompra() {
     if (!endereco || !freteSelecionado || !currentCartItems.length)
       return alert("Endereço, frete ou carrinho não definidos");
 
-    let total =
-      currentCartItems.reduce(
-        (sum, item) => sum + Number(item.precoUnitario || 0) * Number(item.quantidade || 0),
-        0
-      ) + Number(valorDoFrete || 0);
+    // 🧮 Subtotal
+    let subtotal = currentCartItems.reduce(
+      (sum, item) => sum + Number(item.precoUnitario || 0) * Number(item.quantidade || 0),
+      0
+    );
 
-      if (formaPagamento === "Pix") total = total * 0.97;
+    // 🏷️ Cupom aplicado
+    const descontoCupom = Number(currentCart?.desconto || 0);
+    const nomeCupom = currentCart?.cupom || currentCart?.discountCode || null;
 
+    // 🧮 Total com desconto do cupom e frete
+    let total = subtotal - descontoCupom + Number(valorDoFrete || 0);
+
+    // 💸 Desconto adicional para PIX
+    if (formaPagamento === "Pix") total = total * 0.97;
+
+    // 🧾 Monta objeto de pedido com dados do cupom incluídos
     const pedidoData = {
       usuarioId: currentCart.userId,
       endereco,
       frete: freteSelecionado,
       itens: currentCartItems,
-      total: total.toFixed(2)
+      total: total.toFixed(2),
+      cupom: nomeCupom || null,
+      descontoCupom: descontoCupom.toFixed(2),
     };
 
+    // === PAGAMENTO VIA PIX ===
     if (formaPagamento === "Pix") {
       const response = await fetch("/checkout/gerar-pix", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pedidoData)
+        body: JSON.stringify(pedidoData),
       });
+
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Erro ao gerar PIX");
 
@@ -380,12 +418,14 @@ async function finalizarCompra() {
       return;
     }
 
+    // === PAGAMENTO VIA BOLETO ===
     if (formaPagamento === "Boleto") {
       const response = await fetch("/checkout/gerar-boleto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(pedidoData)
+        body: JSON.stringify(pedidoData),
       });
+
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Erro ao gerar boleto");
 
@@ -393,13 +433,14 @@ async function finalizarCompra() {
       return;
     }
 
+    // === PAGAMENTO VIA CARTÃO ===
     if (formaPagamento === "Cartão") {
       const cartao = {
         holderName: document.querySelector("#nomeCartao").value,
         number: document.querySelector("#numeroCartao").value.replace(/\s+/g, ""),
         expiryMonth: document.querySelector("#mesValidade").value,
         expiryYear: document.querySelector("#anoValidade").value,
-        ccv: document.querySelector("#cvvCartao").value
+        ccv: document.querySelector("#cvvCartao").value,
       };
 
       const res = await fetch("/checkout/gerar-cartao", {
@@ -410,8 +451,10 @@ async function finalizarCompra() {
           total,
           endereco,
           frete: freteSelecionado,
-          cartao
-        })
+          cupom: nomeCupom || null,
+          descontoCupom: descontoCupom.toFixed(2),
+          cartao,
+        }),
       });
 
       const data = await res.json();
@@ -569,18 +612,31 @@ async function finalizarPedido(formaPagamento) {
     if (!endereco || !freteSelecionado || !currentCartItems.length)
       return alert("Endereço, frete ou carrinho não definidos");
 
-    const total =
-      currentCartItems.reduce(
-        (sum, item) => sum + Number(item.precoUnitario || 0) * Number(item.quantidade || 0),
-        0
-      ) + Number(valorDoFrete || 0);
+    // 🔹 Subtotal dos produtos
+    let subtotal = currentCartItems.reduce(
+      (sum, item) => sum + Number(item.precoUnitario || 0) * Number(item.quantidade || 0),
+      0
+    );
 
+    // 🔹 Desconto do cupom
+    const descontoCupom = Number(currentCart?.desconto || 0);
+    const nomeCupom = currentCart?.cupom || currentCart?.discountCode || null;
+
+    // 🔹 Soma frete
+    let total = subtotal - descontoCupom + Number(valorDoFrete || 0);
+
+    // 🔹 Desconto adicional do Pix
+    if (formaPagamento === "Pix") total = total * 0.97;
+
+    // 🔹 Monta o objeto do pedido
     const pedidoData = {
       usuarioId: Number(localStorage.getItem("usuarioId")) || currentCart.userId,
       endereco,
       frete: freteSelecionado,
       formaPagamento,
       total: total.toFixed(2),
+      cupom: nomeCupom || null,
+      descontoCupom: descontoCupom.toFixed(2),
       itens: currentCartItems.map(item => ({
         produtoId: item.productId || item.id,
         quantidade: item.quantidade,
@@ -589,6 +645,7 @@ async function finalizarPedido(formaPagamento) {
       }))
     };
 
+    // 🔹 Envia para o backend
     const response = await fetch("/checkout/finalizar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

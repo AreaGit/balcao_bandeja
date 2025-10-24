@@ -2,6 +2,7 @@ const Cart = require("../models/cart.model");
 const CartItem = require("../models/cartItem.model");
 const Product = require("../models/product.model");
 const { Op } = require("sequelize");
+const Coupon = require("../models/cupom.model");
 
 function toNumber(v) {
   const n = Number(v);
@@ -237,27 +238,62 @@ async function removeItem(req, res) {
 // Aplicar cupom
 async function applyCoupon(req, res) {
   try {
-    const { id } = req.params;
-    const { code } = req.body;
+    const { id } = req.params; // id do carrinho
+    const { code } = req.body; // código do cupom
+    if (!code) return res.status(400).json({ error: "Nenhum código de cupom informado." });
 
-    const cart = await Cart.findByPk(id);
-    if (!cart) return res.status(404).json({ error: "Carrinho não encontrado" });
+    const cart = await Cart.findByPk(id, {
+      include: [{ model: CartItem, as: "items", include: [{ model: Product, as: "product" }] }]
+    });
+    if (!cart) return res.status(404).json({ error: "Carrinho não encontrado." });
 
-    let discount = 0;
+    // 🔹 Buscar cupom no banco
+    const coupon = await Coupon.findOne({
+      where: {
+        code: code.toUpperCase(),
+        active: true,
+        [Op.or]: [
+          { expires_at: { [Op.is]: null } },
+          { expires_at: { [Op.gt]: new Date() } }
+        ]
+      }
+    });
 
-    // regra simples (expandir futuramente)
-    if (code === "FIXO10") discount = 10;
-    if (code === "DESC20") discount = 20;
+    if (!coupon) {
+      return res.status(404).json({ error: "Cupom inválido, inativo ou expirado." });
+    }
 
-    cart.discountCode = code;
-    cart.discountValue = discount;
+    // 🔹 Calcular subtotal
+    let subtotal = 0;
+    cart.items.forEach(item => {
+      subtotal += parseFloat(item.product.valor) * item.quantity;
+    });
+
+    const desconto = subtotal * (parseFloat(coupon.discount_percent) / 100);
+    const frete = cart.frete ? parseFloat(cart.frete.price || 0) : 0;
+    const totalFinal = Math.max(subtotal - desconto + frete, 0);
+
+    // 🔹 Atualizar carrinho com dados do cupom
+    cart.discountCode = coupon.code;
+    cart.discountValue = desconto;
     await cart.save();
 
-    const formatted = await formatCart(cart.id);
-    return res.json(formatted);
+    res.json({
+      success: true,
+      message: `Cupom "${coupon.code}" aplicado com sucesso!`,
+      cupom: {
+        code: coupon.code,
+        descricao: coupon.description,
+        percentual: coupon.discount_percent
+      },
+      subtotal,
+      desconto,
+      totalFinal
+    });
+
   } catch (err) {
     console.error("Erro ao aplicar cupom:", err);
-    res.status(500).json({ error: "Erro interno" });
+    res.status(500).json({ error: "Erro interno ao aplicar cupom." });
   }
 }
 

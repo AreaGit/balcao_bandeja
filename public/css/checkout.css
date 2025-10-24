@@ -126,6 +126,15 @@ header {
     .summary h3{margin-bottom:20px;font-size:18px;font-weight:600;}
     .summary-item{display:flex;justify-content:space-between;margin-bottom:10px;font-size:14px;}
     .summary-total{display:flex;justify-content:space-between;font-weight:700;font-size:18px;margin-top:20px;}
+
+    .summary-item.desconto span:first-child {
+      color: #1E1939;
+      font-weight: 600;
+    }
+    .summary-item.desconto span:last-child {
+      color: #e63946;
+      font-weight: 700;
+    }
     
     /* responsivo */
     @media(max-width:900px){

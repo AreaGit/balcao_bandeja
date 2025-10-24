@@ -220,7 +220,7 @@ exports.getOrderSummary = async (req, res) => {
 
 exports.gerarPix = async (req, res) => {
   try {
-    const { usuarioId, total, endereco, frete, itens } = req.body;
+    const { usuarioId, total, endereco, frete, itens, cupom, descontoCupom } = req.body;
 
     if (!usuarioId || !total || !endereco || !frete || !itens)
       return res.status(400).json({ error: "Dados incompletos" });
@@ -231,12 +231,12 @@ exports.gerarPix = async (req, res) => {
 
     const externalReference = "pedido_temp_" + Date.now();
 
-    const pedidoRef = Date.now().toString(); // ou ID temporário
+    // Cria cobrança PIX no Asaas
     const cobranca = await cobrancaPixAsaas({
       customer: cliente.customer_asaas_id,
       value: total,
       dueDate: new Date().toISOString().split("T")[0],
-      externalReference: externalReference,
+      externalReference,
       endereco,
       frete,
       itens
@@ -245,12 +245,15 @@ exports.gerarPix = async (req, res) => {
     // Obter QR Code PIX
     const qrCode = await obterCodPix(cobranca.id);
 
+    // Retorna incluindo o cupom
     return res.json({
-      paymentId: cobranca.id, // alterado para alinhar com o frontend
+      paymentId: cobranca.id,
       valor: cobranca.value,
       qrCodeImageUrl: qrCode?.encodedImage,
       qrCodeText: qrCode?.payload || qrCode?.payloadContent,
-      externalReference
+      externalReference,
+      cupom: cupom || null,
+      descontoCupom: Number(descontoCupom || 0)
     });
   } catch (err) {
     console.error("Erro ao gerar PIX:", err.response?.data || err.message);
@@ -260,7 +263,7 @@ exports.gerarPix = async (req, res) => {
 
 exports.gerarBoleto = async (req, res) => {
   try {
-    const { usuarioId, total, endereco, frete, itens } = req.body;
+    const { usuarioId, total, endereco, frete, itens, cupom, descontoCupom } = req.body;
 
     if (!usuarioId || !total || !endereco || !frete || !itens || !itens.length)
       return res.status(400).json({ error: "Dados incompletos." });
@@ -269,9 +272,7 @@ exports.gerarBoleto = async (req, res) => {
     if (!cliente || !cliente.customer_asaas_id)
       return res.status(404).json({ error: "Cliente não encontrado no ASAAS." });
 
-    // === Criar cobrança no Asaas ===
     const externalReference = "pedido_" + Date.now();
-
     const cobranca = await cobrancaBoletoAsaas({
       customer: cliente.customer_asaas_id,
       value: total,
@@ -280,7 +281,7 @@ exports.gerarBoleto = async (req, res) => {
 
     const linhaDigitavel = await obterLinhaBoleto(cobranca.id);
 
-    // === Criar pedido preenchendo todas as colunas ===
+    // Criação do pedido com cupom e descontoCupom
     const pedido = await Pedido.create({
       usuarioId,
       endereco: JSON.stringify(endereco),
@@ -291,15 +292,15 @@ exports.gerarBoleto = async (req, res) => {
       paymentId: cobranca.id,
       paymentStatus: cobranca.status || "PENDING",
       paymentType: "BOLETO",
-      paymentDate: null,
       externalReference,
       qrCodePayload: null,
-      qrCodeImage: null
+      qrCodeImage: null,
+      cupom: cupom || null,
+      descontoCupom: Number(descontoCupom || 0).toFixed(2)
     });
 
-    // === Criar os itens do pedido ===
+    // Itens do pedido
     for (const item of itens) {
-      console.log(item);
       await PedidoItem.create({
         pedidoId: pedido.id,
         produtoId: item.productId,
@@ -309,34 +310,29 @@ exports.gerarBoleto = async (req, res) => {
       });
     }
 
-    // === Limpar carrinho do usuário ===
+    // Limpar carrinho
     const cart = await Cart.findOne({ where: { userId: usuarioId } });
     if (cart) {
       await CartItem.destroy({ where: { cartId: cart.id } });
       await Cart.destroy({ where: { id: cart.id } });
     }
 
-    // === Enviar e-mail de aviso ===
+    // Envia e-mail
     try {
       await enviarEmail(
         cliente.email,
         "🎉 Pedido gerado com sucesso!",
         `
           <h2>Olá, ${cliente.nome}!</h2>
-          <p>Seu pedido <strong>#${pedido.id}</strong> foi criado com sucesso e está aguardando o pagamento do boleto.</p>
-          <p>Baixe seu boleto clicando no link abaixo:</p>
+          <p>Seu pedido <strong>#${pedido.id}</strong> foi criado e aguarda o pagamento do boleto.</p>
+          ${cupom ? `<p><strong>Cupom aplicado:</strong> ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})</p>` : ""}
           <p><a href="${cobranca.bankSlipUrl}" target="_blank">Visualizar boleto</a></p>
-          <p>Após o pagamento, o status do seu pedido será atualizado automaticamente.</p>
-          <br>
-          <p>Obrigado por comprar conosco! 💚</p>
-          <p><strong>Equipe Balcão e Bandeja</strong></p>
         `
       );
     } catch (emailErr) {
       console.warn("Erro ao enviar e-mail:", emailErr.message);
     }
 
-    // === Retorno para o frontend ===
     res.status(200).json({
       pedidoId: pedido.id,
       paymentId: cobranca.id,
@@ -354,7 +350,7 @@ exports.gerarBoleto = async (req, res) => {
 
 exports.gerarCartao = async (req, res) => {
   try {
-    const { usuarioId, total, endereco, frete, cartao } = req.body;
+    const { usuarioId, total, endereco, frete, cartao, cupom, descontoCupom } = req.body;
 
     if (!usuarioId || !total || !endereco || !frete || !cartao)
       return res.status(400).json({ error: "Dados incompletos" });
@@ -379,10 +375,13 @@ exports.gerarCartao = async (req, res) => {
       phone: cliente.telefone
     });
 
+    // Retorna incluindo informações de cupom
     res.status(200).json({
       paymentId: cobranca.id,
       status: cobranca.status,
-      value: cobranca.value
+      value: cobranca.value,
+      cupom: cupom || null,
+      descontoCupom: Number(descontoCupom || 0).toFixed(2)
     });
   } catch (error) {
     console.error("Erro ao gerar pagamento cartão:", error.response?.data || error.message);
@@ -405,18 +404,21 @@ exports.finalizarPedido = async (req, res) => {
       paymentId,
       paymentStatus,
       qrCodePayload,
-      qrCodeImage
+      qrCodeImage,
+      cupom,
+      descontoCupom
     } = req.body;
 
     if (!usuarioId || !endereco || !frete || !formaPagamento || !total || !itens || itens.length === 0) {
       return res.status(400).json({ error: "Dados incompletos para finalizar pedido" });
     }
 
-    if(formaPagamento == "PIX") {
-      descontoPix = total * 0.03;
+    if (formaPagamento === "PIX") {
+      const descontoPix = total * 0.03;
       total -= descontoPix;
     }
 
+    // Cria pedido com campos de cupom
     novoPedido = await Pedido.create({
       usuarioId,
       endereco: JSON.stringify(endereco),
@@ -430,7 +432,9 @@ exports.finalizarPedido = async (req, res) => {
       paymentType: formaPagamento.toUpperCase(),
       externalReference: `${formaPagamento.toLowerCase()}_${Date.now()}`,
       qrCodePayload: qrCodePayload || null,
-      qrCodeImage: qrCodeImage || null
+      qrCodeImage: qrCodeImage || null,
+      cupom: cupom || null,
+      descontoCupom: Number(descontoCupom || 0).toFixed(2)
     }, { transaction: t });
 
     for (const item of itens) {
@@ -455,7 +459,6 @@ exports.finalizarPedido = async (req, res) => {
     }
 
     await t.commit();
-
     usuario = await User.findByPk(usuarioId);
 
   } catch (error) {
@@ -472,6 +475,7 @@ exports.finalizarPedido = async (req, res) => {
         `
           <h2>Olá ${usuario.nome},</h2>
           <p>Seu pedido <strong>#${novoPedido.id}</strong> foi criado com sucesso!</p>
+          ${cupom ? `<p><strong>Cupom aplicado:</strong> ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})</p>` : ""}
           <p>Em breve você receberá mais detalhes sobre o status do seu pedido.</p>
           <br>
           <p>Obrigado por comprar conosco!</p>

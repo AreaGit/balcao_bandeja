@@ -12,21 +12,21 @@ const autocompleteList = document.getElementById("autocompleteList");
 let currentCartId;
 let debounceTimeout;
 
-// === CARRINHO ===
+// === ANIMAÇÃO SUAVE DE ENTRADA E SAÍDA ===
 cartBtn.addEventListener("click", () => {
-  cartSidebar.classList.add("active");
   overlay.classList.add("active");
+  cartSidebar.classList.add("active");
+  document.body.style.overflow = "hidden"; // bloqueia scroll da página
 });
 
-overlay.addEventListener("click", () => {
-  cartSidebar.classList.remove("active");
-  overlay.classList.remove("active");
-});
+overlay.addEventListener("click", () => fecharCarrinho());
+closeCart.addEventListener("click", () => fecharCarrinho());
 
-closeCart.addEventListener("click", () => {
+function fecharCarrinho() {
   cartSidebar.classList.remove("active");
   overlay.classList.remove("active");
-});
+  document.body.style.overflow = ""; // restaura scroll
+}
 
 // === MENU HAMBURGUER ===
 menuToggle.addEventListener("click", () => {
@@ -95,6 +95,52 @@ async function renderCart() {
       });
     }
 
+    // --- CUPOM APLICADO ---
+    const couponInput = document.getElementById("couponCode");
+    const applyBtn = document.getElementById("applyCouponBtn");
+
+    // Remove mensagens antigas (caso já exista)
+    const oldMsg = document.getElementById("appliedCouponMsg");
+    if (oldMsg) oldMsg.remove();
+
+    if (cart.cupom || cart.discountCode) {
+      // Oculta os campos do cupom
+      couponInput.style.display = "none";
+      applyBtn.style.display = "none";
+
+      // Cria mensagem elegante com microanimação
+      const msg = document.createElement("div");
+      msg.id = "appliedCouponMsg";
+      msg.style.marginTop = "15px";
+      msg.style.padding = "12px";
+      msg.style.borderRadius = "8px";
+      msg.style.background = "#E7FF14";
+      msg.style.color = "#1E1939";
+      msg.style.fontWeight = "600";
+      msg.style.textAlign = "center";
+      msg.style.transition = "all 0.5s ease";
+      msg.style.opacity = "0";
+      msg.style.transform = "translateY(8px)";
+      msg.innerHTML = `🎉 Cupom <strong>${cart.cupom || cart.discountCode}</strong> já aplicado!`;
+
+      document.querySelector(".cart-summary").appendChild(msg);
+
+      // Pequena animação de fade-in + subida
+      setTimeout(() => {
+        msg.style.opacity = "1";
+        msg.style.transform = "translateY(0)";
+      }, 100);
+    } else {
+      // Se não houver cupom aplicado, mostra o campo normalmente
+      couponInput.style.display = "block";
+      couponInput.style.opacity = "1";
+      couponInput.style.transform = "none";
+
+      applyBtn.style.display = "block";
+      applyBtn.style.opacity = "1";
+      applyBtn.style.transform = "none";
+    }
+
     subtotalEl.textContent = `R$ ${cart.subtotal?.toFixed(2).replace('.', ',') || '0,00'}`;
     discountEl.textContent = `R$ ${cart.desconto?.toFixed(2).replace('.', ',') || '0,00'}`;
     totalEl.textContent = `R$ ${cart.totalFinal?.toFixed(2).replace('.', ',') || '0,00'}`;
@@ -135,6 +181,75 @@ async function removeCartItem(itemId) {
   await fetch(`/api/cart/item/${itemId}`, { method: "DELETE" });
   renderCart();
 }
+
+// === FUNÇÃO PARA APLICAR CUPOM ===
+document.getElementById("applyCouponBtn").addEventListener("click", async () => {
+  const codigo = document.getElementById("couponCode").value.trim();
+  if (!codigo) {
+    alert("Digite o código do cupom.");
+    return;
+  }
+
+  const cartId = currentCartId;
+  try {
+    const res = await fetch(`/api/cart/${cartId}/coupon`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: codigo })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      // Atualiza valores do carrinho
+      document.getElementById("cartDiscount").textContent = `R$ ${data.desconto.toFixed(2)}`;
+      document.getElementById("cartTotal").textContent = `R$ ${data.totalFinal.toFixed(2)}`;
+
+      const couponInput = document.getElementById("couponCode");
+      const applyBtn = document.getElementById("applyCouponBtn");
+
+      // Fade out
+      couponInput.style.transition = "all 0.4s ease";
+      applyBtn.style.transition = "all 0.4s ease";
+      couponInput.style.opacity = "0";
+      couponInput.style.transform = "translateY(-10px)";
+      applyBtn.style.opacity = "0";
+      applyBtn.style.transform = "translateY(-10px)";
+
+      setTimeout(() => {
+        couponInput.style.display = "none";
+        applyBtn.style.display = "none";
+
+        // Cria mensagem de sucesso com animação
+        const msg = document.createElement("div");
+        msg.id = "appliedCouponMsg";
+        msg.style.marginTop = "15px";
+        msg.style.padding = "12px";
+        msg.style.borderRadius = "8px";
+        msg.style.background = "#E7FF14";
+        msg.style.color = "#1E1939";
+        msg.style.fontWeight = "600";
+        msg.style.textAlign = "center";
+        msg.style.transition = "all 0.4s ease";
+        msg.style.opacity = "0";
+        msg.style.transform = "translateY(10px)";
+        msg.innerHTML = `🎉 Cupom <strong>${data.cupom.code}</strong> aplicado com sucesso!`;
+
+        document.querySelector(".cart-summary").appendChild(msg);
+
+        setTimeout(() => {
+          msg.style.opacity = "1";
+          msg.style.transform = "translateY(0)";
+        }, 100);
+      }, 400);
+    } else {
+      alert(`❌ ${data.error}`);
+    }
+  } catch (err) {
+    console.error("Erro ao aplicar cupom:", err);
+    alert("Erro ao aplicar cupom. Tente novamente.");
+  }
+});
 
 renderCart();
 
