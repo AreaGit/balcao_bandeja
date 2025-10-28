@@ -14,6 +14,7 @@ const pedidosRoutes = require("./src/routes/pedidos.routes");
 const userRoutes = require("./src/routes/user.routes");
 const asaasRoutes = require("./src/routes/asaas.routes");
 const administrativoRoutes = require("./src/routes/administrativo.routes");
+const contactRoutes = require("./src/routes/contact.routes");
 require("./src/models/cart.model");
 require("./src/models/cartItem.model");
 require("./src/models/associations");
@@ -58,6 +59,7 @@ app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/users", userRoutes);
 app.use("/asaas", asaasRoutes);
 app.use("/api/admin", administrativoRoutes);
+app.use("/fale-conosco", contactRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor rodando em: http://localhost:${PORT}`);
