@@ -1,3 +1,16 @@
+:root{
+  --brand-dark:#1E1939;
+  --brand-mid:#3b3570;
+  --brand-accent:#E7FF14;
+  --text:#2b2b2b;
+  --muted:#68708c;
+  --line:#e9ebf0;
+  --bg:#ffffff;
+  --bg-soft:#f6f7fb;
+  --success:#2fbf71;
+  --danger:#e63946;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -880,9 +893,9 @@ button:active {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 60px 20px;
+  padding:48px 16px 80px;
+  background:linear-gradient(180deg,#fff 0%, #fafbff 100%);
   min-height: 85vh;
-  background: linear-gradient(135deg, #f8f9fb, #eef1f7);
 }
 
 .account-container {
@@ -895,17 +908,12 @@ button:active {
   text-align: center;
 }
 
-.account-container h2 {
-  font-size: 26px;
-  margin-bottom: 10px;
-  color: #1E1939;
-}
+@keyframes cardIn{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:translateY(0)} }
 
-.account-container p {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 25px;
+.account-container h2{
+  margin:0 0 6px; font-size:28px; color:var(--brand-dark); letter-spacing:.2px;
 }
+.account-container p{ margin:0 0 22px; color:var(--muted) }
 
 /* Tabs */
 .tabs {
@@ -916,23 +924,20 @@ button:active {
 }
 
 .tab-btn {
-  background: #f0f0f0;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
+  background:#fff; border:1px solid var(--line); color:var(--text);
+  padding:10px 16px; border-radius:999px; font-weight:700; cursor:pointer;
+  transition:.25s ease; position:relative;
 }
 
 .tab-btn.active {
-  background: #E7FF14;
-  color: #1E1939;
+  border-color:transparent; color:var(--brand-dark);
+  box-shadow:0 6px 18px rgba(30,25,57,.08), inset 0 0 0 2px var(--brand-accent);
 }
 
-.tab-btn:hover {
-  background: #d6f000;
-}
+.tab-btn:hover{ transform:translateY(-1px) }
+.tab-content{ display:none; animation:fade .25s ease both; }
+.tab-content.active{ display:block }
+@keyframes fade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
 
 .tab-content {
   display: none;
@@ -953,70 +958,63 @@ button:active {
 .form-group label {
   display: block;
   font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #1E1939;
+  font-weight: 700;
+  margin:2px 0 6px;
+  color:var(--brand-dark);
 }
 
 .form-group input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  font-size: 14px;
-  transition: border 0.3s, box-shadow 0.3s;
+  width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px;
+  font-size:14px; background:#fff; transition:.25s ease;
 }
 
 .form-group input:focus {
-  border-color: #E7FF14;
-  outline: none;
-  box-shadow: 0 0 8px rgba(231,255,20,0.4);
+  border-color:var(--brand-accent);
+  box-shadow:0 0 0 4px rgba(231,255,20,.25);
 }
 
 .btn-profile {
-  background: linear-gradient(135deg, #E7FF14, #c7e600);
-  color: #1E1939;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  margin-top:8px; justify-self:center;
+  background:linear-gradient(135deg,var(--brand-dark),var(--brand-mid));
+  color:#fff; border:none; padding:12px 20px; border-radius:12px; font-weight:800;
+  cursor:pointer; box-shadow:0 10px 26px rgba(30,25,57,.22);
+  transition:.25s ease;
+  margin-bottom: 15px;
 }
 
 .btn-profile:hover {
-  background: #d6f000;
-  transform: translateY(-2px);
+  background:var(--brand-accent); color:var(--brand-dark); transform:translateY(-2px);
+  box-shadow:0 8px 22px rgba(231,255,20,.25);
 }
 
 /* Pedidos */
+
+div#pedidos{ margin-bottom: 30px; }
+
 .orders-list {
-  display: grid;
-  gap: 20px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;
 }
 
 .order-card {
-  background: #fafafa;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+  background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px;
+  box-shadow:0 8px 20px rgba(9,12,36,.06);
+  transition:transform .2s ease, box-shadow .2s ease;
 }
 
+.order-card:hover{ transform:translateY(-3px); box-shadow:0 14px 30px rgba(9,12,36,.10); }
+
 .order-card h4 {
-  margin-bottom: 8px;
-  color: #1E1939;
+  margin:0 0 6px; color:var(--brand-dark)
 }
 
 .order-card p {
-  font-size: 14px;
-  margin-bottom: 5px;
+margin:4px 0; color:var(--muted)
 }
 
 .status {
-  font-weight: bold;
-  padding: 3px 8px;
-  border-radius: 5px;
+  display:inline-flex; align-items:center; gap:6px;
+  font-weight:800; font-size:12px; padding:5px 10px; border-radius:999px;
+  background:#eef2ff; color:var(--brand-mid);
 }
 
 .status.enviado {
@@ -1035,36 +1033,18 @@ button:active {
 }
 
 .btn-details {
-  margin-top: 10px;
-  padding: 8px 15px;
-  background: #E7FF14;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
+  margin-top:10px; padding:10px 14px; border:none; border-radius:10px; cursor:pointer;
+  background:var(--brand-accent); color:#0f1130; font-weight:800; transition:.2s ease;
 }
 
 .btn-details:hover {
-  background: #d6f000;
+  transform:translateY(-2px)
 }
 
 /* Logout */
-.logout {
-  margin-top: 30px;
-  text-align: center;
-}
-
-.logout a {
-  color: #1E1939;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.logout a:hover {
-  color: #E7FF14;
-}
+.logout{ margin-top:26px; text-align:center }
+.logout a{ color:var(--brand-dark); font-weight:800; text-decoration:none; }
+.logout a:hover{ color:var(--brand-accent) }
 
 /* Modal Pedido */
 .order-modal {
