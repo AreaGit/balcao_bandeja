@@ -20,5 +20,7 @@ router.get("/autentication", PagesController.autenticacao);
 router.get("/api/me", PagesController.inicial);
 router.get("/administrativo", PagesController.administrativo);
 router.get("/pedido-confirmado", PagesController.pedido_confirmado);
+router.get("/forgot-password", PagesController.forgot_password);
+router.get("/reset-password", PagesController.reset_password);
 
 module.exports = router;

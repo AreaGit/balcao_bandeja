@@ -1,0 +1,219 @@
+/* === VARIÁVEIS GERAIS === */
+:root {
+  --roxo-escuro: #1E1939;
+  --roxo-medio: #3b3570;
+  --amarelo: #E7FF14;
+  --cinza-claro: #f7f7fb;
+  --branco: #fff;
+  --erro: #e63946;
+  --sucesso: #38b000;
+  --transicao: all 0.3s ease;
+}
+
+/* === RESET === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* === LAYOUT GLOBAL === */
+body {
+  background: var(--branco);
+  color: var(--roxo-escuro);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* === CABEÇALHO FIXO === */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: var(--branco);
+  border-bottom: 2px solid #f0f0f0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  z-index: 100;
+  padding: 35px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+header img {
+  height: 60px;
+  width: auto;
+  animation: fadeInLogo 0.8s ease forwards;
+}
+
+@keyframes fadeInLogo {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === CONTEÚDO CENTRAL === */
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px; /* compensar header fixo */
+  padding-bottom: 60px;
+}
+
+/* === CARD DO FORM === */
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--branco);
+  border-radius: 16px;
+  padding: 40px 45px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  text-align: center;
+  animation: fadeInUp 0.7s ease both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === TÍTULO === */
+.auth-card h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--roxo-escuro);
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.auth-card h1::after {
+  content: "";
+  width: 60px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--amarelo);
+  display: block;
+  margin: 10px auto 0;
+  animation: slideBar 1s ease forwards;
+}
+
+@keyframes slideBar {
+  from { width: 0; opacity: 0; }
+  to { width: 60px; opacity: 1; }
+}
+
+/* === FORM === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+label {
+  text-align: left;
+  font-weight: 600;
+  color: var(--roxo-escuro);
+  margin-top: 10px;
+}
+
+input {
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #eaeaea;
+  outline: none;
+  font-size: 15px;
+  transition: var(--transicao);
+  background: #fafafa;
+}
+
+input:focus {
+  border-color: var(--amarelo);
+  box-shadow: 0 0 6px rgba(231, 255, 20, 0.4);
+  background: #fff;
+}
+
+/* === BOTÃO === */
+button {
+  margin-top: 8px;
+  padding: 14px 20px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--roxo-escuro), var(--roxo-medio));
+  color: var(--branco);
+  font-size: 16px;
+  transition: var(--transicao);
+  box-shadow: 0 6px 15px rgba(30,25,57,0.2);
+}
+
+button:hover {
+  background: var(--amarelo);
+  color: var(--roxo-escuro);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(231,255,20,0.25);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* === MENSAGEM DE STATUS === */
+#msg {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  animation: fadeInMsg 0.5s forwards;
+}
+
+@keyframes fadeInMsg {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#msg.success { color: var(--sucesso); }
+#msg.error { color: var(--erro); }
+
+/* === LINK VOLTAR === */
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  font-weight: 600;
+  color: var(--roxo-medio);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--amarelo);
+}
+
+/* === FOOTER (OPCIONAL) === */
+footer {
+  text-align: center;
+  padding: 20px 0;
+  font-size: 13px;
+  color: #888;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 480px) {
+  header img {
+    height: 45px;
+  }
+
+  .auth-card {
+    padding: 30px 25px;
+  }
+
+  .auth-card h1 {
+    font-size: 20px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}

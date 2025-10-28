@@ -98,5 +98,7 @@ module.exports = {
   autenticacao: (req, res) => renderPage(res, "verify-2fa"),
   inicial,
   administrativo: (req, res) => renderPage(res, "administrativo"),
-  pedido_confirmado: (req, res) => renderPage(res, "pedido-confirmado")
+  pedido_confirmado: (req, res) => renderPage(res, "pedido-confirmado"),
+  forgot_password: (req, res) => renderPage(res, "forgot-password"),
+  reset_password: (req, res) => renderPage(res, "reset-password")
 };
