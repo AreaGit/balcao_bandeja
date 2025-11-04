@@ -2,6 +2,7 @@ const Pedido = require("../models/pedido.js");
 const PedidoItem = require("../models/pedidoItem.model.js");
 const Produto = require("../models/product.model.js");
 const Usuario = require("../models/user.model.js");
+const Coupon = require("../models/cupom.model.js");
 const nodemailer = require("nodemailer");
 require("dotenv").config({ path: "../../.env" });
 
@@ -350,7 +351,6 @@ async function getProdutosPaginated(req, res) {
 
     const { rows, count } = await Produto.findAndCountAll({
       where: whereClause,
-      attributes: ["id", "nome", "valor"],
       order: [["nome", "ASC"]],
       limit: parseInt(limit),
       offset: parseInt(offset)
@@ -371,13 +371,34 @@ async function getProdutosPaginated(req, res) {
 // Criar produto
 async function createProduto(req, res) {
   try {
-    const { nome, descricao, valor, estoque, imagem } = req.body;
-    if (!nome || !valor) return res.status(400).json({ error: "Campos obrigatórios ausentes." });
+    let data = { ...req.body };
 
-    const novoProduto = await Produto.create({ nome, descricao, valor, estoque, imagem });
-    res.json({ success: true, produto: novoProduto });
+    // Função utilitária para normalizar campos JSON/array
+    const normalizeArrayField = (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          // caso seja string simples (como "http://imagem.png" ou "AZUL")
+          return val.includes("http") ? [val] : val.split(",").map(v => v.trim()).filter(Boolean);
+        }
+      }
+      return [];
+    };
+
+    // Normalizar campos que podem vir como string JSON
+    if (data.imagens) data.imagens = normalizeArrayField(data.imagens);
+    if (data.cores) data.cores = normalizeArrayField(data.cores);
+
+    // Criar produto
+    const produto = await Produto.create(data);
+
+    res.json({ success: true, produto });
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao criar produto:", err);
     res.status(500).json({ error: "Erro ao criar produto." });
   }
 }
@@ -386,18 +407,43 @@ async function createProduto(req, res) {
 async function updateProduto(req, res) {
   try {
     const { id } = req.params;
-    const { nome, descricao, valor, estoque, imagem } = req.body;
+    let data = { ...req.body };
 
     const produto = await Produto.findByPk(id);
-    if (!produto) return res.status(404).json({ error: "Produto não encontrado." });
+    if (!produto) {
+      return res.status(404).json({ error: "Produto não encontrado." });
+    }
+    // 🔧 Função utilitária para normalizar campos JSON
+    const normalizeArrayField = (val) => {
+      if (!val) return [];
+      if (Array.isArray(val)) return val;
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val);
+          return Array.isArray(parsed) ? parsed : [parsed];
+        } catch {
+          // caso seja string simples (URL única, por exemplo)
+          return val.includes("http") ? [val] : [];
+        }
+      }
+      return [];
+    };
 
-    await produto.update({ nome, descricao, valor, estoque, imagem });
-    res.json({ success: true, produto });
+    // Normalizar os campos JSON antes de salvar
+    if (data.imagens) data.imagens = normalizeArrayField(data.imagens);
+    if (data.cores) data.cores = normalizeArrayField(data.cores);
+
+    // Atualizar no banco
+    await produto.update(data);
+
+    // 🔁 Retornar o produto atualizado (já com arrays válidos)
+    res.json({ success: true, produto: await Produto.findByPk(id) });
+
   } catch (err) {
-    console.error(err);
+    console.error("Erro ao atualizar produto:", err);
     res.status(500).json({ error: "Erro ao atualizar produto." });
   }
-}
+};
 
 // Deletar produto
 async function deleteProduto(req, res) {
@@ -414,6 +460,237 @@ async function deleteProduto(req, res) {
   }
 }
 
+// === CRUD DE CUPONS ===
+
+// Paginação de cupons
+async function getCuponsPaginated(req, res) {
+  try {
+    const { page = 1, limit = 10, search = "" } = req.query;
+    const offset = (page - 1) * limit;
+    const { Op } = require("sequelize");
+
+    const where = search ? {
+      [Op.or]: [
+        { code: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } }
+      ]
+    } : {};
+
+    const { rows, count } = await Coupon.findAndCountAll({
+      where,
+      order: [["id", "DESC"]],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    res.json({
+      cupons: rows,
+      total: count,
+      page: parseInt(page),
+      totalPages: Math.ceil(count / limit)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao carregar cupons" });
+  }
+}
+
+// Criar cupom
+async function createCoupon(req, res) {
+  try {
+    const { code, description, discount_percent, expires_at, active } = req.body;
+
+    if (!code || !discount_percent)
+      return res.status(400).json({ error: "Código e percentual são obrigatórios" });
+
+    const existing = await Coupon.findOne({ where: { code } });
+    if (existing)
+      return res.status(400).json({ error: "Já existe um cupom com esse código" });
+
+    const coupon = await Coupon.create({
+      code,
+      description,
+      discount_percent,
+      expires_at: expires_at || null,
+      active: active ?? true
+    });
+
+    res.json({ success: true, coupon });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao criar cupom" });
+  }
+}
+
+// Atualizar cupom
+async function updateCoupon(req, res) {
+  try {
+    const { id } = req.params;
+    const coupon = await Coupon.findByPk(id);
+    if (!coupon) return res.status(404).json({ error: "Cupom não encontrado" });
+
+    await coupon.update(req.body);
+    res.json({ success: true, coupon });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao atualizar cupom" });
+  }
+}
+
+// Excluir cupom
+async function deleteCoupon(req, res) {
+  try {
+    const { id } = req.params;
+    const coupon = await Coupon.findByPk(id);
+    if (!coupon) return res.status(404).json({ error: "Cupom não encontrado" });
+
+    await coupon.destroy();
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao excluir cupom" });
+  }
+}
+
+// === BALANÇO FINANCEIRO ===
+async function getFinancialBalance(req, res) {
+  try {
+    const Pedido = require("../models/pedido.js");
+    const { Op } = require("sequelize");
+
+    // Últimos 12 meses
+    const meses = [];
+    const hoje = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+      meses.push({
+        label: d.toLocaleDateString("pt-BR", { month: "short" }),
+        inicio: d,
+        fim: new Date(d.getFullYear(), d.getMonth() + 1, 0)
+      });
+    }
+
+    const data = [];
+    for (const mes of meses) {
+      const totalVendas = await Pedido.sum("total", {
+        where: { createdAt: { [Op.between]: [mes.inicio, mes.fim] } }
+      }) || 0;
+      const custos = totalVendas * 0.6; // exemplo
+      const lucro = totalVendas - custos;
+
+      data.push({
+        mes: mes.label,
+        vendas: totalVendas.toFixed(2),
+        custos: custos.toFixed(2),
+        lucro: lucro.toFixed(2)
+      });
+    }
+
+    const totalVendasAno = data.reduce((sum, m) => sum + parseFloat(m.vendas), 0);
+    const totalLucroAno = data.reduce((sum, m) => sum + parseFloat(m.lucro), 0);
+    const margemMedia = totalVendasAno ? (totalLucroAno / totalVendasAno) * 100 : 0;
+    
+    let crescimento = 0;
+    if (data.length > 1) {
+      const penultimo = parseFloat(data[data.length - 2].lucro);
+      const ultimo = parseFloat(data[data.length - 1].lucro);
+      crescimento = penultimo ? ((ultimo - penultimo) / penultimo) * 100 : 0;
+    }
+
+    
+    res.json({
+      meses: data,
+      resumo: {
+        totalVendasAno,
+        totalLucroAno,
+        margemMedia,
+        crescimento
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao gerar balanço financeiro" });
+  }
+}
+
+async function getIndicadoresGerais(req, res) {
+  try {
+    const Pedido = require("../models/pedido.js");
+    const Produto = require("../models/product.model.js");
+    const Usuario = require("../models/user.model.js");
+    const Cart = require("../models/cart.model.js");
+    const Newsletter = require("../models/newsletter.model.js");
+    const { Op } = require("sequelize");
+
+    const agora = new Date();
+    const mesPassado = new Date();
+    mesPassado.setMonth(agora.getMonth() - 1);
+
+    // === PEDIDOS ===
+    const totalPedidos = await Pedido.count();
+    const pedidosPagos = await Pedido.count({ where: { status: "PAGO" } });
+    const pedidosCancelados = await Pedido.count({ where: { status: "Cancelado" } });
+    const vendasTotais = await Pedido.sum("total") || 0;
+
+    // Ticket médio
+    const ticketMedio = totalPedidos ? vendasTotais / totalPedidos : 0;
+
+    // === CLIENTES ===
+    const totalClientes = await Usuario.count();
+    const novosClientes = await Usuario.count({
+      where: { createdAt: { [Op.gte]: mesPassado } }
+    });
+
+    // === PRODUTOS ===
+    const totalProdutos = await Produto.count();
+    const produtosComEstoqueBaixo = await Produto.count({
+      where: { estoque: { [Op.lte]: 5 } }
+    });
+
+    // === CARRINHOS ===
+    const totalCarrinhos = await Cart.count();
+    const carrinhosAtivos = await Cart.count({ where: { frete: { [Op.not]: null } } });
+    const carrinhosAbandonados = totalCarrinhos - carrinhosAtivos;
+
+    // === NEWSLETTER ===
+    const totalNewsletter = await Newsletter.count();
+    const novosInscritos = await Newsletter.count({
+      where: { createdAt: { [Op.gte]: mesPassado } }
+    });
+
+    res.json({
+      pedidos: {
+        total: totalPedidos,
+        pagos: pedidosPagos,
+        cancelados: pedidosCancelados,
+        ticketMedio,
+        vendasTotais
+      },
+      clientes: {
+        total: totalClientes,
+        novos: novosClientes
+      },
+      produtos: {
+        total: totalProdutos,
+        baixoEstoque: produtosComEstoqueBaixo
+      },
+      carrinhos: {
+        total: totalCarrinhos,
+        ativos: carrinhosAtivos,
+        abandonados: carrinhosAbandonados
+      },
+      newsletter: {
+        total: totalNewsletter,
+        novos: novosInscritos
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erro ao carregar indicadores." });
+  }
+}
+
+
 module.exports = {
   getDashboardCards,
   getRecentOrders,
@@ -429,5 +706,11 @@ module.exports = {
   getUsuarioById,
   createUsuario,
   updateUsuario,
-  deleteUsuario
+  deleteUsuario,
+  getCuponsPaginated,
+  createCoupon,
+  updateCoupon,
+  deleteCoupon,
+  getFinancialBalance,
+  getIndicadoresGerais
 };

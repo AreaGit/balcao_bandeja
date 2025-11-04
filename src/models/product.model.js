@@ -1,40 +1,107 @@
-const { Sequelize } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const db = require("../config/database");
 
 const Product = db.define("Product", {
-  nome: { type: Sequelize.STRING, allowNull: false },
-  valor: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
-  valorPromocional: { type: Sequelize.DECIMAL(10, 2), allowNull: true },
-  descricao: { type: Sequelize.TEXT, allowNull: false },
-  categoria: { type: Sequelize.STRING, allowNull: false },
+  nome: { 
+    type: DataTypes.STRING, 
+    allowNull: false, 
+    validate: { notEmpty: true } 
+  },
+
+  valor: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: false,
+    defaultValue: 0.00,
+    validate: { min: 0 }
+  },
+
+  valorPromocional: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: true,
+    defaultValue: 0.00
+  },
+
+  descricao: { 
+    type: DataTypes.TEXT, 
+    allowNull: true,
+    defaultValue: ""
+  },
+
+  categoria: { 
+    type: DataTypes.STRING, 
+    allowNull: true,
+    defaultValue: "Geral"
+  },
+
   cores: {
-    type: Sequelize.JSON,
-    allowNull: true
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
   },
+
   imagens: {
-    type: Sequelize.JSON,
-    allowNull: true
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
   },
-  sales: { type: Sequelize.INTEGER, defaultValue: 0 },
 
-  // 🔽 Campos necessários para cálculo de frete 🔽
-  largura: { type: Sequelize.DECIMAL(10, 2), allowNull: false },   // cm
-  altura: { type: Sequelize.DECIMAL(10, 2), allowNull: false },    // cm
-  comprimento: { type: Sequelize.DECIMAL(10, 2), allowNull: false }, // cm
-  peso: { type: Sequelize.DECIMAL(10, 3), allowNull: false },      // kg
+  sales: { 
+    type: DataTypes.INTEGER, 
+    defaultValue: 0 
+  },
 
-  // quantidade pode ser controlada no carrinho, mas se quiser default:
-  estoque: { type: Sequelize.INTEGER, defaultValue: 0 },
+  // Campos físicos para frete e cálculo de dimensões
+  largura: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: true,
+    defaultValue: 0.00
+  },
 
-  isLancamento: { type: Sequelize.BOOLEAN, defaultValue: false },
-  isMaisVendido: { type: Sequelize.BOOLEAN, defaultValue: false }
+  altura: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: true,
+    defaultValue: 0.00
+  },
+
+  comprimento: { 
+    type: DataTypes.DECIMAL(10, 2), 
+    allowNull: true,
+    defaultValue: 0.00
+  },
+
+  peso: { 
+    type: DataTypes.DECIMAL(10, 3), 
+    allowNull: true,
+    defaultValue: 0.000
+  },
+
+  estoque: { 
+    type: DataTypes.INTEGER, 
+    defaultValue: 0,
+    validate: { min: 0 }
+  },
+
+  isLancamento: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false 
+  },
+
+  isMaisVendido: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false 
+  }
 
 }, {
   tableName: "produtos",
-  timestamps: true
+  timestamps: true,
+  underscored: false,
+  freezeTableName: true,
+  defaultScope: {
+    attributes: { exclude: [] }
+  }
 });
 
-//Product.sync({ force: true });
+// Sincroniza sem forçar recriação
 Product.sync();
 
 module.exports = Product;

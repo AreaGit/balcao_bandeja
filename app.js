@@ -14,11 +14,14 @@ const pedidosRoutes = require("./src/routes/pedidos.routes");
 const userRoutes = require("./src/routes/user.routes");
 const asaasRoutes = require("./src/routes/asaas.routes");
 const administrativoRoutes = require("./src/routes/administrativo.routes");
+const administrativoCarrinhoRoutes = require("./src/routes/administrativo.routes");
 const contactRoutes = require("./src/routes/contact.routes");
+const newsletterRoutes = require("./src/routes/newsletter.routes");
 require("./src/models/cart.model");
 require("./src/models/cartItem.model");
 require("./src/models/associations");
 require("./src/jobs/verificarBoletos.job");
+require("./src/jobs/enviarNewsletter.job");
 require("dotenv").config();
 
 const app = express();
@@ -59,7 +62,9 @@ app.use("/api/pedidos", pedidosRoutes);
 app.use("/api/users", userRoutes);
 app.use("/asaas", asaasRoutes);
 app.use("/api/admin", administrativoRoutes);
+app.use("/api/admin/carrinhos", administrativoCarrinhoRoutes);
 app.use("/fale-conosco", contactRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor rodando em: http://localhost:${PORT}`);
