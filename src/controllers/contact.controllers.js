@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const ContactMessage = require("../models/contactMessage.model");
+const Beneficio = require("../models/beneficios.model");
 // se você já tem util de e-mail no projeto, reaproveite:
 const { enviarEmail } = require("../utils/email"); // ajuste o path se necessário
 
@@ -166,3 +167,160 @@ exports.updateStatus = async (req, res) => {
     return res.status(500).json({ success: false, error: "Erro ao atualizar status" });
   }
 };
+
+exports.store = async (req, res) => {
+  try {
+    const {
+      nome,
+      cpf,
+      cpf_cnpj: cpfCnpjFront, // caso já venha certo
+      whatsapp,
+      email
+    } = req.body;
+
+    console.log(req.body);
+
+    // Aceita "cpf" ou "cpf_cnpj"
+    const cpf_cnpj = (cpfCnpjFront || cpf || "").toString();
+
+    // =======================
+    // VALIDAÇÃO DE SEGURANÇA
+    // =======================
+    if (!nome || !cpf_cnpj || !whatsapp || !email) {
+      return res.status(400).json({
+        status: "erro",
+        mensagem: "Preencha todos os campos obrigatórios."
+      });
+    }
+    
+    if (!email.includes("@")) {
+      return res.status(400).json({
+        status: "erro",
+        mensagem: "E-mail inválido."
+      });
+    }
+    
+    // =======================
+    // NORMALIZAÇÃO DOS DADOS
+    // =======================
+    const nomeFormatado = nome.trim();
+    const cpfCnpjLimpo = cpf_cnpj.replace(/\D/g, "");
+    const whatsappLimpo = whatsapp.replace(/\D/g, "").replace(/^0/, "");
+    const emailLower = email.trim().toLowerCase();
+    
+    // =======================
+    // SALVAMENTO
+    // =======================
+    const beneficio = await Beneficio.create({
+      nome: nomeFormatado,
+      cpf_cnpj: cpfCnpjLimpo,
+      whatsapp: whatsappLimpo,
+      email: emailLower
+    });
+
+     // ========= TEMPLATE DO EMAIL =========
+      const htmlEmail = `
+      <div style="font-family:Arial, Helvetica, sans-serif; background:#f7f6fb; padding:40px; color:#1E1939;">
+        
+        <div style="max-width:600px; margin:auto; background:white; padding:32px; border-radius:18px; box-shadow:0 14px 40px rgba(30,25,57,0.08);">
+          
+          <h1 style="font-size:26px; font-weight:800; margin-bottom:14px; color:#1E1939;">
+            🎉 Bem-vindo ao Clube VIP da Balcão & Bandeja!
+          </h1>
+
+          <p style="font-size:17px; line-height:1.58; color:#6b6b7a;">
+            Olá <strong>${nome}</strong>,<br><br>
+            Seu cadastro foi concluído com sucesso e agora você faz parte de um grupo seleto que recebe 
+            <strong>benefícios exclusivos, atendimento prioritário</strong> e uma experiência pensada para quem busca sempre o melhor.
+          </p>
+
+          <div style="margin:24px 0; padding:18px; background:linear-gradient(135deg, #1E1939, #3b3570); color:white; border-radius:14px;">
+            <p style="margin:0; font-size:16px; line-height:1.6;">
+              No Clube VIP, cada detalhe importa. Você está no lugar certo para transformar suas demandas em soluções eficientes, personalizadas e com o padrão de excelência da Balcão & Bandeja.
+            </p>
+          </div>
+
+          <p style="font-size:16px; color:#6b6b7a;">
+            Fique atento ao seu e-mail — em breve nossa equipe entrará em contato para oferecer a melhor consultoria para a sua empresa.
+          </p>
+
+          <p style="margin-top:28px; font-size:15px; color:#9d9db0; text-align:center;">
+            Com carinho,<br>
+            <strong>Equipe Balcão & Bandeja</strong>
+          </p>
+        </div>
+
+      </div>
+      `;
+
+    await enviarEmail(
+        email,
+        `Você agora faz parte do Clube VIP da Balcão & Bandeja! 🎉`,
+        `
+          ${htmlEmail}
+        `
+      );
+    
+    return res.status(201).json({
+      status: "sucesso",
+      mensagem: "Benefício ativado com sucesso!",
+      dados: beneficio
+    });
+    
+  } catch (error) {
+    console.error("Erro ao salvar benefício:", error);
+    
+    return res.status(500).json({
+      status: "erro",
+      mensagem: "Erro interno ao processar a solicitação.",
+      detalhe: error.message
+    });
+  }
+};
+
+exports.index = async (req, res) => {
+  try {
+    const beneficios = await Beneficio.findAll({
+      order: [["created_at", "DESC"]]
+    });
+    
+    return res.json({
+      status: "sucesso",
+      quantidade: beneficios.length,
+      dados: beneficios
+    });
+    
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "erro",
+      mensagem: "Erro ao buscar registros."
+    });
+  }
+};
+
+exports.show = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const beneficio = await Beneficio.findByPk(id);
+    
+    if (!beneficio) {
+      return res.status(404).json({
+        status: "erro",
+        mensagem: "Registro não encontrado."
+      });
+    }
+    
+    return res.json({
+      status: "sucesso",
+      dados: beneficio
+    });
+    
+  } catch (error) {
+    return res.status(500).json({
+      status: "erro",
+      mensagem: "Erro ao buscar registro."
+    });
+  }
+}

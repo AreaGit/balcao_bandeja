@@ -14,6 +14,10 @@ router.post(
   contactCtrl.create
 );
 
+router.post("/beneficio", contactCtrl.store);
+router.get("/beneficios", contactCtrl.index);
+router.get("/beneficio/:id", contactCtrl.show);
+
 // GET /contact (admin) — proteja com seu middleware de auth
 router.get("/", /* authMiddleware, */ contactCtrl.list);
 

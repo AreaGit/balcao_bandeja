@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ative seu Benefício - Balcão e Bandeja</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/ektkb6r.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/beneficio.css">
+</head>
+<body>
+  <div class="wrap" role="application">
+    <!-- HEADER -->
+    <header class="site-header" role="banner" aria-label="Cabeçalho Balcão e Bandeja">
+      <img src="../assets/logo-branco.png" alt="Balcão & Bandeja" class="logo" id="logo">
+    </header>
+
+    <!-- HERO / INTRO -->
+    <main class="beneficio-container" role="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-left">
+          <h1 id="hero-title">Ative seu benefício</h1>
+          <p>Bem-vindo ao <strong>Clube VIP Balcão e Bandeja</strong>. Ganhe descontos diretos, personalização e atendimento comercial dedicado.</p>
+        </div>
+        <!-- small visual -->
+        <div class="hero-visual" aria-hidden="true">
+          <!-- simple SVG badge -->
+          <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="88" height="88" rx="18" fill="url(#g)"/>
+            <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color=""/><stop offset="1" stop-color="#3b3570"/></linearGradient></defs>
+            <path d="M32 52L44 64L64 36" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </section>
+
+      <!-- GRID: FORM + ASIDE -->
+      <div class="grid">
+        <!-- FORM -->
+        <section class="card" aria-labelledby="form-title">
+          <h2 id="form-title" style="font-size:1.05rem;margin-bottom:10px">Ative seu benefício</h2>
+          <form id="beneficioForm" class="beneficio-form" novalidate>
+            <div class="form-row">
+              <div class="col">
+                <label for="nome">Nome</label>
+                <input id="nome" name="nome" type="text" placeholder="Seu nome completo" autocomplete="name" required />
+              </div>
+              <div class="col">
+                <label for="cpf_cnpj">CPF/CNPJ</label>
+                <input id="cpf_cnpj" name="cpf_cnpj" type="text" placeholder="000.000.000-00 ou 00.000.000/0000-00" inputmode="numeric" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="col">
+                <label for="whatsapp">WhatsApp</label>
+                <input id="whatsapp" name="whatsapp" type="tel" placeholder="(XX) XXXXX-XXXX" inputmode="tel" />
+              </div>
+              <div class="col">
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" placeholder="email@empresa.com" autocomplete="email" />
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:6px">
+              <button type="submit" id="btnAtivar" class="btn-ativar" aria-live="polite">
+                <!-- inline svg icon -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="flex:0 0 18px">
+                  <path d="M12 2v20M2 12h20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Ativar meu benefício
+              </button>
+              <div style="flex:1"></div>
+            </div>
+
+            <p class="nota">Seus dados são utilizados apenas para contato comercial.</p>
+          </form>
+        </section>
+
+        <!-- ASIDE -->
+        <aside>
+          <h2>Ao ativar, você garante:</h2>
+
+          <ul class="beneficios" aria-live="polite">
+            <li class="beneficio-item">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" fill="url(#g1)"></circle>
+                <path d="M9 12l2 2 4-5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color=""/><stop offset="1" stop-color="#3b3570"/></linearGradient></defs>
+              </svg>
+              <div class="beneficio-text"><strong>Descontos diretos de fábrica</strong><span>Negociações exclusivas para empresas parceiras.</span></div>
+            </li>
+
+            <li class="beneficio-item">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2" y="6" width="20" height="12" rx="2" fill="url(#g2)"></rect>
+                <path d="M8 10h8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+                <defs><linearGradient id="g2" x1="0" x2="1"><stop offset="0" stop-color="black"/><stop offset="1" stop-color="#3b3570"/></linearGradient></defs>
+              </svg>
+              <div class="beneficio-text"><strong>Entrega rápida em todo Brasil</strong><span>Logística otimizada para todo território nacional.</span></div>
+            </li>
+
+            <li class="beneficio-item">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 2a7 7 0 0 1 7 7v3a7 7 0 1 1-14 0V9a7 7 0 0 1 7-7z" fill="url(#g3)"/>
+                <defs><linearGradient id="g3" x1="0" x2="1"><stop offset="0" stop-color="black"/><stop offset="1" stop-color="#3b3570"/></linearGradient></defs>
+              </svg>
+              <div class="beneficio-text"><strong>Atendimento comercial direto</strong><span>Equipe consultiva para ajudá-lo a decidir.</span></div>
+            </li>
+          </ul>
+
+          <div class="highlight-card" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#black"><circle cx="12" cy="12" r="10" fill="url(#g4)"/></svg>
+            <div>
+              <strong>Experiência VIP</strong>
+              <p>Atendimento consultivo para escolher a melhor solução para sua empresa.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="status" aria-live="polite">Solicitação enviada — entraremos em contato!</div>
+
+  <!-- GSAP + ScrollTrigger (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="../js/beneficio.js"></script>
+</body>
+</html>
