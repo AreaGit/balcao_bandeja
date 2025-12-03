@@ -3,6 +3,7 @@ const Cart = require("../models/cart.model");
 const CartItem = require("../models/cartItem.model");
 const Product = require("../models/product.model");
 const User = require("../models/user.model");
+const Administrators = require("../models/administrators.model");
 
 const renderPage = (res, page) => {
   res.sendFile(path.join(__dirname, `../../public/html/${page}.html`));
@@ -80,6 +81,35 @@ const inicial = async (req, res, next) => {
   }
 };
 
+const adm = async (req, res, next) => {
+    try {
+    // Identificação do usuário
+    const userId = req.session.admin?.id || null;
+    let usuario;
+    if(userId) {
+      usuario = await Administrators.findByPk(userId);
+    }
+
+    // Cria guestId se não existir
+    if (!req.session.guestId) {
+      req.session.guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2,5)}`;
+    }
+
+    // Debug
+    console.log("Session guestId:", req.session.guestId);
+
+    return res.json({
+      loggedIn: !!userId,
+      user: userId 
+        ? { id: userId, name: req.session.admin.nome, email: req.session.admin.email, usuario } 
+        : null,
+      guestId: req.session.guestId,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 module.exports = {
   home: (req, res) => renderPage(res, "home"),
@@ -101,5 +131,9 @@ module.exports = {
   pedido_confirmado: (req, res) => renderPage(res, "pedido-confirmado"),
   forgot_password: (req, res) => renderPage(res, "forgot-password"),
   reset_password: (req, res) => renderPage(res, "reset-password"),
-  beneficio: (req, res) => renderPage(res, "beneficio")
+  beneficio: (req, res) => renderPage(res, "beneficio"),
+  login_admin: (req, res) => renderPage(res, "login_admin"),
+  register_admin: (req, res) => renderPage(res, "register_admin"),
+  autenticacao_admin: (req, res) => renderPage(res, "verify-2fa_admin"),
+  adm
 };

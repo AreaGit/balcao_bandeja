@@ -1,3 +1,15 @@
+document.addEventListener("DOMContentLoaded", async () => {
+  const meRes = await fetch("/api/me-admin");
+  const meData = await meRes.json();
+
+  console.log(meData)
+
+  if(meData.loggedIn == false) {
+    alert("Faça o login para poder acessar o painel, Redirecionando...");
+    window.location.href = "/login_admin";
+  }
+})
+
 // sombra no header ao rolar
 const mainEl = document.querySelector('.main');
 const headerEl = document.querySelector('.main > header');

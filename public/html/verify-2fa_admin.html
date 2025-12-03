@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificação 2FA Administradores - Balcão e Bandeja</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/ektkb6r.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/verify-2fa.css">
+</head>
+<body>
+    <div id="notifications"></div>
+    <header>
+        <div class="logo">
+            <img src="https://cdn.awsli.com.br/400x300/2646/2646949/logo/logo-bb-x8dtghds2a.png" alt="Logo da Loja">
+        </div>
+    </header>
+  <div class="verify-container">
+    <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Shield">
+    <h1>Verificação em 2 Etapas</h1>
+    <p>Insira o código de 6 dígitos enviado ao seu e-mail.</p>
+
+    <form id="verify-form">
+        <div class="code-inputs">
+            <input type="text" maxlength="1" required>
+            <input type="text" maxlength="1" required>
+            <input type="text" maxlength="1" required>
+            <input type="text" maxlength="1" required>
+            <input type="text" maxlength="1" required>
+            <input type="text" maxlength="1" required>
+        </div>
+        <button type="submit">Verificar</button>
+    </form>
+
+    <div class="resend">
+      
+    </div>
+  </div>
+
+  <script src="../js/verify-2fa_admin.js"></script>
+</body>
+</html>

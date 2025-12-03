@@ -14,6 +14,11 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 router.get('/logout', AuthController.logout);
 
+// =================== ADMINISTRADORES =======================
+router.post('/register-admin', AuthController.register_admin);
+router.post('/login-admin', AuthController.login_admin);
+// ===========================================================
+
 router.post("/forgot", forgotLimiter, AuthController.requestPasswordReset);
 router.post("/reset", AuthController.resetPassword);
 

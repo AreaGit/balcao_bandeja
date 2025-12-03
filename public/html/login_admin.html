@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrativo - Balcão e Bandeja</title>
+    <link rel="shortcut icon" href="https://i.imgur.com/ektkb6r.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <!-- CABEÇALHO -->
+    <header>
+        <div class="logo">
+            <a href="#">
+                <img src="https://cdn.awsli.com.br/400x300/2646/2646949/logo/logo-bb-x8dtghds2a.png" alt="Logo da Loja">
+            </a>
+        </div>
+    </header>
+
+    <!-- SEÇÃO DO FORM DE LOGIN -->
+
+    <section class="login-section">
+        <div class="login-container">
+            <h2>Bem-vindo(a) de volta</h2>
+            <p>Faça login para acessar sua conta <strong>Administrativa!</strong></p>
+            
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" placeholder="Digite seu e-mail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" placeholder="Digite sua senha" required>
+                    <span class="toggle-senha" data-target="password">
+                        <!-- Ícone olho fechado inicial -->
+                        <img style="display: none;" id="eye-closed" width="30" height="30" src="https://img.icons8.com/ios/50/closed-eye.png" alt="closed-eye"/>
+                        <img style="display: none;" id="eye-open" width="30" height="30" src="https://img.icons8.com/ios/50/visible--v1.png" alt="visible--v1"/>
+                    </span>
+                </div>
+                
+                <!-- Container para o código 2FA -->
+                <div id="twofa-container" style="display:none;">
+                    <input type="text" id="twofa-code" placeholder="Digite o código de verificação" maxlength="6">
+                    <button type="button" id="verify-2fa">Verificar</button>
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+            </form>
+        </div>
+    </section>
+
+  <!-- Container de notificações -->
+  <div id="notifications"></div>
+
+  <script src="../js/login_admin.js"></script>
+</body>
+</html>

@@ -97,12 +97,12 @@ header {
 /* Ícone mostrar/esconder senha */
 .toggle-senha {
   position: absolute;
-  top: 50%;
+  top: 65%;
   right: 12px;
   transform: translateY(-50%);
   cursor: pointer;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   fill: #1E1939;
 }
 

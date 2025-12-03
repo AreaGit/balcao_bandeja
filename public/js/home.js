@@ -383,7 +383,7 @@ function renderMaisVendidos(produtos) {
     div.innerHTML = `
       <img src="${p.imagens?.[0] || '/assets/no-image.png'}" alt="${p.nome}">
       <h3>${p.nome}</h3>
-      <p>R$ ${(p.valorPromocional || p.valor).replace('.', ',')}</p>
+      <p>R$ ${(p.valor).replace('.', ',')}</p>
     `;
     div.addEventListener("click", () => {
       window.location.href = `/detalhes-produto?id=${p.id}`;

@@ -18,10 +18,14 @@ router.get("/somos", PagesController.somos);
 router.get("/troca", PagesController.troca);
 router.get("/autentication", PagesController.autenticacao);
 router.get("/api/me", PagesController.inicial);
+router.get("/api/me-admin", PagesController.adm);
 router.get("/administrativo", PagesController.administrativo);
 router.get("/pedido-confirmado", PagesController.pedido_confirmado);
 router.get("/forgot-password", PagesController.forgot_password);
 router.get("/reset-password", PagesController.reset_password);
 router.get("/beneficio", PagesController.beneficio);
+router.get("/register_admin", PagesController.register_admin);
+router.get("/login_admin", PagesController.login_admin);
+router.get("/autentication_admin", PagesController.autenticacao_admin);
 
 module.exports = router;

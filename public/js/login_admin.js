@@ -43,9 +43,9 @@ toggleSenha.addEventListener("click", () => {
   }
 });
 
-// Login
+
 loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
   const email = document.getElementById("email").value.trim();
   const password = senhaInput.value.trim();
@@ -55,8 +55,8 @@ loginForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  try {
-    const res = await fetch("/api/auth/login", {
+    try {
+    const res = await fetch("/api/auth/login-admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, senha: password })
@@ -79,42 +79,11 @@ loginForm.addEventListener("submit", async (e) => {
     }
 
     // Login sem 2FA
-    showNotification("✅ Código de Verifição de Duas Etapas Enviado!", "success");
-    setTimeout(() => window.location.href = "/autentication", 1500);
+    showNotification("✅ Realizado com Sucesso!", "success");
+    setTimeout(() => window.location.href = "/autentication_admin", 1500);
 
   } catch (err) {
     showNotification("❌ Erro de conexão com o servidor", "error");
   }
-});
 
-// Verificar 2FA
-verify2FAButton.addEventListener("click", async () => {
-  const code = twoFAInput.value.trim();
-  const userId = loginForm.dataset.tempUserId;
-
-  if (!code) {
-    showNotification("❌ Digite o código de verificação", "error");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/2fa/verify-2fa", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, userId })
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      showNotification("❌ " + (data.error || "Código inválido"), "error");
-      return;
-    }
-
-    showNotification("✅ Código de Verifição de Duas Etapas Enviado!", "success");
-    setTimeout(() => window.location.href = "/autentication", 1500);
-
-  } catch (err) {
-    showNotification("❌ Erro de conexão com o servidor", "error");
-  }
 });
