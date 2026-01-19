@@ -3,16 +3,19 @@ const User = require("../models/user.model");
 const Administrators = require("../models/administrators.model");
 const { send2FACode, send2FACodeAdmin } = require("./2fa.controllers");
 const { criarClienteAsaas } = require("../services/asaas.services");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const crypto = require("crypto");
 const PasswordResetToken = require("../models/passwordResetToken.model");
 const { enviarEmail } = require("../utils/email");
+const Cart = require("../models/cart.model");
+const CartItem = require("../models/cartItem.model");
 
 // Configuráveis
 const RESET_TOKEN_BYTES = 32;
 const RESET_TOKEN_TTL_MIN = 15;
 const BCRYPT_ROUNDS = 12;
 const APP_URL = "https://balcaoebandeja.com.br"; // ajuste
+const ADMIN_2FA_TTL_MINUTES = 43200; // 1 hora
 
 function sha256Hex(input) {
   return crypto.createHash("sha256").update(input).digest("hex");
@@ -84,10 +87,13 @@ async function register(req, res, next) {
     user.customer_asaas_id = clienteAsaas.id;
     await user.save();
 
+    // após salvar user
+    await send2FACode(user);
+    req.session.tempUser = { id: user.id, email: user.email, nome: user.nome };
+
     return res.status(201).json({
-      id: user.id,
-      nome: user.nome,
-      email: user.email
+      message: "Cadastro criado. Verifique o código enviado para seu email.",
+      userId: user.id
     });
   } catch (err) {
     next(err);
@@ -97,19 +103,135 @@ async function register(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, senha } = req.body;
-    if (!email || !senha) return res.status(400).json({ error: "Email e senha são obrigatórios" });
+    const tempUser = req.session.tempUser;
+    if (!tempUser) {
 
-    const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(401).json({ error: "Credenciais inválidas" });
+      if (!email || !senha) {
+        return res.status(400).json({ error: "Email e senha são obrigatórios" });
+      }
 
-    const ok = await bcrypt.compare(senha, user.senha);
-    if (!ok) return res.status(401).json({ error: "Credenciais inválidas" });
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
 
-    // ❗ Aqui entra o 2FA
-    await send2FACode(user); // envia código por email
-    req.session.tempUser = { id: user.id, email: user.email, nome: user.nome }; // guarda temporário
+      const ok = await bcrypt.compare(senha, user.senha);
+      if (!ok) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
 
-    return res.json({ message: "Código de verificação enviado por email" });
+      if (!user.is_verified) {
+        return res.status(403).json({
+          error: "Conta não verificada. Confirme seu cadastro."
+        });
+      }
+      // 🔐 cria sessão do usuário
+      req.session.user = {
+        id: user.id,
+        nome: user.nome,
+        email: user.email
+      };
+
+      const guestId = req.session.guestId;
+
+      if (guestId) {
+        const guestCart = await Cart.findOne({
+          where: { guestId },
+          include: ["items"]
+        });
+
+        const userCart = await Cart.findOne({
+          where: { userId: user.id },
+          include: ["items"]
+        });
+
+        // 🧩 Caso 1: guest tem carrinho e user NÃO
+        if (guestCart && !userCart) {
+          await guestCart.update({
+            userId: user.id,
+            guestId: null
+          });
+        }
+
+        // 🧩 Caso 2: guest E user têm carrinho → MESCLAR
+        if (guestCart && userCart) {
+          for (const guestItem of guestCart.items) {
+            const existingItem = userCart.items.find(
+              item => item.productId === guestItem.productId
+            );
+
+            if (existingItem) {
+              // soma quantidades
+              await existingItem.update({
+                quantity: existingItem.quantity + guestItem.quantity
+              });
+            } else {
+              // move item
+              await CartItem.create({
+                cartId: userCart.id,
+                productId: guestItem.productId,
+                quantity: guestItem.quantity
+              });
+            }
+          }
+
+          // remove carrinho guest
+          await guestCart.destroy();
+        }
+
+        // limpa guestId da sessão
+        delete req.session.guestId;
+      }
+
+      console.log("Usuário logado:", req.session.user);
+
+    } else {
+
+      if (!email || !senha) {
+        return res.status(400).json({ error: "Email e senha são obrigatórios" });
+      }
+
+      const user = await User.findOne({ where: { email } });
+      if (!user) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
+
+      const ok = await bcrypt.compare(senha, user.senha);
+      if (!ok) {
+        return res.status(401).json({ error: "Credenciais inválidas" });
+      }
+
+      if (!user.is_verified) {
+        return res.status(403).json({
+          error: "Conta não verificada. Confirme seu cadastro."
+        });
+      }
+
+      // Salva o usuário real na sessão
+      req.session.user = tempUser;
+      delete req.session.tempUser;
+      
+      // Migra o carrinho do guest para o user
+      const guestId = req.session.guestId;
+      if (guestId) {
+        const cart = await Cart.findOne({ where: { guestId } });
+        
+        if (cart) {
+          // Atualiza o carrinho existente
+          await cart.update({
+            userId: tempUser.id,
+            guestId: null
+          });
+        }
+      }
+      
+      console.log("Usuário logado: ", req.session.user);
+
+    }
+
+    // gera token / sessão aqui
+    return res.json({ message: "Login realizado com sucesso" });
+
   } catch (err) {
     next(err);
   }
@@ -159,19 +281,64 @@ async function register_admin(req, res, next) {
 async function login_admin(req, res, next) {
   try {
     const { email, senha } = req.body;
-    if (!email || !senha) return res.status(400).json({ error: "Email e senha são obrigatórios" });
+    if (!email || !senha) {
+      return res.status(400).json({ error: "Email e senha são obrigatórios" });
+    }
 
     const user = await Administrators.findOne({ where: { email } });
-    if (!user) return res.status(401).json({ error: "Credenciais inválidas" });
+    if (!user) {
+      return res.status(401).json({ error: "Credenciais inválidas" });
+    }
 
     const ok = await bcrypt.compare(senha, user.password);
-    if (!ok) return res.status(401).json({ error: "Credenciais inválidas" });
+    if (!ok) {
+      return res.status(401).json({ error: "Credenciais inválidas" });
+    }
 
-    // ❗ Aqui entra o 2FA
-    await send2FACodeAdmin(user); // envia código por email
-    req.session.tempUser = { id: user.id, email: user.email, nome: user.name }; // guarda temporário
+    const now = new Date();
 
-    return res.json({ message: "Código de verificação enviado por email" });
+    // 🧠 Nunca validou 2FA ou expirou
+    let twoFARequired = false;
+
+    if (!user.last_2fa_at) {
+      twoFARequired = true;
+    } else {
+      const diffMinutes =
+        (now - new Date(user.last_2fa_at)) / 1000 / 60;
+
+      if (diffMinutes >= ADMIN_2FA_TTL_MINUTES) {
+        twoFARequired = true;
+      }
+    }
+
+    // 🔐 Precisa de 2FA
+    if (twoFARequired) {
+      await send2FACodeAdmin(user);
+
+      req.session.tempUser = {
+        id: user.id,
+        email: user.email,
+        nome: user.name
+      };
+
+      return res.json({
+        twoFARequired: true,
+        message: "Código de verificação enviado por email"
+      });
+    }
+
+    // 🔓 Login direto (2FA ainda válido)
+    req.session.admin = {
+      id: user.id,
+      email: user.email,
+      nome: user.name
+    };
+
+    return res.json({
+      twoFARequired: false,
+      message: "Login administrativo realizado"
+    });
+
   } catch (err) {
     next(err);
   }

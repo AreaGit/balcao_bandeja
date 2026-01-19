@@ -25,11 +25,14 @@ const inputs = document.querySelectorAll('.code-inputs input');
       return;
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get("userId");
+
     try {
       const res = await fetch("/api/2fa/verify-2fa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code })
+        body: JSON.stringify({ code, userId })
       });
 
       const data = await res.json();
@@ -38,10 +41,11 @@ const inputs = document.querySelectorAll('.code-inputs input');
         return;
       }
 
-      showNotification("Login confirmado!", "success");
-      setTimeout(() => {
-        window.location.href = "/"; // Redireciona para a home
-      }, 1500);
+    showNotification("✅ Conta verificada com sucesso!", "success");
+
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 1500);
 
     } catch (err) {
       console.error(err);
