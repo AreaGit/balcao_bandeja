@@ -65,22 +65,15 @@ loginForm.addEventListener("submit", async (e) => {
     const data = await res.json();
 
     if (!res.ok) {
-      if (data.twoFARequired) {
-        // Mostra o campo de 2FA
-        twoFAContainer.style.display = "block";
-        showNotification("📩 Código 2FA enviado para seu e-mail", "info");
-
-        // Armazena usuário temporário no JS para enviar junto com o código
-        loginForm.dataset.tempUserId = data.userId;
-      } else {
-        showNotification("❌ " + (data.error || "Erro ao efetuar login"), "error");
-      }
+      showNotification("❌ " + (data.error || "Erro ao efetuar login"), "error");
       return;
     }
 
-    // Login sem 2FA
-    showNotification("✅ Código de Verifição de Duas Etapas Enviado!", "success");
-    setTimeout(() => window.location.href = "/autentication", 1500);
+    showNotification("✅ Login realizado com sucesso!", "success");
+
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 1500);
 
   } catch (err) {
     showNotification("❌ Erro de conexão com o servidor", "error");

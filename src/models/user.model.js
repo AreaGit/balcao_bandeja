@@ -45,6 +45,10 @@ const User = db.define("usuarios", {
   senha: {
     type: Sequelize.STRING(255),
     allowNull: false
+  },
+  is_verified: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
   }
 });
 

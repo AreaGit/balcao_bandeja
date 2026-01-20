@@ -305,12 +305,14 @@ async function carregarDados() {
     if (userData) {
       document.getElementById("nome").value = userData.nome || "";
       document.getElementById("email").value = userData.email || "";
-      document.getElementById("telefone").value = userData.telefone || "";
-      document.getElementById("endereco").value = userData.endereco || "";
+      document.getElementById("telefone").value = userData.celular || "";
+      document.getElementById("endereco").value = userData.rua || "";
       document.getElementById("cidade").value = userData.cidade || "";
       document.getElementById("cep").value = userData.cep || "";
+      document.getElementById("estado").value = userData.estado || "";
     }
     await carregarResumoPedido();
+    await buscarEndereco();
   } catch (error) {
     console.error("Erro ao carregar dados do usuário:", error);
   }

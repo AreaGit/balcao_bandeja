@@ -179,11 +179,13 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    showNotification("✅ Cadastro realizado com sucesso!", "success");
+    showNotification("📩 Código de verificação enviado para seu e-mail", "success");
     form.reset();
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setTimeout(() => { window.location.href = "/login"; }, 2000);
 
+    setTimeout(() => {
+      window.location.href = `/autentication?userId=${result.userId}`;
+    }, 1500);
   } catch (err) {
     showNotification("❌ Erro de conexão com o servidor", "error");
   }

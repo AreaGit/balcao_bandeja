@@ -1,51 +1,41 @@
 const loginForm = document.querySelector(".login-form");
 const senhaInput = document.getElementById("password");
-senhaInput.type = password;
 const toggleSenha = document.querySelector(".toggle-senha");
 const twoFAContainer = document.getElementById("twofa-container");
-const twoFAInput = document.getElementById("twofa-code");
-const verify2FAButton = document.getElementById("verify-2fa");
 
-if (senhaInput.type === "password") {
-  senhaInput.type = "text";
-  document.getElementById("eye-open").style.display = "block";
-  document.getElementById("eye-closed").style.display = "none";
-} else {
-  senhaInput.type = "password";
-  document.getElementById("eye-closed").style.display = "block";
-  document.getElementById("eye-open").style.display = "none";
-}
+// garante estado inicial
+senhaInput.type = "password";
+twoFAContainer.style.display = "none";
 
-// Função de notificação
+// =======================
+// NOTIFICAÇÃO
+// =======================
 function showNotification(message, type = "info") {
   const container = document.getElementById("notifications");
   const notification = document.createElement("div");
-  notification.classList.add("notification", type);
+  notification.className = `notification ${type}`;
   notification.innerText = message;
 
   container.appendChild(notification);
-
-  setTimeout(() => {
-    notification.remove();
-  }, 5000);
+  setTimeout(() => notification.remove(), 4000);
 }
 
-// Mostrar/Esconder senha
+// =======================
+// TOGGLE SENHA
+// =======================
 toggleSenha.addEventListener("click", () => {
-  if (senhaInput.type === "password") {
-    senhaInput.type = "text";
-    document.getElementById("eye-open").style.display = "block";
-    document.getElementById("eye-closed").style.display = "none";
-  } else {
-    senhaInput.type = "password";
-    document.getElementById("eye-closed").style.display = "block";
-    document.getElementById("eye-open").style.display = "none";
-  }
+  const isPassword = senhaInput.type === "password";
+  senhaInput.type = isPassword ? "text" : "password";
+
+  document.getElementById("eye-open").style.display = isPassword ? "block" : "none";
+  document.getElementById("eye-closed").style.display = isPassword ? "none" : "block";
 });
 
-
+// =======================
+// LOGIN ADMIN
+// =======================
 loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
   const email = document.getElementById("email").value.trim();
   const password = senhaInput.value.trim();
@@ -55,7 +45,7 @@ loginForm.addEventListener("submit", async (e) => {
     return;
   }
 
-    try {
+  try {
     const res = await fetch("/api/auth/login-admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,26 +54,26 @@ loginForm.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    if (!res.ok) {
-      if (data.twoFARequired) {
-        // Mostra o campo de 2FA
-        twoFAContainer.style.display = "block";
-        showNotification("📩 Código 2FA enviado para seu e-mail", "info");
-
-        // Armazena usuário temporário no JS para enviar junto com o código
-        loginForm.dataset.tempUserId = data.userId;
-      } else {
-        showNotification("❌ " + (data.error || "Erro ao efetuar login"), "error");
-      }
+    if (!res.ok && !data.twoFARequired) {
+      showNotification(data.error || "Erro ao efetuar login", "error");
       return;
     }
 
-    // Login sem 2FA
-    showNotification("✅ Realizado com Sucesso!", "success");
-    setTimeout(() => window.location.href = "/autentication_admin", 1500);
+    // 🔐 2FA necessário
+    if (data.twoFARequired) {
+      showNotification("📩 Código de verificação enviado para seu e-mail", "info");
+      window.location.href = "/autentication_admin";
+      return;
+    }
+
+    // 🔓 Login direto
+    showNotification("✅ Login administrativo realizado!", "success");
+    setTimeout(() => {
+      window.location.href = "/administrativo";
+    }, 1200);
 
   } catch (err) {
+    console.error(err);
     showNotification("❌ Erro de conexão com o servidor", "error");
   }
-
 });

@@ -18,6 +18,10 @@ const Administrators = db.define("administrators", {
     password: {
         type: Sequelize.STRING(255),
         allowNull: false
+    },
+    last_2fa_at: {
+        type: Sequelize.DATE,
+        allowNull: true
     }
 });
 
