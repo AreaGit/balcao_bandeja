@@ -40,8 +40,8 @@ function maskCEP(value) {
 }
 
 // Aplicar máscaras em tempo real ----
-document.getElementById("cpf").addEventListener("input", (e) => {
-  e.target.value = maskCPF(e.target.value);
+document.getElementById("documento").addEventListener("input", (e) => {
+  e.target.value = maskDocumento(e.target.value);
 });
 document.getElementById("celular").addEventListener("input", (e) => {
   e.target.value = maskCelular(e.target.value);
@@ -101,6 +101,64 @@ function validarCPF(cpf) {
   return true;
 }
 
+function validarCNPJ(cnpj) {
+  cnpj = cnpj.replace(/\D/g, "");
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+
+  let tamanho = cnpj.length - 2;
+  let numeros = cnpj.substring(0, tamanho);
+  let digitos = cnpj.substring(tamanho);
+  let soma = 0;
+  let pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros[tamanho - i] * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  if (resultado !== parseInt(digitos[0])) return false;
+
+  tamanho += 1;
+  numeros = cnpj.substring(0, tamanho);
+  soma = 0;
+  pos = tamanho - 7;
+
+  for (let i = tamanho; i >= 1; i--) {
+    soma += numeros[tamanho - i] * pos--;
+    if (pos < 2) pos = 9;
+  }
+
+  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  return resultado === parseInt(digitos[1]);
+}
+
+function maskDocumento(value) {
+  value = value.replace(/\D/g, "");
+
+  // CPF
+  if (value.length <= 11) {
+    return value
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+
+  // CNPJ
+  return value
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
+function validarDocumento(doc) {
+  const clean = doc.replace(/\D/g, "");
+  if (clean.length === 11) return validarCPF(clean);
+  if (clean.length === 14) return validarCNPJ(clean);
+  return false;
+}
+
 function validarEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -114,7 +172,7 @@ form.addEventListener("submit", async (e) => {
 
   // Verifica se todos os campos obrigatórios foram preenchidos
   const camposObrigatorios = [
-    "nome", "cpf", "celular", "sexo", "dataNascimento",
+    "nome", "documento", "celular", "sexo", "dataNascimento",
     "cep", "rua", "numero", "bairro", "cidade", "estado",
     "email", "senha", "confirm-senha"
   ];
@@ -133,9 +191,10 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  const cpf = document.getElementById("cpf").value;
-  if (!validarCPF(cpf)) {
-    showNotification("❌ CPF inválido!", "error");
+  const documento = document.getElementById("documento").value;
+
+  if (!validarDocumento(documento)) {
+    showNotification("❌ CPF ou CNPJ inválido!", "error");
     return;
   }
 
@@ -148,7 +207,7 @@ form.addEventListener("submit", async (e) => {
   // Se tudo passou, cria objeto com os dados
   const data = {
     nome: document.getElementById("nome").value,
-    cpf: document.getElementById("cpf").value,
+    documento: document.getElementById("documento").value,
     celular: document.getElementById("celular").value,
     telefoneFixo: document.getElementById("telefoneFixo").value,
     sexo: document.getElementById("sexo").value,
