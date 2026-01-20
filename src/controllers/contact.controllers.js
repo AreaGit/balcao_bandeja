@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 const ContactMessage = require("../models/contactMessage.model");
 const Beneficio = require("../models/beneficios.model");
 // se você já tem util de e-mail no projeto, reaproveite:
-const { enviarEmail } = require("../utils/email"); // ajuste o path se necessário
+const { enviarEmail, wrapPremiumLayout } = require("../utils/email"); // ajuste o path se necessário
 
 const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "suporte@balcaoebandeja.com.br";
 const BRAND_NAME = process.env.BRAND_NAME || "Balcão & Bandeja";
@@ -118,12 +118,12 @@ exports.list = async (req, res) => {
 
     const where = q
       ? {
-          [Op.or]: [
-            { name: { [Op.like]: `%${q}%` } },
-            { email: { [Op.like]: `%${q}%` } },
-            { subject: { [Op.like]: `%${q}%` } }
-          ]
-        }
+        [Op.or]: [
+          { name: { [Op.like]: `%${q}%` } },
+          { email: { [Op.like]: `%${q}%` } },
+          { subject: { [Op.like]: `%${q}%` } }
+        ]
+      }
       : undefined;
 
     const { rows, count } = await ContactMessage.findAndCountAll({
@@ -192,14 +192,14 @@ exports.store = async (req, res) => {
         mensagem: "Preencha todos os campos obrigatórios."
       });
     }
-    
+
     if (!email.includes("@")) {
       return res.status(400).json({
         status: "erro",
         mensagem: "E-mail inválido."
       });
     }
-    
+
     // =======================
     // NORMALIZAÇÃO DOS DADOS
     // =======================
@@ -207,7 +207,7 @@ exports.store = async (req, res) => {
     const cpfCnpjLimpo = cpf_cnpj.replace(/\D/g, "");
     const whatsappLimpo = whatsapp.replace(/\D/g, "").replace(/^0/, "");
     const emailLower = email.trim().toLowerCase();
-    
+
     // =======================
     // SALVAMENTO
     // =======================
@@ -218,58 +218,56 @@ exports.store = async (req, res) => {
       email: emailLower
     });
 
-     // ========= TEMPLATE DO EMAIL =========
-      const htmlEmail = `
-      <div style="font-family:Arial, Helvetica, sans-serif; background:#f7f6fb; padding:40px; color:#1E1939;">
-        
-        <div style="max-width:600px; margin:auto; background:white; padding:32px; border-radius:18px; box-shadow:0 14px 40px rgba(30,25,57,0.08);">
-          
-          <h1 style="font-size:26px; font-weight:800; margin-bottom:14px; color:#1E1939;">
-            🎉 Bem-vindo ao Clube VIP da Balcão & Bandeja!
-          </h1>
+    // ========= TEMPLATE DO EMAIL =========
+    const htmlEmail = wrapPremiumLayout("Clube VIP", `
+      <h2 style="font-size:24px; font-weight:700; color:#1E1939; margin-bottom:24px;">🎉 Bem-vindo ao grupo de elite!</h2>
+      
+      <p style="font-size:18px; line-height:1.6; color:#4a4a5e; margin-bottom:32px;">
+        Olá, <strong style="color:#1E1939;">${nome}</strong>! <br><br>
+        É uma honra ter você no <strong>Clube VIP da Balcão & Bandeja</strong>. Seu cadastro foi processado com sucesso e você acaba de desbloquear um novo nível de experiência.
+      </p>
 
-          <p style="font-size:17px; line-height:1.58; color:#6b6b7a;">
-            Olá <strong>${nome}</strong>,<br><br>
-            Seu cadastro foi concluído com sucesso e agora você faz parte de um grupo seleto que recebe 
-            <strong>benefícios exclusivos, atendimento prioritário</strong> e uma experiência pensada para quem busca sempre o melhor.
-          </p>
-
-          <div style="margin:24px 0; padding:18px; background:linear-gradient(135deg, #1E1939, #3b3570); color:white; border-radius:14px;">
-            <p style="margin:0; font-size:16px; line-height:1.6;">
-              No Clube VIP, cada detalhe importa. Você está no lugar certo para transformar suas demandas em soluções eficientes, personalizadas e com o padrão de excelência da Balcão & Bandeja.
-            </p>
-          </div>
-
-          <p style="font-size:16px; color:#6b6b7a;">
-            Fique atento ao seu e-mail — em breve nossa equipe entrará em contato para oferecer a melhor consultoria para a sua empresa.
-          </p>
-
-          <p style="margin-top:28px; font-size:15px; color:#9d9db0; text-align:center;">
-            Com carinho,<br>
-            <strong>Equipe Balcão & Bandeja</strong>
-          </p>
-        </div>
-
+      <!-- Highlight Box -->
+      <div style="background-color:#1E1939; border-left:6px solid #E7FF14; padding:24px; border-radius:12px; margin-bottom:32px;">
+        <p style="color:#ffffff; margin:0; font-size:16px; line-height:1.6; font-weight:500;">
+          Você agora tem acesso a <strong>benefícios exclusivos, atendimento prioritário</strong> e consultoria personalizada para elevar o padrão do seu negócio.
+        </p>
       </div>
-      `;
+
+      <p style="font-size:16px; line-height:1.6; color:#6b6b7a; margin-bottom:40px;">
+        Nosso time de especialistas já foi notificado e entrará em contato em breve para apresentar todas as vantagens que preparamos especialmente para você.
+      </p>
+
+      <!-- Action Button/Visual Divider -->
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="border-top:1px solid #edf2f7; padding-top:32px; text-align:center;">
+            <p style="font-size:14px; color:#9d9db0; margin-bottom:8px;">Acompanhe nossas novidades</p>
+            <div style="display:inline-block; background-color:#E7FF14; color:#1E1939; padding:12px 32px; border-radius:30px; font-weight:800; font-size:16px; text-transform:uppercase; letter-spacing:1px;">
+              Excelência Garantida
+            </div>
+          </td>
+        </tr>
+      </table>
+    `);
 
     await enviarEmail(
-        email,
-        `Você agora faz parte do Clube VIP da Balcão & Bandeja! 🎉`,
-        `
+      email,
+      `Você agora faz parte do Clube VIP da Balcão & Bandeja! 🎉`,
+      `
           ${htmlEmail}
         `
-      );
-    
+    );
+
     return res.status(201).json({
       status: "sucesso",
       mensagem: "Benefício ativado com sucesso!",
       dados: beneficio
     });
-    
+
   } catch (error) {
     console.error("Erro ao salvar benefício:", error);
-    
+
     return res.status(500).json({
       status: "erro",
       mensagem: "Erro interno ao processar a solicitação.",
@@ -283,13 +281,13 @@ exports.index = async (req, res) => {
     const beneficios = await Beneficio.findAll({
       order: [["created_at", "DESC"]]
     });
-    
+
     return res.json({
       status: "sucesso",
       quantidade: beneficios.length,
       dados: beneficios
     });
-    
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -302,21 +300,21 @@ exports.index = async (req, res) => {
 exports.show = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const beneficio = await Beneficio.findByPk(id);
-    
+
     if (!beneficio) {
       return res.status(404).json({
         status: "erro",
         mensagem: "Registro não encontrado."
       });
     }
-    
+
     return res.json({
       status: "sucesso",
       dados: beneficio
     });
-    
+
   } catch (error) {
     return res.status(500).json({
       status: "erro",

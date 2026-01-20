@@ -111,8 +111,8 @@ async function sendStatusEmail(to, nomeCliente, pedidoId, status) {
     port: Number(process.env.SMTP_PORT),
     secure: true,
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS
     }
   });
 
@@ -226,8 +226,8 @@ async function getClientesPaginated(req, res) {
     const { rows, count } = await Usuario.findAndCountAll({
       where: whereClause,
       attributes: ["id", "nome", "cpf", "celular", "telefoneFixo", "sexo", "dataNascimento",
-      "cep", "rua", "numero", "complemento", "referencia", "bairro",
-      "cidade", "estado", "email", "senha"],
+        "cep", "rua", "numero", "complemento", "referencia", "bairro",
+        "cidade", "estado", "email", "senha"],
       order: [["nome", "ASC"]],
       limit: parseInt(limit),
       offset: parseInt(offset)
@@ -589,7 +589,7 @@ async function getFinancialBalance(req, res) {
     const totalVendasAno = data.reduce((sum, m) => sum + parseFloat(m.vendas), 0);
     const totalLucroAno = data.reduce((sum, m) => sum + parseFloat(m.lucro), 0);
     const margemMedia = totalVendasAno ? (totalLucroAno / totalVendasAno) * 100 : 0;
-    
+
     let crescimento = 0;
     if (data.length > 1) {
       const penultimo = parseFloat(data[data.length - 2].lucro);
@@ -597,7 +597,7 @@ async function getFinancialBalance(req, res) {
       crescimento = penultimo ? ((ultimo - penultimo) / penultimo) * 100 : 0;
     }
 
-    
+
     res.json({
       meses: data,
       resumo: {

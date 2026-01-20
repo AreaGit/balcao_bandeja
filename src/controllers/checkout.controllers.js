@@ -9,7 +9,7 @@ const Pedido = require("../models/pedido");
 const PedidoItem = require("../models/pedidoItem.model");
 const sequelize = require("../config/database");
 const Product = require("../models/product.model");
-const { enviarEmail } = require("../utils/email");
+const { enviarEmail, wrapPremiumLayout } = require("../utils/email");
 const { cobrancaPixAsaas, obterCodPix, cobrancaBoletoAsaas, obterLinhaBoleto, cobrancaCartaoAsaas } = require("../services/asaas.services");
 
 
@@ -322,12 +322,28 @@ exports.gerarBoleto = async (req, res) => {
       await enviarEmail(
         cliente.email,
         "🎉 Pedido gerado com sucesso!",
-        `
-          <h2>Olá, ${cliente.nome}!</h2>
-          <p>Seu pedido <strong>#${pedido.id}</strong> foi criado e aguarda o pagamento do boleto.</p>
-          ${cupom ? `<p><strong>Cupom aplicado:</strong> ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})</p>` : ""}
-          <p><a href="${cobranca.bankSlipUrl}" target="_blank">Visualizar boleto</a></p>
-        `
+        wrapPremiumLayout("Pedido Gerado", `
+          <h2 style="font-size:24px; font-weight:700; color:#1E1939; margin-bottom:24px;">Olá, ${cliente.nome}!</h2>
+          <p style="font-size:16px; line-height:1.6; color:#4a4a5e; margin-bottom:24px;">
+            Seu pedido <strong style="color:#1E1939;">#${pedido.id}</strong> foi criado com sucesso e estamos aguardando o pagamento do boleto para prosseguir.
+          </p>
+          
+          ${cupom ? `
+          <div style="background-color:#E7FF14; color:#1E1939; padding:16px; border-radius:12px; margin-bottom:24px; font-weight:700; text-align:center;">
+            Cupom aplicado: ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})
+          </div>
+          ` : ""}
+
+          <div style="text-align:center; margin-bottom:32px;">
+            <a href="${cobranca.bankSlipUrl}" target="_blank" style="display:inline-block; background-color:#1E1939; color:#ffffff; padding:16px 32px; border-radius:12px; text-decoration:none; font-weight:700; font-size:16px;">
+              Visualizar Boleto Bancário
+            </a>
+          </div>
+
+          <p style="font-size:14px; color:#9d9db0; text-align:center; margin:0;">
+            Após o pagamento, a compensação pode levar até 2 dias úteis.
+          </p>
+        `)
       );
     } catch (emailErr) {
       console.warn("Erro ao enviar e-mail:", emailErr.message);
@@ -472,15 +488,35 @@ exports.finalizarPedido = async (req, res) => {
       await enviarEmail(
         usuario.email,
         "🎉 Pedido confirmado!",
-        `
-          <h2>Olá ${usuario.nome},</h2>
-          <p>Seu pedido <strong>#${novoPedido.id}</strong> foi criado com sucesso!</p>
-          ${cupom ? `<p><strong>Cupom aplicado:</strong> ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})</p>` : ""}
-          <p>Em breve você receberá mais detalhes sobre o status do seu pedido.</p>
-          <br>
-          <p>Obrigado por comprar conosco!</p>
-          <p><strong>Equipe Balcão e Bandeja</strong></p>
-        `
+        wrapPremiumLayout("Pedido Confirmado", `
+          <h2 style="font-size:24px; font-weight:700; color:#1E1939; margin-bottom:24px;">Olá, ${usuario.nome}!</h2>
+          <p style="font-size:16px; line-height:1.6; color:#4a4a5e; margin-bottom:24px;">
+            Boas notícias! Seu pedido <strong style="color:#1E1939;">#${novoPedido.id}</strong> foi confirmado e já estamos preparando tudo com muito carinho.
+          </p>
+
+          ${cupom ? `
+          <div style="background-color:#E7FF14; color:#1E1939; padding:12px; border-radius:8px; margin-bottom:24px; font-weight:600; text-align:center; font-size:14px;">
+            Cupom utilizado: ${cupom} (-R$ ${Number(descontoCupom || 0).toFixed(2)})
+          </div>
+          ` : ""}
+
+          <div style="background-color:#f8f9fa; border-radius:16px; padding:24px; margin-bottom:32px; border:1px solid #edf2f7;">
+            <p style="font-size:15px; color:#1E1939; margin:0; line-height:1.6;">
+              Em breve você receberá novas notificações sobre o status da entrega. <br><br>
+              <strong>Obrigado por escolher a Balcão & Bandeja!</strong>
+            </p>
+          </div>
+
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="center">
+                <div style="background-color:#1E1939; color:#E7FF14; padding:10px 24px; border-radius:30px; font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:1px; display:inline-block;">
+                  Pedido em Preparação
+                </div>
+              </td>
+            </tr>
+          </table>
+        `)
       );
     }
   } catch (emailError) {

@@ -339,30 +339,84 @@ function renderLancamentos(produtos) {
     track.appendChild(item);
   });
 
-  // Navegação
+  // Navegação horizontal
   const prevBtn = document.querySelector(".product-carousel-section .carousel-btn.prev");
   const nextBtn = document.querySelector(".product-carousel-section .carousel-btn.next");
   const indicators = document.querySelectorAll(".product-carousel-section .carousel-indicators button");
 
   let currentIndex = 0;
 
-  function showSlide(index) {
-    const items = track.children;
-    const total = items.length;
-    currentIndex = (index + total) % total;
-    Array.from(items).forEach((el, i) => el.style.display = i === currentIndex ? "block" : "none");
-
-    // Atualiza indicadores
-    indicators.forEach((btn, i) => btn.classList.toggle("active", i === currentIndex));
+  function getItemsPerView() {
+    return window.innerWidth > 1440 ? 4 : window.innerWidth > 768 ? 3 : 2;
   }
 
-  prevBtn.addEventListener("click", () => showSlide(currentIndex - 1));
-  nextBtn.addEventListener("click", () => showSlide(currentIndex + 1));
+  function updateCarousel() {
+    const items = Array.from(track.children);
+    if (items.length === 0) return;
+
+    const itemsPerView = getItemsPerView();
+    const totalItems = items.length;
+    const maxIndex = Math.max(0, totalItems - itemsPerView);
+
+    // Garante que não ultrapasse o limite
+    currentIndex = Math.min(currentIndex, maxIndex);
+
+    const itemWidth = items[0].offsetWidth;
+    const gap = 20;
+    const offset = currentIndex * (itemWidth + gap);
+    track.style.transform = `translateX(-${offset}px)`;
+
+    // Atualiza indicadores
+    if (maxIndex > 0) {
+      const indicatorIndex = Math.round((currentIndex / maxIndex) * (indicators.length - 1));
+      indicators.forEach((btn, i) => btn.classList.toggle("active", i === indicatorIndex));
+    }
+
+    // Desabilita botões nos limites
+    prevBtn.style.opacity = currentIndex === 0 ? "0.3" : "1";
+    prevBtn.style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+    nextBtn.style.opacity = currentIndex >= maxIndex ? "0.3" : "1";
+    nextBtn.style.pointerEvents = currentIndex >= maxIndex ? "none" : "auto";
+  }
+
+  prevBtn.addEventListener("click", () => {
+    const itemsPerView = getItemsPerView();
+    const maxIndex = Math.max(0, produtos.length - itemsPerView);
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    const itemsPerView = getItemsPerView();
+    const maxIndex = Math.max(0, produtos.length - itemsPerView);
+    if (currentIndex < maxIndex) {
+      currentIndex++;
+      updateCarousel();
+    }
+  });
 
   // Indicadores clicáveis
-  indicators.forEach((btn, i) => btn.addEventListener("click", () => showSlide(i)));
+  indicators.forEach((btn, i) => {
+    btn.addEventListener("click", () => {
+      const itemsPerView = getItemsPerView();
+      const maxIndex = Math.max(0, produtos.length - itemsPerView);
+      currentIndex = Math.round((i / (indicators.length - 1)) * maxIndex);
+      updateCarousel();
+    });
+  });
 
-  showSlide(0);
+  // Atualiza ao redimensionar
+  let resizeTimeout;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      updateCarousel();
+    }, 100);
+  });
+
+  updateCarousel();
 }
 
 // === Renderizar produtos mais vendidos ===
@@ -390,6 +444,85 @@ function renderMaisVendidos(produtos) {
     });
     container.appendChild(div);
   });
+
+  // Navegação horizontal
+  const prevBtn = document.querySelector(".best-sellers-section .carousel-btn.prev");
+  const nextBtn = document.querySelector(".best-sellers-section .carousel-btn.next");
+  const indicators = document.querySelectorAll(".best-sellers-section .carousel-indicators button");
+
+  let currentIndex = 0;
+
+  function getItemsPerView() {
+    return window.innerWidth > 1024 ? 4 : window.innerWidth > 768 ? 3 : 2;
+  }
+
+  function updateCarousel() {
+    const items = Array.from(container.children);
+    if (items.length === 0) return;
+
+    const itemsPerView = getItemsPerView();
+    const totalItems = items.length;
+    const maxIndex = Math.max(0, totalItems - itemsPerView);
+
+    // Garante que não ultrapasse o limite
+    currentIndex = Math.min(currentIndex, maxIndex);
+
+    const itemWidth = items[0].offsetWidth;
+    const gap = 20;
+    const offset = currentIndex * (itemWidth + gap);
+    container.style.transform = `translateX(-${offset}px)`;
+
+    // Atualiza indicadores
+    if (maxIndex > 0) {
+      const indicatorIndex = Math.round((currentIndex / maxIndex) * (indicators.length - 1));
+      indicators.forEach((btn, i) => btn.classList.toggle("active", i === indicatorIndex));
+    }
+
+    // Desabilita botões nos limites
+    prevBtn.style.opacity = currentIndex === 0 ? "0.3" : "1";
+    prevBtn.style.pointerEvents = currentIndex === 0 ? "none" : "auto";
+    nextBtn.style.opacity = currentIndex >= maxIndex ? "0.3" : "1";
+    nextBtn.style.pointerEvents = currentIndex >= maxIndex ? "none" : "auto";
+  }
+
+  prevBtn.addEventListener("click", () => {
+    const itemsPerView = getItemsPerView();
+    const maxIndex = Math.max(0, produtos.length - itemsPerView);
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    const itemsPerView = getItemsPerView();
+    const maxIndex = Math.max(0, produtos.length - itemsPerView);
+    if (currentIndex < maxIndex) {
+      currentIndex++;
+      updateCarousel();
+    }
+  });
+
+  // Indicadores clicáveis
+  indicators.forEach((btn, i) => {
+    btn.addEventListener("click", () => {
+      const itemsPerView = getItemsPerView();
+      const maxIndex = Math.max(0, produtos.length - itemsPerView);
+      currentIndex = Math.round((i / (indicators.length - 1)) * maxIndex);
+      updateCarousel();
+    });
+  });
+
+  // Atualiza ao redimensionar
+  let resizeTimeout;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      updateCarousel();
+    }, 100);
+  });
+
+  updateCarousel();
 }
 
 // === Executar ===

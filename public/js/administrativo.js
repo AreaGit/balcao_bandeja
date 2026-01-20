@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   console.log(meData)
 
-  if(meData.loggedIn == false) {
+  if (meData.loggedIn == false) {
     alert("Faça o login para poder acessar o painel, Redirecionando...");
     window.location.href = "/login_admin";
   }
@@ -171,7 +171,7 @@ function renderChart(vendas) {
   new Chart(ctx, {
     type: "line",
     data: {
-      labels: ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],
+      labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
       datasets: [{
         label: "Vendas (R$)",
         data: vendas,
@@ -325,8 +325,8 @@ async function initPedidos() {
 
   document.getElementById("statusFilterOrders").addEventListener("change", () => { pedidosPage = 1; loadPedidos(); });
   document.getElementById("searchOrders").addEventListener("input", () => { pedidosPage = 1; loadPedidos(); });
-  document.getElementById("prevPage").addEventListener("click", () => { if(pedidosPage>1){pedidosPage--;loadPedidos();} });
-  document.getElementById("nextPage").addEventListener("click", () => { if(pedidosPage<pedidosTotalPages){pedidosPage++;loadPedidos();} });
+  document.getElementById("prevPage").addEventListener("click", () => { if (pedidosPage > 1) { pedidosPage--; loadPedidos(); } });
+  document.getElementById("nextPage").addEventListener("click", () => { if (pedidosPage < pedidosTotalPages) { pedidosPage++; loadPedidos(); } });
 }
 
 async function loadPedidos() {
@@ -429,7 +429,7 @@ async function abrirModalDetalhesPedido(id) {
 
       <div class="pedido-endereco">
         <h4>Endereço de Entrega</h4>
-        <p>${pedido.endereco.replace(/["]+/g,'')}</p>
+        <p>${pedido.endereco.replace(/["]+/g, '')}</p>
       </div>
 
       ${frete ? `
@@ -481,7 +481,7 @@ async function showPedidoModal(pedido) {
 
   const modal = document.createElement("div");
   modal.className = "modal-overlay";
-  
+
   const itemsRows = detalhes.pedidoItems?.map(item => `
     <tr>
       <td>${item.produto.nome}</td>
@@ -779,11 +779,121 @@ function renderProdutosTable(produtos) {
         <button class="delete" data-id="${p.id}">Excluir</button>
       </td>
     `;
+    tr.style.cursor = "pointer";
+    tr.addEventListener("click", () => abrirModalDetalhesProduto(p.id));
     tbody.appendChild(tr);
   });
 
-  tbody.querySelectorAll(".edit").forEach(btn => btn.addEventListener("click", () => openProdutoModal(btn.dataset.id)));
-  tbody.querySelectorAll(".delete").forEach(btn => btn.addEventListener("click", () => excluirProduto(btn.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); openProdutoModal(btn.dataset.id); }));
+  tbody.querySelectorAll(".delete").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); excluirProduto(btn.dataset.id); }));
+}
+
+async function abrirModalDetalhesProduto(id) {
+  try {
+    // Tenta pegar do cache primeiro para ser instantâneo, se não buscar na API
+    let produto = produtosCache.find(p => String(p.id) === String(id));
+
+    if (!produto) {
+      const res = await fetch(`/api/admin/produtos/${id}`);
+      if (!res.ok) throw new Error("Erro ao buscar detalhes do produto");
+      produto = await res.json();
+    }
+
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    const modal = document.createElement("div");
+    modal.className = "modal modal-produto";
+
+    const imagens = Array.isArray(produto.imagens) ? produto.imagens : (produto.imagem ? [produto.imagem] : []);
+    const imagensHTML = imagens.map((img, i) => `
+      <img src="${img}" alt="${produto.nome}" class="produto-detalhes-img ${i === 0 ? 'active' : ''}" style="${i === 0 ? '' : 'display:none;'} max-width:100%; max-height:400px; border-radius:12px; object-fit:contain;">
+    `).join("");
+
+    modal.innerHTML = `
+      <div class="pedido-header">
+        <h2>${produto.nome}</h2>
+        <button id="fecharDetalhesProd" class="pedido-close">&times;</button>
+      </div>
+
+      <div class="produto-info" style="gap:24px;">
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div class="produto-detalhes-galeria" style="flex:1; min-width:300px; background:rgba(0,0,0,0.2); padding:15px; border-radius:16px;">
+            <div class="main-img-container" style="display:flex; align-items:center; justify-content:center; min-height:300px;">
+              ${imagensHTML || '<p>Sem imagens</p>'}
+            </div>
+            <div class="thumbs" style="display:flex; gap:8px; margin-top:12px; overflow-x:auto;">
+              ${imagens.map((img, i) => `<img src="${img}" class="thumb-img" data-index="${i}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; cursor:pointer; border:2px solid ${i === 0 ? 'var(--brand-accent)' : 'transparent'}; opacity:${i === 0 ? '1' : '0.6'};">`).join("")}
+            </div>
+          </div>
+          
+          <div class="produto-detalhes-detalhes" style="flex:1.2; min-width:300px; display:flex; flex-direction:column; gap:16px;">
+            <div class="info-grid">
+              <p><strong>Preço:</strong> R$ ${parseFloat(produto.valor).toFixed(2)}</p>
+              ${produto.valorPromocional ? `<p><strong>Promocional:</strong> R$ ${parseFloat(produto.valorPromocional).toFixed(2)}</p>` : ""}
+              <p><strong>Estoque:</strong> ${produto.estoque} unidades</p>
+              <p><strong>Categoria:</strong> ${produto.categoria || "—"}</p>
+            </div>
+
+            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+              <p><strong>Peso:</strong> ${produto.peso} kg</p>
+              <p><strong>Altura:</strong> ${produto.altura} cm</p>
+              <p><strong>Largura:</strong> ${produto.largura} cm</p>
+              <p><strong>Comprimento:</strong> ${produto.comprimento} cm</p>
+            </div>
+
+            <div class="cores-bloco">
+              <h4>Cores Disponíveis</h4>
+              <p style="margin:0">${Array.isArray(produto.cores) ? produto.cores.join(", ") : (produto.cores || "—")}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="descricao-bloco">
+          <h4>Descrição Detalhada</h4>
+          <div style="font-size:14px; line-height:1.6; color:#eaeaea; max-height:200px; overflow-y:auto; padding-right:10px;">
+            ${produto.descricao || "Nenhuma descrição disponível."}
+          </div>
+        </div>
+      </div>
+
+      <div class="pedido-footer" style="display:flex; justify-content:center; gap:12px; margin-top:30px;">
+        <button id="editProdBtn" class="pedido-btn" style="background:var(--brand-accent); color:#0d0f27;">Editar Cadastro</button>
+        <button id="closeProdBtn" class="pedido-btn">Fechar</button>
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    modal.querySelectorAll(".thumb-img").forEach(thumb => {
+      thumb.onclick = () => {
+        const idx = thumb.dataset.index;
+        modal.querySelectorAll(".produto-detalhes-img").forEach((img, i) => {
+          img.style.display = (String(i) === String(idx)) ? "block" : "none";
+        });
+        modal.querySelectorAll(".thumb-img").forEach(t => {
+          t.style.borderColor = "transparent";
+          t.style.opacity = "0.6";
+        });
+        thumb.style.borderColor = "var(--brand-accent)";
+        thumb.style.opacity = "1";
+      };
+    });
+
+    const close = () => overlay.remove();
+    document.getElementById("fecharDetalhesProd").onclick = close;
+    document.getElementById("closeProdBtn").onclick = close;
+    document.getElementById("editProdBtn").onclick = () => {
+      close();
+      openProdutoModal(produto.id);
+    };
+    overlay.onclick = e => e.target === overlay && close();
+
+  } catch (err) {
+    console.error(err);
+    showToast("Erro ao carregar detalhes do produto", "error");
+  }
 }
 
 async function openProdutoModal(id = null) {
@@ -791,6 +901,14 @@ async function openProdutoModal(id = null) {
   const produto = isNew ? {} : (produtosCache.find(p => String(p.id) === String(id)) || {});
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
+
+  // Categorias fixas de acordo com a home.html
+  const categoriasFixas = ["Balcões", "BalcãoMDF", "Bandejas", "Mochilas", "Wind"];
+  const coresFixas = [
+    "Verde", "Vermelho", "Amarelo", "Preta", "Branco", "Azul", "Azul-escuro",
+    "Azul-marinho", "Chocolate", "Ciano", "Fúscia", "Laranja", "Lilás",
+    "Marrom", "Rosa", "Rosa-chiclete", "Verde-claro", "Violeta", "Violeta-escuro"
+  ];
 
   // util: normaliza valores que podem vir como array, JSON string ou CSV
   function normalizeArray(val) {
@@ -801,257 +919,201 @@ async function openProdutoModal(id = null) {
       try {
         const parsed = JSON.parse(s);
         if (Array.isArray(parsed)) return parsed;
-      } catch {}
+      } catch { }
       return s.split(",").map(v => v.trim()).filter(Boolean);
     }
     return [];
   }
 
-  let imagensState = normalizeArray(produto.imagens)
-    .concat(normalizeArray(produto.imagem))
-    .filter(Boolean);
-
+  let imagensState = normalizeArray(produto.imagens || produto.imagem);
   const coresState = normalizeArray(produto.cores);
 
   overlay.innerHTML = `
-    <div class="modal modal-produto">
+    <div class="modal modal-produto" style="width: min(900px, 95%);">
       <h3>${isNew ? "Novo Produto" : "Editar Produto"}</h3>
 
-      <div class="produto-info editable-grid">
-        ${
-          isNew
-            ? `
-          <label>Nome</label>
-          <input id="new_nome" type="text" placeholder="Nome do produto">
+      <div class="produto-form">
+        <div class="form-section-title">📦 Informações Básicas</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome do Produto</label>
+            <input id="prod_nome" type="text" value="${produto.nome || ""}" placeholder="Ex: Bandeja Premium">
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <div style="display:flex; gap:8px;">
+            <select id="prod_categoria" style="flex:1;">
+                ${categoriasFixas.map(cat => `<option value="${cat}" ${produto.categoria === cat ? "selected" : ""}>${cat}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+        </div>
 
-          <label>Descrição</label>
-          <textarea id="new_descricao" placeholder="Descrição detalhada..."></textarea>
+        <div class="form-group">
+          <label>Descrição Detalhada</label>
+          <textarea id="prod_descricao" rows="3" placeholder="Descreva as características do produto...">${produto.descricao || ""}</textarea>
+        </div>
 
-          <label>Categoria</label>
-          <input id="new_categoria" type="text" placeholder="Ex: Bandejas">
+        <div class="form-section-title">💰 Preços e Estoque</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Preço (R$)</label>
+            <input id="prod_valor" type="number" step="0.01" value="${produto.valor || ""}" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label>Preço Promocional (R$)</label>
+            <input id="prod_valorPromocional" type="number" step="0.01" value="${produto.valorPromocional || ""}" placeholder="0,00">
+          </div>
+          <div class="form-group">
+            <label>Estoque Atual</label>
+            <input id="prod_estoque" type="number" value="${produto.estoque || "0"}">
+          </div>
+        </div>
 
-          <label>Preço</label>
-          <input id="new_valor" type="number" step="0.01" placeholder="0.00">
+        <div class="form-section-title">🚚 Dimensões para Frete</div>
+        <div class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="form-group">
+            <label>Peso (kg)</label>
+            <input id="prod_peso" type="number" step="0.001" value="${produto.peso || "0.000"}">
+          </div>
+          <div class="form-group">
+            <label>Altura (cm)</label>
+            <input id="prod_altura" type="number" step="0.01" value="${produto.altura || "0.00"}">
+          </div>
+          <div class="form-group">
+            <label>Largura (cm)</label>
+            <input id="prod_largura" type="number" step="0.01" value="${produto.largura || "0.00"}">
+          </div>
+          <div class="form-group">
+            <label>Comp. (cm)</label>
+            <input id="prod_comprimento" type="number" step="0.01" value="${produto.comprimento || "0.00"}">
+          </div>
+        </div>
 
-          <label>Preço Promocional</label>
-          <input id="new_valorPromocional" type="number" step="0.01" placeholder="0.00">
+        <div class="form-section-title">✨ Destaques e Atributos</div>
+        <div class="form-grid">
+          <label class="checkbox-group" id="group_isLancamento">
+            <input type="checkbox" id="prod_isLancamento" ${produto.isLancamento ? "checked" : ""}>
+            <span>Produto Lançamento</span>
+          </label>
+          <label class="checkbox-group" id="group_isMaisVendido">
+            <input type="checkbox" id="prod_isMaisVendido" ${produto.isMaisVendido ? "checked" : ""}>
+            <span>Mais Vendido</span>
+          </label>
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Cores Disponíveis</label>
+            <div class="cores-grid">
+              ${coresFixas.map(cor => `
+                <label class="checkbox-simple">
+                  <input type="checkbox" name="prod_cores" value="${cor}" ${coresState.includes(cor) ? "checked" : ""}>
+                  <span>${cor}</span>
+                </label>
+              `).join("")}
+            </div>
+          </div>
+        </div>
 
-          <label>Estoque</label>
-          <input id="new_estoque" type="number" placeholder="0">
-
-          <label>Peso (kg)</label>
-          <input id="new_peso" type="number" step="0.001" placeholder="0.000">
-
-          <label>Altura (cm)</label>
-          <input id="new_altura" type="number" step="0.01" placeholder="0.00">
-
-          <label>Largura (cm)</label>
-          <input id="new_largura" type="number" step="0.01" placeholder="0.00">
-
-          <label>Comprimento (cm)</label>
-          <input id="new_comprimento" type="number" step="0.01" placeholder="0.00">
-
-          <label>Cores (separe por vírgula)</label>
-          <input id="new_cores" type="text" placeholder="Ex: BRANCO, AZUL, VERMELHO">
-        `
-            : Object.entries(produto)
-                .map(([key, value]) => {
-                  if (["id", "createdAt", "updatedAt", "imagens"].includes(key)) return "";
-                  if (Array.isArray(value)) value = value.join(", ");
-                  if (value === true) value = "✅ Sim";
-                  if (value === false) value = "❌ Não";
-                  return `
-                    <p data-prop="${key}" class="editable">
-                      <strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong>
-                      <span class="value">${value ?? "—"}</span>
-                    </p>`;
-                })
-                .join("")
-        }
-
+        <div class="form-section-title">📸 Galeria de Imagens</div>
         <div class="imagens-bloco">
-          <h4>Imagens</h4>
           <div class="imagens-grid" id="imagensContainer"></div>
-          <button id="addImagemBtn" class="add-btn">+ Adicionar Imagem</button>
+          <button id="addImagemBtn" class="add-btn" style="margin-top:12px;">+ Adicionar URL de Imagem</button>
         </div>
       </div>
 
-      <div id="saveChangesContainer" class="modal-actions ${isNew ? "" : "hidden"}">
-        <button id="saveProduto" class="update">${isNew ? "Criar Produto" : "Salvar Alterações"}</button>
-        <button id="closeProdutoModal" class="success">Fechar</button>
+      <div class="modal-actions" style="margin-top:30px;">
+        <button id="saveProduto" class="update" style="min-width:180px;">${isNew ? "Criar Produto" : "Salvar Alterações"}</button>
+        <button id="closeProdutoModal" class="success">Cancelar</button>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  const changedData = {};
   const container = overlay.querySelector("#imagensContainer");
-
   function renderImagens() {
     container.innerHTML = "";
     if (!imagensState.length) {
-      container.innerHTML = "<p><em>Sem imagens disponíveis.</em></p>";
+      container.innerHTML = "<p style='color:var(--muted); font-size:13px; font-style:italic;'>Nenhuma imagem adicionada.</p>";
       return;
     }
     imagensState.forEach((url, index) => {
       const div = document.createElement("div");
       div.className = "img-box fade-in";
-      div.draggable = true;
-      div.dataset.index = index;
       div.innerHTML = `
-        <img src="${url}" alt="Imagem do Produto" loading="lazy" />
-        <button class="remove-img" title="Remover">×</button>
-        <span class="drag-handle" title="Mover">⋮⋮</span>
+        <img src="${url}" alt="Preview" loading="lazy" />
+        <button class="remove-img" data-index="${index}" title="Remover">×</button>
       `;
       container.appendChild(div);
     });
   }
   renderImagens();
 
-  // === EDIÇÃO INLINE ===
-  if (!isNew) {
-    overlay.querySelectorAll(".editable").forEach(el => {
-      el.addEventListener("click", () => {
-        const key = el.dataset.prop;
-        const valueSpan = el.querySelector(".value");
-        const currentValue = valueSpan.textContent.trim();
-
-        if (el.querySelector("input, textarea")) return;
-        const input = document.createElement(currentValue.length > 40 ? "textarea" : "input");
-        input.value = currentValue === "—" ? "" : currentValue;
-        input.className = "edit-input";
-        valueSpan.replaceWith(input);
-        input.focus();
-
-        input.addEventListener("blur", () => {
-          const newValue = input.value.trim() || "—";
-          if (key === "cores" && newValue !== "—") {
-            const arr = newValue.split(",").map(c => c.trim().toUpperCase()).filter(Boolean);
-            changedData[key] = arr;
-          } else if (newValue !== currentValue) {
-            changedData[key] = newValue;
-          }
-          const span = document.createElement("span");
-          span.className = "value";
-          span.textContent = newValue;
-          input.replaceWith(span);
-          document.getElementById("saveChangesContainer").classList.remove("hidden");
-        });
-      });
-    });
-  }
-
-  // === ADICIONAR / REMOVER IMAGEM ===
-  const addBtn = overlay.querySelector("#addImagemBtn");
-  addBtn.addEventListener("click", () => {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "Cole a URL da imagem e pressione Enter";
-    input.className = "edit-input";
-    addBtn.insertAdjacentElement("beforebegin", input);
-    input.focus();
-
-    const commit = () => {
-      const url = (input.value || "").trim();
-      if (!url) { input.remove(); return; }
-      if (imagensState.includes(url)) {
-        showToast("Essa imagem já existe!", "error");
-        input.remove();
-        return;
-      }
-      imagensState.push(url);
+  overlay.querySelector("#addImagemBtn").addEventListener("click", () => {
+    const url = prompt("Cole a URL da imagem:");
+    if (url && url.trim()) {
+      imagensState.push(url.trim());
       renderImagens();
-      input.remove();
-      if (!isNew) {
-        changedData.imagens = [...imagensState];
-        document.getElementById("saveChangesContainer").classList.remove("hidden");
-      }
-      showToast("Imagem adicionada!", "success");
-    };
-    input.addEventListener("keydown", e => { if (e.key === "Enter") commit(); if (e.key === "Escape") input.remove(); });
-    input.addEventListener("blur", commit);
+    }
   });
 
   container.addEventListener("click", e => {
-    if (!e.target.classList.contains("remove-img")) return;
-    const url = e.target.previousElementSibling?.src || "";
-    imagensState = imagensState.filter(u => u !== url);
-    renderImagens();
-    if (!isNew) {
-      changedData.imagens = [...imagensState];
-      document.getElementById("saveChangesContainer").classList.remove("hidden");
+    if (e.target.classList.contains("remove-img")) {
+      const idx = e.target.dataset.index;
+      imagensState.splice(idx, 1);
+      renderImagens();
     }
-    showToast("Imagem removida!", "error");
   });
 
-  // === SALVAR ALTERAÇÕES / CRIAR NOVO PRODUTO ===
   overlay.querySelector("#saveProduto").addEventListener("click", async () => {
-    if (isNew) {
-      // criação
-      const body = {
-        nome: document.querySelector("#new_nome").value.trim(),
-        descricao: document.querySelector("#new_descricao").value.trim(),
-        categoria: document.querySelector("#new_categoria").value.trim(),
-        valor: parseFloat(document.querySelector("#new_valor").value) || 0,
-        valorPromocional: parseFloat(document.querySelector("#new_valorPromocional").value) || 0,
-        estoque: parseInt(document.querySelector("#new_estoque").value) || 0,
-        peso: document.querySelector("#new_peso").value || "0",
-        altura: document.querySelector("#new_altura").value || "0",
-        largura: document.querySelector("#new_largura").value || "0",
-        comprimento: document.querySelector("#new_comprimento").value || "0",
-        cores: document.querySelector("#new_cores").value.split(",").map(c => c.trim().toUpperCase()).filter(Boolean),
-        imagens: imagensState
-      };
-      if (!body.nome || !body.valor) {
-        showToast("Preencha o nome e o preço.", "error");
-        return;
-      }
-      try {
-        const res = await fetch("/api/admin/produtos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.error || "Erro ao criar produto");
-        showToast("Produto criado com sucesso!", "success");
-        overlay.remove();
-        await loadProdutos();
-      } catch (err) {
-        console.error(err);
-        showToast(err.message, "error");
-      }
-      return;
+    const categoria = overlay.querySelector("#prod_categoria").value;
+
+    const body = {
+      nome: overlay.querySelector("#prod_nome").value.trim(),
+      descricao: overlay.querySelector("#prod_descricao").value.trim(),
+      categoria: categoria || "Geral",
+      valor: parseFloat(overlay.querySelector("#prod_valor").value) || 0,
+      valorPromocional: parseFloat(overlay.querySelector("#prod_valorPromocional").value) || 0,
+      estoque: parseInt(overlay.querySelector("#prod_estoque").value) || 0,
+      peso: overlay.querySelector("#prod_peso").value || "0",
+      altura: overlay.querySelector("#prod_altura").value || "0",
+      largura: overlay.querySelector("#prod_largura").value || "0",
+      comprimento: overlay.querySelector("#prod_comprimento").value || "0",
+      isLancamento: overlay.querySelector("#prod_isLancamento").checked,
+      isMaisVendido: overlay.querySelector("#prod_isMaisVendido").checked,
+      cores: [...overlay.querySelectorAll("input[name='prod_cores']:checked")].map(cb => cb.value),
+      imagens: imagensState
+    };
+
+    if (!body.nome || !body.valor) {
+      return showToast("Preencha ao menos o nome e o preço base.", "error");
     }
 
-    // edição normal
-    imagensState = [...container.querySelectorAll(".img-box img")].map(img => img.src);
-    const originalImagens = normalizeArray(produto.imagens).concat(normalizeArray(produto.imagem));
-    const imagensChanged = JSON.stringify(originalImagens) !== JSON.stringify(imagensState);
-    if (imagensChanged) changedData.imagens = [...imagensState];
-    if (typeof changedData.cores === "string") {
-      try { changedData.cores = JSON.parse(changedData.cores); }
-      catch { changedData.cores = normalizeArray(changedData.cores).map(c => c.toUpperCase()); }
-    }
     try {
-      const res = await fetch(`/api/admin/produtos/${id}`, {
-        method: "PUT",
+      const url = isNew ? "/api/admin/produtos" : `/api/admin/produtos/${id}`;
+      const method = isNew ? "POST" : "PUT";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(changedData),
+        body: JSON.stringify(body)
       });
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Erro ao salvar alterações");
-      showToast("Produto atualizado com sucesso!", "success");
+      if (!res.ok) throw new Error(data?.error || "Erro ao processar produto");
+
+      showToast(isNew ? "Produto criado!" : "Produto atualizado!", "success");
       overlay.remove();
       await loadProdutos();
     } catch (err) {
       console.error(err);
-      showToast(err.message || "Erro ao salvar alterações", "error");
+      showToast(err.message, "error");
     }
   });
 
+  const modal = overlay.querySelector(".modal");
+  modal.onclick = e => e.stopPropagation(); // Prevent clicks inside modal from bubbling to overlay
+
   overlay.querySelector("#closeProdutoModal").onclick = () => overlay.remove();
-  overlay.onclick = e => e.target === overlay && overlay.remove();
+  overlay.onclick = () => overlay.remove(); // Click anywhere on overlay background closes it
 }
 
 async function excluirProduto(id) {
@@ -1325,11 +1387,11 @@ async function initCarrinhos() {
 
   document.getElementById("cartStatusFilter").onchange = () => { carrinhosPage = 1; loadCarts(); };
   document.getElementById("searchCarts").addEventListener("input", debounce(() => {
-  const term = event.target.value.toLowerCase();
-  document.querySelectorAll("#cartsTableBody tr").forEach(tr => {
-    tr.style.display = tr.textContent.toLowerCase().includes(term) ? "" : "none";
-  });
-}, 200));
+    const term = event.target.value.toLowerCase();
+    document.querySelectorAll("#cartsTableBody tr").forEach(tr => {
+      tr.style.display = tr.textContent.toLowerCase().includes(term) ? "" : "none";
+    });
+  }, 200));
 
   document.getElementById("bulkRemind").onclick = async () => {
     try {
@@ -1406,9 +1468,9 @@ function renderCartsTable(carts) {
     tr.innerHTML = `
       <td>#${c.id}</td>
       <td>
-        ${c.user?.nome 
-          ? escapeHtml(c.user.nome) 
-          : (c.guestId ? `Visitante (${c.guestId})` : "—")}
+        ${c.user?.nome
+        ? escapeHtml(c.user.nome)
+        : (c.guestId ? `Visitante (${c.guestId})` : "—")}
       </td>
       <td>${(c.items?.length || 0)}</td>
       <td>${fmtMoney(c.subtotal)}</td>
@@ -1523,8 +1585,8 @@ async function openCartModal(cartId) {
 
   overlay.querySelector("#addItemToCart").onclick = async () => {
     const productId = parseInt(document.getElementById("newProductId").value);
-    const quantity  = parseInt(document.getElementById("newProductQty").value || "1");
-    const cor       = (document.getElementById("newProductCor").value || "").trim() || null;
+    const quantity = parseInt(document.getElementById("newProductQty").value || "1");
+    const cor = (document.getElementById("newProductCor").value || "").trim() || null;
     if (!productId || quantity <= 0) return showToast("Produto e quantidade válidos", "error");
     try {
       const res = await fetch(`${CART_API_BASE}/item`, {
@@ -1680,13 +1742,13 @@ function confirmDialog(msg) {
   });
 }
 
-  window.addEventListener("beforeunload", () => {
-    localStorage.setItem("lastTab", currentTab);
-  });
-  window.addEventListener("DOMContentLoaded", () => {
-    const tab = localStorage.getItem("lastTab");
-    if (tab) switchTab(tab);
-  });
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem("lastTab", currentTab);
+});
+window.addEventListener("DOMContentLoaded", () => {
+  const tab = localStorage.getItem("lastTab");
+  if (tab) switchTab(tab);
+});
 
 // ==================== NEWSLETTER (ADMIN) ====================
 

@@ -6,7 +6,7 @@ const { criarClienteAsaas } = require("../services/asaas.services");
 const { Op } = require("sequelize");
 const crypto = require("crypto");
 const PasswordResetToken = require("../models/passwordResetToken.model");
-const { enviarEmail } = require("../utils/email");
+const { enviarEmail, wrapPremiumLayout } = require("../utils/email");
 
 // Configuráveis
 const RESET_TOKEN_BYTES = 32;
@@ -185,7 +185,7 @@ async function logout(req, res, next) {
   }
 }
 
-async function requestPasswordReset (req, res) {
+async function requestPasswordReset(req, res) {
   try {
     const { email } = req.body || {};
     const ip = req.ip;
@@ -222,16 +222,29 @@ async function requestPasswordReset (req, res) {
     await enviarEmail(
       user.email,
       "🔐 Redefinição de senha – Balcão & Bandeja",
-      `
-      <h2>Olá, ${user.nome || ""}</h2>
-      <p>Recebemos uma solicitação para redefinir sua senha.</p>
-      <p>Clique no botão abaixo (válido por ${RESET_TOKEN_TTL_MIN} minutos):</p>
-      <p><a href="${resetLink}" style="background:#1E1939;color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;">Redefinir senha</a></p>
-      <p>Ou copie e cole este link no navegador:</p>
-      <p>${resetLink}</p>
-      <hr/>
-      <p>Se não foi você, ignore este e-mail.</p>
-      `
+      wrapPremiumLayout("Segurança", `
+        <h2 style="font-size:24px; font-weight:700; color:#1E1939; margin-bottom:24px;">Olá, ${user.nome || ""}</h2>
+        <p style="font-size:16px; line-height:1.6; color:#4a4a5e; margin-bottom:24px;">
+          Recebemos uma solicitação para redefinir a senha da sua conta na <strong>Balcão & Bandeja</strong>.
+        </p>
+        
+        <div style="text-align:center; margin-bottom:32px;">
+          <a href="${resetLink}" style="display:inline-block; background-color:#1E1939; color:#ffffff; padding:16px 32px; border-radius:12px; text-decoration:none; font-weight:700; font-size:16px; box-shadow:0 10px 20px rgba(30,25,57,0.15);">
+            Redefinir minha senha
+          </a>
+        </div>
+
+        <div style="background-color:#f8f9fa; border-radius:12px; padding:20px; margin-bottom:32px;">
+          <p style="font-size:14px; color:#6b6b7a; margin:0; line-height:1.5;">
+            Este link é válido por <strong>${RESET_TOKEN_TTL_MIN} minutos</strong>. Se você não solicitou essa alteração, pode ignorar este e-mail com segurança.
+          </p>
+        </div>
+
+        <p style="font-size:13px; color:#9d9db0; margin:0;">
+          Dificuldades com o botão? Copie este link: <br>
+          <span style="color:#1E1939; word-break:break-all;">${resetLink}</span>
+        </p>
+      `)
     );
 
     return res.status(200).json({ ok: true });
@@ -241,7 +254,7 @@ async function requestPasswordReset (req, res) {
   }
 };
 
-async function resetPassword (req, res) {
+async function resetPassword(req, res) {
   try {
     const { token, newPassword } = req.body || {};
 
