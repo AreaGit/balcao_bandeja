@@ -20,7 +20,7 @@ Com foco em **qualidade, inovação e funcionalidade**, a empresa se posiciona c
 
 ## 🧠 Autoria e Histórico do Projeto
 
-A plataforma Balcão e Bandeja foi idealizada, arquitetada e desenvolvida originalmente por Gabriel, responsável pela concepção técnica do sistema, definição da arquitetura,
+A plataforma Balcão e Bandeja foi idealizada, desenvolvida inicialmente por Gabriel Trindade, responsável pela concepção técnica do sistema, definição da arquitetura,
 estruturação do backend e implementação das principais regras de negócio.
 
 O projeto segue em evolução contínua e pode receber manutenções, melhorias e novas funcionalidades por outros desenvolvedores,
