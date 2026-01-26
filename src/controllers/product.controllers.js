@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 async function createProduct(req, res, next) {
   try {
     const { nome, valor, valorPromocional, descricao, categoria,
-            cores, imagem1, imagem2, imagem3, imagem4 } = req.body;
+      cores, imagem1, imagem2, imagem3, imagem4 } = req.body;
 
     const product = await Product.create({
       nome: nome || null,
@@ -178,7 +178,7 @@ async function deleteProduct(req, res, next) {
   } catch (err) { next(err); }
 }
 
-async function getHighlights (req, res) {
+async function getHighlights(req, res) {
   try {
     const lancamentos = await Product.findAll({
       where: { isLancamento: true },

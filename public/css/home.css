@@ -272,8 +272,8 @@ nav ul li:hover {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #fff;
-  color: #333;
+  background: #1E1939;
+  color: #fff;
   min-width: 200px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
@@ -286,6 +286,12 @@ nav ul li:hover {
   pointer-events: none;
   transition: all 0.3s ease;
 }
+
+.submenu li a {
+  color: white !important;
+  text-decoration: none;
+}
+
 
 /* Ao passar o mouse no pai, mostra submenu */
 .has-submenu:hover .submenu {
@@ -1283,12 +1289,12 @@ button:active {
 }
 
 .bs-item img {
-    max-width: 250px;
-    width: 100%;
-    border-radius: 10px;
-    transition: transform 0.3s ease;
-    margin: auto;
-    max-height: 280px;
+  max-width: 250px;
+  width: 100%;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+  margin: auto;
+  max-height: 280px;
 }
 
 .bs-item:hover {

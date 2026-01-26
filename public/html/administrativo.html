@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,11 @@
   <link rel="shortcut icon" href="https://i.imgur.com/ektkb6r.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="../css/administrativo.css">
 </head>
+
 <body>
   <div class="dashboard">
     <aside class="sidebar" id="sidebar">
@@ -18,19 +21,27 @@
       </div>
       <nav>
         <ul>
-          <li class="menu-item active" data-tab="dashboard"><svg class="icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg> Dashboard</li>
-          <li class="menu-item" data-tab="pedidos"><svg class="icon" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
+          <li class="menu-item active" data-tab="dashboard"><svg class="icon" viewBox="0 0 24 24">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+            </svg> Dashboard</li>
+          <li class="menu-item" data-tab="pedidos"><svg class="icon" viewBox="0 0 24 24">
+              <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
           0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.82 12l.94 2h8.48l1.73-7H6.16l-.94-2H2v2h2l3.6 
           7.59-1.35 2.45C5.52 17.37 6.48 19 8 19h12v-2H8.42c-.14 0-.25-.11-.25-.25L8.5 16h7.59c.75 
-          0 1.41-.41 1.75-1.03L21 6H5.21l-.94-2H2"/></svg> Pedidos</li>
-          <li class="menu-item" data-tab="clientes"><svg class="icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 
+          0 1.41-.41 1.75-1.03L21 6H5.21l-.94-2H2" />
+            </svg> Pedidos</li>
+          <li class="menu-item" data-tab="clientes"><svg class="icon" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 
           1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 
-          4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> Clientes</li>
-          <li class="menu-item" data-tab="produtos"><svg class="icon" viewBox="0 0 24 24"><path d="M20 6H4V4h16v2zm0 2H4v12h16V8zm-2 
-          10H6v-8h12v8z"/></svg> Produtos</li>
+          4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg> Clientes</li>
+          <li class="menu-item" data-tab="produtos"><svg class="icon" viewBox="0 0 24 24">
+              <path d="M20 6H4V4h16v2zm0 2H4v12h16V8zm-2 
+          10H6v-8h12v8z" />
+            </svg> Produtos</li>
           <li class="menu-item" data-tab="cupons">
             <svg class="icon" viewBox="0 0 24 24">
-              <path d="M21 5H3v14h18V5zm-2 12H5V7h14v10zM8 9h8v2H8V9z"/>
+              <path d="M21 5H3v14h18V5zm-2 12H5V7h14v10zM8 9h8v2H8V9z" />
             </svg>
             Cupons
           </li>
@@ -39,13 +50,21 @@
               <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 
               0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.82 12l.94 2h8.48l1.73-7H6.16l-.94-2H2v2h2l3.6 
               7.59-1.35 2.45C5.52 17.37 6.48 19 8 19h12v-2H8.42c-.14 0-.25-.11-.25-.25L8.5 16h7.59c.75 
-              0 1.41-.41 1.75-1.03L21 6H5.21l-.94-2H2"/>
+              0 1.41-.41 1.75-1.03L21 6H5.21l-.94-2H2" />
             </svg>
             Carrinhos
           </li>
+          <li class="menu-item" data-tab="categorias">
+            <svg class="icon" viewBox="0 0 24 24">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+            </svg>
+            Categorias
+          </li>
           <li class="menu-item" data-tab="newsletter">
             <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 2v.01L12 12 4 6.01V6h16zM4 18V8.26l7.4 5.18a1.5 1.5 0 0 0 1.2 0L20 8.26V18H4z" fill="currentColor"/>
+              <path
+                d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 2v.01L12 12 4 6.01V6h16zM4 18V8.26l7.4 5.18a1.5 1.5 0 0 0 1.2 0L20 8.26V18H4z"
+                fill="currentColor" />
             </svg>
             Newslleter
           </li>
@@ -61,9 +80,18 @@
       </header>
 
       <section class="cards">
-        <div class="card skeleton"><h3></h3><p></p></div>
-        <div class="card skeleton"><h3></h3><p></p></div>
-        <div class="card skeleton"><h3></h3><p></p></div>
+        <div class="card skeleton">
+          <h3></h3>
+          <p></p>
+        </div>
+        <div class="card skeleton">
+          <h3></h3>
+          <p></p>
+        </div>
+        <div class="card skeleton">
+          <h3></h3>
+          <p></p>
+        </div>
       </section>
 
       <section class="chart-section skeleton">
@@ -81,4 +109,5 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="../js/administrativo.js"></script>
 </body>
+
 </html>

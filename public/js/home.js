@@ -525,8 +525,41 @@ function renderMaisVendidos(produtos) {
   updateCarousel();
 }
 
+async function loadCategoriesMenu() {
+  try {
+    const res = await fetch("/api/categories");
+    const categories = await res.json();
+
+    // 1. Atualiza "Todos os Departamentos" (dropdown)
+    const departmentsSubmenu = document.querySelector(".has-submenu .submenu");
+    if (departmentsSubmenu) {
+      departmentsSubmenu.innerHTML = categories.map(cat => `
+        <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
+      `).join("");
+    }
+
+    // 2. Atualiza Menu Principal (itens horizontais)
+    // Limpamos os itens hardcoded EXCETO o primeiro (Todos os Departamentos)
+    const menuList = document.getElementById("menuList");
+    if (menuList) {
+      const firstItem = menuList.firstElementChild;
+      menuList.innerHTML = "";
+      menuList.appendChild(firstItem);
+
+      categories.forEach(cat => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+        menuList.appendChild(li);
+      });
+    }
+  } catch (err) {
+    console.error("Erro ao carregar categorias no menu:", err);
+  }
+}
+
 // === Executar ===
 carregarDestaques();
+loadCategoriesMenu();
 
 document.getElementById("Capa_1").addEventListener("click", () => {
   window.open("https://wa.me/5511991765332");

@@ -44,7 +44,7 @@ sortSelect?.addEventListener("change", () => {
 });
 
 function esc(text) {
-  return String(text ?? "").replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  return String(text ?? "").replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
 let currentCartId;
@@ -105,7 +105,7 @@ async function renderCart() {
         cartItemsContainer.appendChild(div);
       });
     }
-    
+
     // --- CUPOM APLICADO ---
     const couponInput = document.getElementById("couponCode");
     const applyBtn = document.getElementById("applyCouponBtn");
@@ -279,7 +279,7 @@ document.getElementById("applyCouponBtn").addEventListener("click", async () => 
 
 // === Carregar Produtos ===
 async function loadProducts() {
- // === Limpa grid e exibe skeletons enquanto carrega ===
+  // === Limpa grid e exibe skeletons enquanto carrega ===
   productGrid.innerHTML = "";
   productGrid.style.opacity = 1;
   productGrid.style.transform = "scale(1)";
@@ -374,50 +374,50 @@ async function loadProducts() {
 
     }, 350); // tempo do fade/zoom dos skeletons
 
-  productGrid.addEventListener("click", (e) => {
-    const decrease = e.target.closest(".qty-decrease");
-    const increase = e.target.closest(".qty-increase");
+    productGrid.addEventListener("click", (e) => {
+      const decrease = e.target.closest(".qty-decrease");
+      const increase = e.target.closest(".qty-increase");
 
-    if (decrease) {
-      const wrapper = decrease.closest(".qty-control");
-      const input = wrapper.querySelector(".qty-input");
-      let v = parseInt(input.value || "1", 10);
-      v = isNaN(v) ? 1 : v - 1;
-      if (v < 1) v = 1;
-      input.value = v;
-      return;
-    }
-
-    if (increase) {
-      const wrapper = increase.closest(".qty-control");
-      const input = wrapper.querySelector(".qty-input");
-      let v = parseInt(input.value || "1", 10);
-      v = isNaN(v) ? 1 : v + 1;
-      input.value = v;
-      return;
-    }
-
-    const addBtn = e.target.closest(".btn-add");
-    if (addBtn) {
-      const card = addBtn.closest(".cat-card");
-      const productId = card.dataset.id;
-      const qtyInput = card.querySelector(".qty-input");
-      const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
-
-      // === Verificação da categoria ===
-      // Usa a variável global 'categoria' já definida na página
-      if (categoria && categoria.toLowerCase().includes("bandeja")) {
-        showCustomAlert(
-          "Para adicionar esse produto você precisa escolher a cor das Alças!",
-          `/detalhes-produto?id=${productId}`
-        );
+      if (decrease) {
+        const wrapper = decrease.closest(".qty-control");
+        const input = wrapper.querySelector(".qty-input");
+        let v = parseInt(input.value || "1", 10);
+        v = isNaN(v) ? 1 : v - 1;
+        if (v < 1) v = 1;
+        input.value = v;
         return;
       }
 
-      // Caso contrário, adiciona normalmente ao carrinho
-      addToCart(productId, qty);
-    }
-  });
+      if (increase) {
+        const wrapper = increase.closest(".qty-control");
+        const input = wrapper.querySelector(".qty-input");
+        let v = parseInt(input.value || "1", 10);
+        v = isNaN(v) ? 1 : v + 1;
+        input.value = v;
+        return;
+      }
+
+      const addBtn = e.target.closest(".btn-add");
+      if (addBtn) {
+        const card = addBtn.closest(".cat-card");
+        const productId = card.dataset.id;
+        const qtyInput = card.querySelector(".qty-input");
+        const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
+
+        // === Verificação da categoria ===
+        // Usa a variável global 'categoria' já definida na página
+        if (categoria && categoria.toLowerCase().includes("bandeja")) {
+          showCustomAlert(
+            "Para adicionar esse produto você precisa escolher a cor das Alças!",
+            `/detalhes-produto?id=${productId}`
+          );
+          return;
+        }
+
+        // Caso contrário, adiciona normalmente ao carrinho
+        addToCart(productId, qty);
+      }
+    });
 
   } catch (err) {
     console.error("Erro ao carregar produtos:", err);
@@ -438,7 +438,43 @@ function showCartAlert(message) {
 document.addEventListener("DOMContentLoaded", () => {
   loadProducts();
   renderCart();
+  loadCategoriesMenu();
 });
+
+async function loadCategoriesMenu() {
+  try {
+    const res = await fetch("/api/categories");
+    const categories = await res.json();
+
+    // Atualiza Menu Principal (itens horizontais) se existir na página
+    const menuList = document.getElementById("menuList");
+    if (menuList) {
+      const firstItem = menuList.firstElementChild;
+      if (firstItem && firstItem.classList.contains("has-submenu")) {
+        // Atualiza submenu do "Todos os Departamentos"
+        const departmentsSubmenu = firstItem.querySelector(".submenu");
+        if (departmentsSubmenu) {
+          departmentsSubmenu.innerHTML = categories.map(cat => `
+            <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
+          `).join("");
+        }
+
+        // Atualiza itens principais
+        menuList.innerHTML = "";
+        menuList.appendChild(firstItem);
+
+        categories.forEach(cat => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+          menuList.appendChild(li);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao carregar categorias no menu:", err);
+  }
+}
+
 
 document.getElementById('checkoutBtn').addEventListener("click", () => {
   location.href = "/checkout";

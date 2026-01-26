@@ -77,7 +77,7 @@ async function renderCart() {
         cartItemsContainer.appendChild(div);
       });
     }
-    
+
     // --- CUPOM APLICADO ---
     const couponInput = document.getElementById("couponCode");
     const applyBtn = document.getElementById("applyCouponBtn");
@@ -249,9 +249,11 @@ document.getElementById("applyCouponBtn").addEventListener("click", async () => 
   }
 });
 
-renderCart();
+// renderCart(); - Removed redundant call outside initialization block
 
-document.addEventListener("DOMContentLoaded", async () => {
+
+async function initProductDetails() {
+
   const urlParams = new URLSearchParams(window.location.search);
   const productId = urlParams.get("id");
 
@@ -266,13 +268,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!response.ok) throw new Error("Erro ao buscar produto");
     const product = await response.json();
 
-// Atualiza os dados principais
-document.getElementById("productName").textContent = product.nome;
+    // Atualiza os dados principais
+    document.getElementById("productName").textContent = product.nome;
 
-// Preço com valor promocional
-const priceEl = document.getElementById("productPrice");
-if (product.valorPromocional && product.valorPromocional < product.valor) {
-  priceEl.innerHTML = `
+    // Preço com valor promocional
+    const priceEl = document.getElementById("productPrice");
+    if (product.valorPromocional && product.valorPromocional < product.valor) {
+      priceEl.innerHTML = `
     <span style=" color:#888; font-size:16px; margin-right:10px;">
       A partir de:
     </span>
@@ -281,60 +283,60 @@ if (product.valorPromocional && product.valorPromocional < product.valor) {
       R$ ${product.valor}
     </span>
   `;
-} else {
-  priceEl.innerHTML = `<span style="font-size:24px; font-weight:bold;">R$ ${product.valor}</span>`;
-}
+    } else {
+      priceEl.innerHTML = `<span style="font-size:24px; font-weight:bold;">R$ ${product.valor}</span>`;
+    }
 
-//document.getElementById("productShort").textContent = product.descricao;
+    //document.getElementById("productShort").textContent = product.descricao;
 
-// Seleção de cores
-const prodInfo = document.querySelector(".prod-info");
+    // Seleção de cores
+    const prodInfo = document.querySelector(".prod-info");
 
-// Remove select antigo se existir
-const oldColorSelect = document.getElementById("colorSelect");
-if (oldColorSelect) oldColorSelect.remove();
+    // Remove select antigo se existir
+    const oldColorSelect = document.getElementById("colorSelect");
+    if (oldColorSelect) oldColorSelect.remove();
 
-if (product.cores && product.cores.length > 0) {
-  const colorLabel = document.createElement("label");
-  colorLabel.innerHTML = "Selecione a opção de <strong>CORES DAS ALÇAS DAS BANDEJAS:</strong>";
-  colorLabel.setAttribute("for", "colorSelect");
-  colorLabel.style.display = "block";
-  colorLabel.style.margin = "10px 0 5px 0";
-  colorLabel.style.fontWeight = "600";
+    if (product.cores && product.cores.length > 0) {
+      const colorLabel = document.createElement("label");
+      colorLabel.innerHTML = "Selecione a opção de <strong>CORES DAS ALÇAS DAS BANDEJAS:</strong>";
+      colorLabel.setAttribute("for", "colorSelect");
+      colorLabel.style.display = "block";
+      colorLabel.style.margin = "10px 0 5px 0";
+      colorLabel.style.fontWeight = "600";
 
-  const colorSelect = document.createElement("select");
-  colorSelect.id = "colorSelect";
-  colorSelect.style.padding = "10px";
-  colorSelect.style.width = "100%";
-  colorSelect.style.border = "1px solid #ddd";
-  colorSelect.style.borderRadius = "6px";
-  colorSelect.style.fontSize = "16px";
-  colorSelect.style.marginTop = "15px";
-  colorSelect.style.marginBottom = "15px";
-  colorSelect.style.fontWeight = "normal";
-  colorSelect.style.backgroundColor = "rgba(0,0,0,0.1)";
-  colorSelect.style.textTransform = "uppercase";
+      const colorSelect = document.createElement("select");
+      colorSelect.id = "colorSelect";
+      colorSelect.style.padding = "10px";
+      colorSelect.style.width = "100%";
+      colorSelect.style.border = "1px solid #ddd";
+      colorSelect.style.borderRadius = "6px";
+      colorSelect.style.fontSize = "16px";
+      colorSelect.style.marginTop = "15px";
+      colorSelect.style.marginBottom = "15px";
+      colorSelect.style.fontWeight = "normal";
+      colorSelect.style.backgroundColor = "rgba(0,0,0,0.1)";
+      colorSelect.style.textTransform = "uppercase";
 
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Selecione";
-  defaultOption.selected = true;
-  defaultOption.disabled = true;
-  colorSelect.appendChild(defaultOption);
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Selecione";
+      defaultOption.selected = true;
+      defaultOption.disabled = true;
+      colorSelect.appendChild(defaultOption);
 
-  product.cores.forEach(cor => {
-    const option = document.createElement("option");
-    option.value = cor;
-    option.textContent = cor;
-    option.style.fontWeight = "bold";
-    colorSelect.appendChild(option);
-  });
+      product.cores.forEach(cor => {
+        const option = document.createElement("option");
+        option.value = cor;
+        option.textContent = cor;
+        option.style.fontWeight = "bold";
+        colorSelect.appendChild(option);
+      });
 
-  // Inserir logo acima do preço
-  const priceElem = document.getElementById("productPrice");
-  prodInfo.insertBefore(colorLabel, priceElem);
-  prodInfo.insertBefore(colorSelect, priceElem);
-}
+      // Inserir logo acima do preço
+      const priceElem = document.getElementById("productPrice");
+      prodInfo.insertBefore(colorLabel, priceElem);
+      prodInfo.insertBefore(colorSelect, priceElem);
+    }
 
 
     // Galeria de imagens
@@ -356,74 +358,74 @@ if (product.cores && product.cores.length > 0) {
       });
     }
 
-function maskCEP(value) {
-  return value.replace(/\D/g, "").replace(/^(\d{5})(\d)/, "$1-$2");
-}
-
-const cep = document.getElementById("cep");
-cep.addEventListener("input", (e) => {
-  e.target.value = maskCEP(e.target.value);
-});
-
-document.getElementById("calcShipping").addEventListener("click", async () => {
-  const cep = document.getElementById("cep").value.replace("-", "");
-
-  if (!cep || cep.length < 8) {
-    alert("Digite um CEP válido.");
-    return;
-  }
-
-  const shippingResult = document.getElementById("shipping-result");
-  shippingResult.innerHTML = "<p>Calculando frete...</p>";
-
-  try {
-    const qty = parseInt(document.getElementById("qty").value) || 1;
-
-    const body = {
-      id: productId,
-      postal_codeTo: cep,
-      largura: product.largura,
-      altura: product.altura,
-      comprimento: product.comprimento,
-      peso: product.peso,
-      valor: product.valor,
-      valorSeguro: product.valor,
-      quantity: qty
-    };
-
-    const res = await fetch("/api/frete/cotacao", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-
-    const resposta = await res.json();
-    const fretes = resposta.cotacoes || resposta;
-
-    shippingResult.idnnerHTML = "";
-
-if (Array.isArray(fretes)) {
-  const validos = fretes.filter(f => !f.error && f.price && f.company?.name !== 'Jadlog' && 
-    f.company?.name !== 'Azul');
-
-  if (validos.length === 0) {
-    shippingResult.innerHTML = "<p>Nenhuma transportadora disponível para esse CEP.</p>";
-    return;
-  }
-
-  // ordena por preço (menor -> maior)
-  validos.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
-
-  validos.forEach((frete, index) => {
-    const div = document.createElement("div");
-    div.classList.add("frete-opcao");
-
-    // o primeiro da lista é o mais barato
-    if (index === 0) {
-      div.classList.add("melhor-opcao");
+    function maskCEP(value) {
+      return value.replace(/\D/g, "").replace(/^(\d{5})(\d)/, "$1-$2");
     }
 
-    div.innerHTML = `
+    const cep = document.getElementById("cep");
+    cep.addEventListener("input", (e) => {
+      e.target.value = maskCEP(e.target.value);
+    });
+
+    document.getElementById("calcShipping").addEventListener("click", async () => {
+      const cep = document.getElementById("cep").value.replace("-", "");
+
+      if (!cep || cep.length < 8) {
+        alert("Digite um CEP válido.");
+        return;
+      }
+
+      const shippingResult = document.getElementById("shipping-result");
+      shippingResult.innerHTML = "<p>Calculando frete...</p>";
+
+      try {
+        const qty = parseInt(document.getElementById("qty").value) || 1;
+
+        const body = {
+          id: productId,
+          postal_codeTo: cep,
+          largura: product.largura,
+          altura: product.altura,
+          comprimento: product.comprimento,
+          peso: product.peso,
+          valor: product.valor,
+          valorSeguro: product.valor,
+          quantity: qty
+        };
+
+        const res = await fetch("/api/frete/cotacao", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const resposta = await res.json();
+        const fretes = resposta.cotacoes || resposta;
+
+        shippingResult.idnnerHTML = "";
+
+        if (Array.isArray(fretes)) {
+          const validos = fretes.filter(f => !f.error && f.price && f.company?.name !== 'Jadlog' &&
+            f.company?.name !== 'Azul');
+
+          if (validos.length === 0) {
+            shippingResult.innerHTML = "<p>Nenhuma transportadora disponível para esse CEP.</p>";
+            return;
+          }
+
+          // ordena por preço (menor -> maior)
+          validos.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+
+          validos.forEach((frete, index) => {
+            const div = document.createElement("div");
+            div.classList.add("frete-opcao");
+
+            // o primeiro da lista é o mais barato
+            if (index === 0) {
+              div.classList.add("melhor-opcao");
+            }
+
+            div.innerHTML = `
       <p>
         <img src="${frete.company.picture}" alt="${frete.company.name}" width="24" style="vertical-align:middle; margin-right:6px;">
         <strong>${frete.company.name} - ${frete.name}</strong>
@@ -431,16 +433,16 @@ if (Array.isArray(fretes)) {
       <p>Preço: R$ ${parseFloat(frete.price).toFixed(2).replace(".", ",")}</p>
       <p>Prazo: ${frete.delivery_time} dias úteis</p>
     `;
-    shippingResult.appendChild(div);
-  });
-} else {
-  shippingResult.innerHTML = "<p>Não foi possível calcular o frete.</p>";
-}
-  } catch (err) {
-    console.error("Erro ao calcular frete:", err);
-    shippingResult.innerHTML = "<p>Erro ao calcular frete.</p>";
-  }
-});
+            shippingResult.appendChild(div);
+          });
+        } else {
+          shippingResult.innerHTML = "<p>Não foi possível calcular o frete.</p>";
+        }
+      } catch (err) {
+        console.error("Erro ao calcular frete:", err);
+        shippingResult.innerHTML = "<p>Erro ao calcular frete.</p>";
+      }
+    });
 
 
     // Descrição
@@ -448,30 +450,30 @@ if (Array.isArray(fretes)) {
     // Produtos relacionados
     const relatedContainer = document.getElementById("relatedProducts");
     // Carrega os produtos relacionados
-async function loadRelatedProducts(productId) {
-  try {
-    const res = await fetch(`/api/products/${productId}/related`);
-    const data = await res.json();
+    async function loadRelatedProducts(productId) {
+      try {
+        const res = await fetch(`/api/products/${productId}/related`);
+        const data = await res.json();
 
-    const relatedContainer = document.getElementById("relatedProducts");
-    relatedContainer.innerHTML = "";
+        const relatedContainer = document.getElementById("relatedProducts");
+        relatedContainer.innerHTML = "";
 
-    if (data.message) {
-      relatedContainer.innerHTML = `<p>${data.message}</p>`;
-      return;
-    }
+        if (data.message) {
+          relatedContainer.innerHTML = `<p>${data.message}</p>`;
+          return;
+        }
 
-    relatedContainer.classList.add("related-grid");
+        relatedContainer.classList.add("related-grid");
 
-    data.forEach(prod => {
-      const card = document.createElement("div");
-      card.classList.add("related-card");
+        data.forEach(prod => {
+          const card = document.createElement("div");
+          card.classList.add("related-card");
 
-      const image = Array.isArray(prod.imagens) && prod.imagens.length > 0 
-        ? prod.imagens[0] 
-        : "https://via.placeholder.com/200";
+          const image = Array.isArray(prod.imagens) && prod.imagens.length > 0
+            ? prod.imagens[0]
+            : "https://via.placeholder.com/200";
 
-      card.innerHTML = `
+          card.innerHTML = `
         <a href="/detalhes-produto?id=${prod.id}">
           <img src="${image}" alt="${prod.nome}">
           <h3>${prod.nome}</h3>
@@ -479,14 +481,14 @@ async function loadRelatedProducts(productId) {
         </a>
       `;
 
-      relatedContainer.appendChild(card);
-    });
-  } catch (err) {
-    console.error("Erro ao carregar relacionados:", err);
-  }
-}
+          relatedContainer.appendChild(card);
+        });
+      } catch (err) {
+        console.error("Erro ao carregar relacionados:", err);
+      }
+    }
 
-loadRelatedProducts(productId);
+    loadRelatedProducts(productId);
 
   } catch (error) {
     console.error("Erro ao carregar detalhes do produto:", error);
@@ -516,37 +518,38 @@ loadRelatedProducts(productId);
     }
   });
 
-// === Adicionar ao carrinho ===
-document.getElementById("btnAdd").addEventListener("click", async () => {
-  const colorSelect = document.getElementById("colorSelect");
-  const selectedColor = colorSelect ? colorSelect.value : null;
+  // === Adicionar ao carrinho ===
+  document.getElementById("btnAdd").addEventListener("click", async () => {
+    const colorSelect = document.getElementById("colorSelect");
+    const selectedColor = colorSelect ? colorSelect.value : null;
 
-  // 🔒 Verifica se o produto tem variações e exige seleção
-  if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
-    alert("Por favor, selecione a cor antes de adicionar ao carrinho.");
-    return;
-  }
+    // 🔒 Verifica se o produto tem variações e exige seleção
+    if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
+      alert("Por favor, selecione a cor antes de adicionar ao carrinho.");
+      return;
+    }
 
-  await addToCart(productId, parseInt(inputQty.value), selectedColor);
-  showCartAlert("Produto adicionado ao carrinho!");
-});
+    await addToCart(productId, parseInt(inputQty.value), selectedColor);
+    showCartAlert("Produto adicionado ao carrinho!");
+  });
 
-// === Comprar agora ===
-document.getElementById("btnComp").addEventListener("click", async () => {
-  const colorSelect = document.getElementById("colorSelect");
-  const selectedColor = colorSelect ? colorSelect.value : null;
+  // === Comprar agora ===
+  document.getElementById("btnComp").addEventListener("click", async () => {
+    const colorSelect = document.getElementById("colorSelect");
+    const selectedColor = colorSelect ? colorSelect.value : null;
 
-  if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
-    alert("Por favor, selecione a cor antes de comprar.");
-    return;
-  }
+    if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
+      alert("Por favor, selecione a cor antes de comprar.");
+      return;
+    }
 
-  await addToCart(productId, parseInt(inputQty.value), selectedColor);
-  showCartAlert("Produto adicionado ao carrinho!");
-  setTimeout(() => (window.location.href = "/checkout"), 1500);
-});
+    await addToCart(productId, parseInt(inputQty.value), selectedColor);
+    showCartAlert("Produto adicionado ao carrinho!");
+    setTimeout(() => (window.location.href = "/checkout"), 1500);
+  });
 
-});
+}
+
 
 function showCartAlert(message) {
   const alertBox = document.getElementById("cartAlert");
@@ -556,6 +559,48 @@ function showCartAlert(message) {
   setTimeout(() => {
     alertBox.classList.remove("show");
   }, 2000);
+}
+
+// === Inicialização ===
+document.addEventListener("DOMContentLoaded", async () => {
+  await renderCart();
+  await initProductDetails();
+  await loadCategoriesMenu();
+});
+
+
+async function loadCategoriesMenu() {
+  try {
+    const res = await fetch("/api/categories");
+    const categories = await res.json();
+
+    // Atualiza Menu Principal (itens horizontais) se existir na página
+    const menuList = document.getElementById("menuList");
+    if (menuList) {
+      const firstItem = menuList.firstElementChild;
+      if (firstItem && firstItem.classList.contains("has-submenu")) {
+        // Atualiza submenu do "Todos os Departamentos"
+        const departmentsSubmenu = firstItem.querySelector(".submenu");
+        if (departmentsSubmenu) {
+          departmentsSubmenu.innerHTML = categories.map(cat => `
+            <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
+          `).join("");
+        }
+
+        // Atualiza itens principais
+        menuList.innerHTML = "";
+        menuList.appendChild(firstItem);
+
+        categories.forEach(cat => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+          menuList.appendChild(li);
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao carregar categorias no menu:", err);
+  }
 }
 
 document.getElementById('checkoutBtn').addEventListener("click", () => {

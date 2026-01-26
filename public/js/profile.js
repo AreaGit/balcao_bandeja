@@ -104,7 +104,7 @@ async function renderCart() {
         cartItemsContainer.appendChild(div);
       });
     }
-    
+
     // --- CUPOM APLICADO ---
     const couponInput = document.getElementById("couponCode");
     const applyBtn = document.getElementById("applyCouponBtn");
@@ -411,7 +411,7 @@ async function carregarPerfil() {
 }
 
 // === Salvar perfil ===
-async function salvarPerfil () {
+async function salvarPerfil() {
   const dados = {
     nome: document.getElementById("name").value.trim(),
     email: document.getElementById("email").value.trim(),
@@ -485,7 +485,7 @@ async function carregarPedidos() {
 
 // === Abrir pedido no modal ===
 async function abrirPedido(pedidoId) {
-   try {
+  try {
     const res = await fetch(`/api/pedidos/${pedidoId}`);
     if (!res.ok) throw new Error("Erro ao carregar pedido");
 
@@ -505,9 +505,9 @@ async function abrirPedido(pedidoId) {
           </div>
         </div>
       `).join("");
-        console.log(pedido.frete)
-        const freteObj = typeof pedido.frete === "string" ? JSON.parse(pedido.frete) : pedido.frete;
-        modalResumo.innerHTML = `
+    console.log(pedido.frete)
+    const freteObj = typeof pedido.frete === "string" ? JSON.parse(pedido.frete) : pedido.frete;
+    modalResumo.innerHTML = `
           <p><strong>Tipo de frete:</strong> ${freteObj?.name || "Não informado"}</p>
           <p><strong>Transportadora:</strong> ${freteObj?.company?.name || "Não informado"}</p>
           <p><strong>Valor do frete:</strong> R$ ${freteObj?.price ? freteObj.price.replace(".", ",") : "0,00"}</p>

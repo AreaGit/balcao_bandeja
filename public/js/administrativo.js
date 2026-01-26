@@ -776,6 +776,7 @@ function renderProdutosTable(produtos) {
       <td>${estoque}</td>
       <td>
         <button class="edit" data-id="${p.id}">Editar</button>
+        <button class="duplicate" data-id="${p.id}" style="background-color: #6366f1;">Duplicar</button>
         <button class="delete" data-id="${p.id}">Excluir</button>
       </td>
     `;
@@ -785,7 +786,33 @@ function renderProdutosTable(produtos) {
   });
 
   tbody.querySelectorAll(".edit").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); openProdutoModal(btn.dataset.id); }));
+  tbody.querySelectorAll(".duplicate").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); duplicateProduto(btn.dataset.id); }));
   tbody.querySelectorAll(".delete").forEach(btn => btn.addEventListener("click", (e) => { e.stopPropagation(); excluirProduto(btn.dataset.id); }));
+}
+
+async function duplicateProduto(id) {
+  let produto = produtosCache.find(p => String(p.id) === String(id));
+  if (!produto) {
+    try {
+      const res = await fetch(`/api/admin/produtos/${id}`);
+      if (!res.ok) throw new Error("Erro ao buscar detalhes do produto");
+      produto = await res.json();
+    } catch (err) {
+      console.error(err);
+      showToast("Erro ao buscar dados para duplicação", "error");
+      return;
+    }
+  }
+
+  // Clona e ajusta nome
+  const userConfirm = await confirmarModal(`Deseja duplicar o produto "${produto.nome}"?`);
+  if (!userConfirm) return;
+
+  const produtoCopia = { ...produto };
+  delete produtoCopia.id; // Remove ID para ser novo
+  produtoCopia.nome = `${produto.nome} (Cópia)`;
+
+  openProdutoModal(null, produtoCopia);
 }
 
 async function abrirModalDetalhesProduto(id) {
@@ -896,19 +923,27 @@ async function abrirModalDetalhesProduto(id) {
   }
 }
 
-async function openProdutoModal(id = null) {
+async function openProdutoModal(id = null, initialData = null) {
   const isNew = !id;
-  const produto = isNew ? {} : (produtosCache.find(p => String(p.id) === String(id)) || {});
+  const produto = initialData || (isNew ? {} : (produtosCache.find(p => String(p.id) === String(id)) || {}));
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
 
-  // Categorias fixas de acordo com a home.html
-  const categoriasFixas = ["Balcões", "BalcãoMDF", "Bandejas", "Mochilas", "Wind"];
+  // Busca categorias dinâmicas
+  let categoriasDinamicas = [];
+  try {
+    const res = await fetch("/api/categories");
+    categoriasDinamicas = await res.json();
+  } catch (err) {
+    console.error("Erro ao buscar categorias:", err);
+  }
+
   const coresFixas = [
     "Verde", "Vermelho", "Amarelo", "Preta", "Branco", "Azul", "Azul-escuro",
     "Azul-marinho", "Chocolate", "Ciano", "Fúscia", "Laranja", "Lilás",
     "Marrom", "Rosa", "Rosa-chiclete", "Verde-claro", "Violeta", "Violeta-escuro"
   ];
+
 
   // util: normaliza valores que podem vir como array, JSON string ou CSV
   function normalizeArray(val) {
@@ -941,10 +976,13 @@ async function openProdutoModal(id = null) {
           </div>
           <div class="form-group">
             <label>Categoria</label>
-            <div style="display:flex; gap:8px;">
-            <select id="prod_categoria" style="flex:1;">
-                ${categoriasFixas.map(cat => `<option value="${cat}" ${produto.categoria === cat ? "selected" : ""}>${cat}</option>`).join("")}
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <select id="prod_categoria" style="flex:1;">
+                <option value="">Selecione uma categoria</option>
+                ${categoriasDinamicas.map(cat => `<option value="${cat.nome}" ${produto.categoria === cat.nome ? "selected" : ""}>${cat.nome}</option>`).join("")}
+                <option value="NEW">--- Criar Nova ---</option>
               </select>
+              <input id="prod_nova_categoria" type="text" placeholder="Nome da nova categoria" style="display:none;">
             </div>
           </div>
         </div>
@@ -1001,7 +1039,13 @@ async function openProdutoModal(id = null) {
             <span>Mais Vendido</span>
           </label>
           <div class="form-group" style="grid-column: span 2;">
-            <label>Cores Disponíveis</label>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <label style="margin: 0;">Cores Disponíveis</label>
+              <label class="checkbox-simple" style="margin: 0; font-size: 13px; color: var(--brand-accent); cursor: pointer;">
+                <input type="checkbox" id="selectAllColors">
+                <span style="font-weight: 500;">Selecionar Todas</span>
+              </label>
+            </div>
             <div class="cores-grid">
               ${coresFixas.map(cor => `
                 <label class="checkbox-simple">
@@ -1027,6 +1071,31 @@ async function openProdutoModal(id = null) {
     </div>
   `;
   document.body.appendChild(overlay);
+
+  // Lógica de "Selecionar Todas" as cores
+  const selectAllCb = overlay.querySelector("#selectAllColors");
+  const colorCbs = overlay.querySelectorAll("input[name='prod_cores']");
+
+  function updateSelectAllState() {
+    const checkedCount = [...colorCbs].filter(cb => cb.checked).length;
+    if (selectAllCb) {
+      selectAllCb.checked = checkedCount === colorCbs.length && colorCbs.length > 0;
+      selectAllCb.indeterminate = checkedCount > 0 && checkedCount < colorCbs.length;
+    }
+  }
+
+  if (selectAllCb) {
+    selectAllCb.addEventListener("change", () => {
+      colorCbs.forEach(cb => cb.checked = selectAllCb.checked);
+    });
+  }
+
+  colorCbs.forEach(cb => {
+    cb.addEventListener("change", updateSelectAllState);
+  });
+
+  // Inicializa o estado do "Selecionar Todas"
+  updateSelectAllState();
 
   const container = overlay.querySelector("#imagensContainer");
   function renderImagens() {
@@ -1063,8 +1132,19 @@ async function openProdutoModal(id = null) {
     }
   });
 
+  overlay.querySelector("#prod_categoria").addEventListener("change", e => {
+    const isNew = e.target.value === "NEW";
+    overlay.querySelector("#prod_nova_categoria").style.display = isNew ? "block" : "none";
+  });
+
   overlay.querySelector("#saveProduto").addEventListener("click", async () => {
-    const categoria = overlay.querySelector("#prod_categoria").value;
+    let categoria = overlay.querySelector("#prod_categoria").value;
+    const novaCategoria = overlay.querySelector("#prod_nova_categoria").value.trim();
+
+    if (categoria === "NEW") {
+      if (!novaCategoria) return showToast("Digite o nome da nova categoria", "error");
+      categoria = novaCategoria;
+    }
 
     const body = {
       nome: overlay.querySelector("#prod_nome").value.trim(),
@@ -1082,6 +1162,7 @@ async function openProdutoModal(id = null) {
       cores: [...overlay.querySelectorAll("input[name='prod_cores']:checked")].map(cb => cb.value),
       imagens: imagensState
     };
+
 
     if (!body.nome || !body.valor) {
       return showToast("Preencha ao menos o nome e o preço base.", "error");
@@ -1958,7 +2039,99 @@ function switchTab(tab) {
   else if (tab === "cupons") initCupons();
   else if (tab === "carrinhos") initCarrinhos();
   else if (tab === "newsletter") initNewsletter();
+  else if (tab === "categorias") initCategorias();
 }
+
+// ==================== CATEGORIAS (ADMIN) ====================
+
+async function initCategorias() {
+  clearMain();
+  const main = document.querySelector(".main");
+
+  main.innerHTML = `
+    <header>
+      <h1>Categorias</h1>
+      <button id="addCategoria" class="update">+ Nova Categoria</button>
+    </header>
+
+    <section class="table-section">
+      <h2>Gerenciar Categorias</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nome</th><th>Slug</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="categoriasTableBody"></tbody>
+      </table>
+    </section>
+  `;
+
+  document.getElementById("addCategoria").onclick = () => openCategoriaModal();
+  await loadCategoriasTable();
+}
+
+async function loadCategoriasTable() {
+  try {
+    const res = await fetch("/api/categories");
+    const categories = await res.json();
+    const tbody = document.getElementById("categoriasTableBody");
+    tbody.innerHTML = "";
+
+    categories.forEach(cat => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>#${cat.id}</td>
+        <td>${escapeHtml(cat.nome)}</td>
+        <td>${cat.slug || "—"}</td>
+        <td>
+          <button class="delete" data-id="${cat.id}">Excluir</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".delete").forEach(btn => {
+      btn.onclick = async () => {
+        if (await confirmarModal("Deseja realmente excluir esta categoria?")) {
+          await deleteCategory(btn.dataset.id);
+        }
+      };
+    });
+  } catch (err) {
+    console.error(err);
+    showToast("Erro ao carregar categorias", "error");
+  }
+}
+
+async function openCategoriaModal() {
+  const nome = prompt("Nome da nova categoria:");
+  if (!nome) return;
+
+  try {
+    const res = await fetch("/api/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao criar categoria");
+    showToast("Categoria criada!", "success");
+    await loadCategoriasTable();
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}
+
+async function deleteCategory(id) {
+  try {
+    const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Erro ao deletar categoria");
+    showToast("Categoria removida!", "success");
+    await loadCategoriasTable();
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}
+
 
 document.querySelectorAll("#sidebar .menu-item").forEach(item => {
   item.addEventListener("click", e => {
