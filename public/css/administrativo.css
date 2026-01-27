@@ -1406,6 +1406,16 @@ input {
   transform: scale(1.1);
 }
 
+.img-box.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.img-box.drag-over {
+  border: 2px dashed var(--brand-accent);
+  background: rgba(231, 255, 20, 0.1);
+}
+
 .img-box .drag-handle {
   position: absolute;
   bottom: 5px;
@@ -1943,6 +1953,7 @@ button.delete:hover {
   padding: 8px 10px;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.95rem;
+  height: 50vh;
 }
 
 .modal label {

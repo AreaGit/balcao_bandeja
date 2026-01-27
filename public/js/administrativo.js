@@ -1098,6 +1098,8 @@ async function openProdutoModal(id = null, initialData = null) {
   updateSelectAllState();
 
   const container = overlay.querySelector("#imagensContainer");
+  let dragSrcIndex = null;
+
   function renderImagens() {
     container.innerHTML = "";
     if (!imagensState.length) {
@@ -1107,10 +1109,48 @@ async function openProdutoModal(id = null, initialData = null) {
     imagensState.forEach((url, index) => {
       const div = document.createElement("div");
       div.className = "img-box fade-in";
+      div.draggable = true;
+      div.dataset.index = index;
       div.innerHTML = `
         <img src="${url}" alt="Preview" loading="lazy" />
         <button class="remove-img" data-index="${index}" title="Remover">×</button>
+        <div class="drag-handle" title="Arraste para reordenar">⠿</div>
       `;
+
+      // Eventos de Drag & Drop
+      div.addEventListener("dragstart", (e) => {
+        dragSrcIndex = index;
+        div.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+
+      div.addEventListener("dragend", () => {
+        div.classList.remove("dragging");
+        const draggingItems = container.querySelectorAll(".img-box");
+        draggingItems.forEach(item => item.classList.remove("drag-over"));
+      });
+
+      div.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        div.classList.add("drag-over");
+      });
+
+      div.addEventListener("dragleave", () => {
+        div.classList.remove("drag-over");
+      });
+
+      div.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const targetIndex = index;
+        if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+          // Reordenar o array
+          const movedItem = imagensState.splice(dragSrcIndex, 1)[0];
+          imagensState.splice(targetIndex, 0, movedItem);
+          renderImagens();
+        }
+      });
+
       container.appendChild(div);
     });
   }

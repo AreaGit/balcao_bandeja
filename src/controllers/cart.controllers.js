@@ -190,11 +190,11 @@ async function updateFrete(req, res) {
     const { cartId, frete } = req.body;
     const cart = await Cart.findByPk(cartId);
     if (!cart) return res.status(404).json({ error: "Carrinho não encontrado" });
-    
+
     cart.frete = frete;
     cart.totalFinal = (cart.subtotal || 0) + frete;
     await cart.save();
-    
+
     res.json(cart);
   } catch (err) {
     res.status(500).json({ error: err.message });

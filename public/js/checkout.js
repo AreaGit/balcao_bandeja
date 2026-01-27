@@ -88,10 +88,10 @@ function mostrarOpcoesFrete(fretes) {
   if (!fretes || !Array.isArray(fretes)) { section.style.display = "none"; return; }
 
   const opcoesValidas = fretes.filter(frete =>
-    Number(frete.price) > 0 && 
-    frete.delivery_time && 
-    frete.delivery_time > 0 && 
-    frete.company?.name !== 'Jadlog' && 
+    Number(frete.price) > 0 &&
+    frete.delivery_time &&
+    frete.delivery_time > 0 &&
+    frete.company?.name !== 'Jadlog' &&
     frete.company?.name !== 'Azul'
   );
 
@@ -164,8 +164,8 @@ function atualizarResumoCheckout() {
 function nextStep(step) {
   if (step === 2) {
     if (!document.getElementById("nome").value.trim() ||
-        !document.getElementById("email").value.trim() ||
-        !document.getElementById("telefone").value.trim()) {
+      !document.getElementById("email").value.trim() ||
+      !document.getElementById("telefone").value.trim()) {
       alert("Preencha Nome, Email e Telefone.");
       return;
     }

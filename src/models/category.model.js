@@ -16,8 +16,10 @@ const Category = db.define("Category", {
         }
     }
 }, {
-    tableName: "Categories",
+    tableName: "categorias",
     timestamps: true
 });
+
+Category.sync();
 
 module.exports = Category;

@@ -7,7 +7,7 @@ const Cart = db.define("cart", {
     userId: { type: Sequelize.INTEGER, allowNull: true },
     guestId: { type: Sequelize.STRING, allowNull: true },
     discountCode: { type: Sequelize.STRING, allowNull: true },
-    discountValue: { type: Sequelize.DECIMAL(10,2), defaultValue: 0 },
+    discountValue: { type: Sequelize.DECIMAL(10, 2), defaultValue: 0 },
     endereco: { type: Sequelize.JSON, allowNull: true },
     frete: { type: Sequelize.JSON, allowNull: true }
 });
