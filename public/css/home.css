@@ -288,8 +288,9 @@ nav ul li:hover {
 }
 
 .submenu li a {
-  color: white !important;
+  color: white;
   text-decoration: none;
+  transition: color 0.3s;
 }
 
 
@@ -307,8 +308,11 @@ nav ul li:hover {
 }
 
 .submenu li:hover {
-  background: #f4f4f4;
-  color: #1E1939;
+  background: #E7FF14;
+}
+
+.submenu li:hover a {
+  color: #1E1939 !important;
 }
 
 /* ===== Responsivo (mobile) ===== */

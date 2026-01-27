@@ -1,46 +1,78 @@
 const Category = require("../models/category.model");
 
 // Listar todas as categorias
-async function getCategories(req, res, next) {
+async function getAllCategories(req, res) {
     try {
-        const categories = await Category.findAll({ order: [["nome", "ASC"]] });
+        const categories = await Category.findAll({
+            order: [['nome', 'ASC']]
+        });
         res.json(categories);
-    } catch (err) { next(err); }
+    } catch (error) {
+        console.error("Erro ao buscar categorias:", error);
+        res.status(500).json({ error: "Erro ao buscar categorias" });
+    }
 }
 
-// Criar categoria
-async function createCategory(req, res, next) {
+// Criar nova categoria
+async function createCategory(req, res) {
     try {
         const { nome } = req.body;
-        if (!nome) return res.status(400).json({ error: "Nome é obrigatório" });
+        if (!nome) {
+            return res.status(400).json({ error: "Nome da categoria é obrigatório" });
+        }
 
-        // Gera slug simples
-        const slug = nome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-");
-
-        const category = await Category.create({ nome, slug });
+        const category = await Category.create({ nome });
         res.status(201).json(category);
-    } catch (err) {
-        if (err.name === "SequelizeUniqueConstraintError") {
+    } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json({ error: "Categoria já existe" });
         }
-        next(err);
+        console.error("Erro ao criar categoria:", error);
+        res.status(500).json({ error: "Erro ao criar categoria" });
+    }
+}
+
+// Atualizar categoria
+async function updateCategory(req, res) {
+    try {
+        const { id } = req.params;
+        const { nome } = req.body;
+
+        const category = await Category.findByPk(id);
+        if (!category) {
+            return res.status(404).json({ error: "Categoria não encontrada" });
+        }
+
+        category.nome = nome;
+        await category.save();
+
+        res.json(category);
+    } catch (error) {
+        console.error("Erro ao atualizar categoria:", error);
+        res.status(500).json({ error: "Erro ao atualizar categoria" });
     }
 }
 
 // Deletar categoria
-async function deleteCategory(req, res, next) {
+async function deleteCategory(req, res) {
     try {
         const { id } = req.params;
         const category = await Category.findByPk(id);
-        if (!category) return res.status(404).json({ error: "Categoria não encontrada" });
+        if (!category) {
+            return res.status(404).json({ error: "Categoria não encontrada" });
+        }
 
         await category.destroy();
-        res.json({ message: "Categoria deletada com sucesso" });
-    } catch (err) { next(err); }
+        res.json({ message: "Categoria removida com sucesso" });
+    } catch (error) {
+        console.error("Erro ao deletar categoria:", error);
+        res.status(500).json({ error: "Erro ao deletar categoria" });
+    }
 }
 
 module.exports = {
-    getCategories,
+    getAllCategories,
     createCategory,
+    updateCategory,
     deleteCategory
 };

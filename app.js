@@ -43,12 +43,16 @@ app.use(
 );
 
 // Servir estáticos (CSS, JS, imagens)
-app.use(express.static(path.join(__dirname, "public")));
-
+app.get("/login_admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "html", "login_admin.html"));
+});
 // Habilitar JSON no body
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Servir estáticos (CSS, JS, imagens)
+app.use(express.static(path.join(__dirname, "public")));
 
 // Rotas
 app.use("/", pagesRoutes);

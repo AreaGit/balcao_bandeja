@@ -1,28 +1,42 @@
 const Product = require("../models/product.model");
+const Category = require("../models/category.model");
 const { Op } = require("sequelize");
 
 // Criar produto
 async function createProduct(req, res, next) {
   try {
-    const { nome, valor, valorPromocional, descricao, categoria,
-      cores, imagem1, imagem2, imagem3, imagem4 } = req.body;
+    const {
+      nome, valor, valorPromocional, descricao, categoria,
+      cores, imagens, estoque, peso, altura, largura, comprimento,
+      isLancamento, isMaisVendido
+    } = req.body;
+
+    // Se categoria foi enviada, garante que existe na tabela de categorias
+    if (categoria) {
+      await Category.findOrCreate({ where: { nome: categoria } });
+    }
 
     const product = await Product.create({
       nome: nome || null,
-      valor: valor || null,
-      valorPromocional: valorPromocional || null,
+      valor: valor || 0,
+      valorPromocional: valorPromocional || 0,
       descricao: descricao || null,
-      categoria: categoria || null,
-      cores: Array.isArray(cores) ? cores : [],
-      imagem1: imagem1 || null,
-      imagem2: imagem2 || null,
-      imagem3: imagem3 || null,
-      imagem4: imagem4 || null
+      categoria: categoria || "Geral",
+      cores: cores || [],
+      imagens: imagens || [],
+      estoque: estoque || 0,
+      peso: peso || "0",
+      altura: altura || "0",
+      largura: largura || "0",
+      comprimento: comprimento || "0",
+      isLancamento: !!isLancamento,
+      isMaisVendido: !!isMaisVendido
     });
 
     return res.status(201).json(product);
   } catch (error) {
-    next(error);
+    console.error("Erro ao criar produto:", error);
+    res.status(500).json({ error: "Erro ao criar produto" });
   }
 }
 
@@ -156,14 +170,30 @@ async function getRelatedProducts(req, res, next) {
 async function updateProduct(req, res, next) {
   try {
     const { id } = req.params;
-    const { nome, valor, valorPromocional, descricao, categoria, cores, imagens, sales } = req.body;
+    const {
+      nome, valor, valorPromocional, descricao, categoria,
+      cores, imagens, sales, estoque, peso, altura, largura, comprimento,
+      isLancamento, isMaisVendido
+    } = req.body;
 
     const product = await Product.findByPk(id);
     if (!product) return res.status(404).json({ error: "Produto não encontrado" });
 
-    await product.update({ nome, valor, valorPromocional, descricao, categoria, cores, imagens, sales });
+    // Se categoria foi enviada, garante que existe na tabela de categorias
+    if (categoria) {
+      await Category.findOrCreate({ where: { nome: categoria } });
+    }
+
+    await product.update({
+      nome, valor, valorPromocional, descricao, categoria,
+      cores, imagens, sales, estoque, peso, altura, largura, comprimento,
+      isLancamento, isMaisVendido
+    });
     res.json(product);
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error("Erro ao atualizar produto:", err);
+    res.status(500).json({ error: "Erro ao atualizar produto" });
+  }
 }
 
 // Deletar produto

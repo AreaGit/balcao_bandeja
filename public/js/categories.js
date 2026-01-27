@@ -1,5 +1,7 @@
 const cartBtn = document.getElementById("cartBtn");
 const cartSidebar = document.getElementById("cartSidebar");
+const menuList = document.getElementById("menuList");
+let submenuParents = document.querySelectorAll(".has-submenu");
 const overlay = document.getElementById("overlay");
 const closeCart = document.getElementById("closeCart");
 
@@ -29,7 +31,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const categoria = urlParams.get("categoria") || "";
 categorySpan.textContent = categoria || "Todos os Produtos";
 
-let maxPrice = Number(priceRange?.value || 1000);
+let maxPrice = Number(priceRange?.value || 5000);
 let sort = sortSelect?.value || "relevance";
 
 priceRange?.addEventListener("input", () => {
@@ -373,56 +375,53 @@ async function loadProducts() {
       }, 80);
 
     }, 350); // tempo do fade/zoom dos skeletons
-
-    productGrid.addEventListener("click", (e) => {
-      const decrease = e.target.closest(".qty-decrease");
-      const increase = e.target.closest(".qty-increase");
-
-      if (decrease) {
-        const wrapper = decrease.closest(".qty-control");
-        const input = wrapper.querySelector(".qty-input");
-        let v = parseInt(input.value || "1", 10);
-        v = isNaN(v) ? 1 : v - 1;
-        if (v < 1) v = 1;
-        input.value = v;
-        return;
-      }
-
-      if (increase) {
-        const wrapper = increase.closest(".qty-control");
-        const input = wrapper.querySelector(".qty-input");
-        let v = parseInt(input.value || "1", 10);
-        v = isNaN(v) ? 1 : v + 1;
-        input.value = v;
-        return;
-      }
-
-      const addBtn = e.target.closest(".btn-add");
-      if (addBtn) {
-        const card = addBtn.closest(".cat-card");
-        const productId = card.dataset.id;
-        const qtyInput = card.querySelector(".qty-input");
-        const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
-
-        // === Verificação da categoria ===
-        // Usa a variável global 'categoria' já definida na página
-        if (categoria && categoria.toLowerCase().includes("bandeja")) {
-          showCustomAlert(
-            "Para adicionar esse produto você precisa escolher a cor das Alças!",
-            `/detalhes-produto?id=${productId}`
-          );
-          return;
-        }
-
-        // Caso contrário, adiciona normalmente ao carrinho
-        addToCart(productId, qty);
-      }
-    });
-
   } catch (err) {
     console.error("Erro ao carregar produtos:", err);
   }
 }
+
+// === Delegação de Eventos para Quantidade e Adição (Adicionado uma única vez) ===
+productGrid.addEventListener("click", (e) => {
+  const decrease = e.target.closest(".qty-decrease");
+  const increase = e.target.closest(".qty-increase");
+
+  if (decrease) {
+    const wrapper = decrease.closest(".qty-control");
+    const input = wrapper.querySelector(".qty-input");
+    let v = parseInt(input.value || "1", 10);
+    v = isNaN(v) ? 1 : v - 1;
+    if (v < 1) v = 1;
+    input.value = v;
+    return;
+  }
+
+  if (increase) {
+    const wrapper = increase.closest(".qty-control");
+    const input = wrapper.querySelector(".qty-input");
+    let v = parseInt(input.value || "1", 10);
+    v = isNaN(v) ? 1 : v + 1;
+    input.value = v;
+    return;
+  }
+
+  const addBtn = e.target.closest(".btn-add");
+  if (addBtn) {
+    const card = addBtn.closest(".cat-card");
+    const productId = card.dataset.id;
+    const qtyInput = card.querySelector(".qty-input");
+    const qty = Math.max(1, parseInt(qtyInput.value || "1", 10));
+
+    if (categoria && categoria.toLowerCase().includes("bandeja")) {
+      showCustomAlert(
+        "Para adicionar esse produto você precisa escolher a cor das Alças!",
+        `/detalhes-produto?id=${productId}`
+      );
+      return;
+    }
+
+    addToCart(productId, qty);
+  }
+});
 
 function showCartAlert(message) {
   const alertBox = document.getElementById("cartAlert");
@@ -441,17 +440,29 @@ document.addEventListener("DOMContentLoaded", () => {
   loadCategoriesMenu();
 });
 
+// Submenus mobile
+function setupSubmenus() {
+  submenuParents = document.querySelectorAll(".has-submenu");
+  submenuParents.forEach(item => {
+    item.onclick = (e) => {
+      if (window.innerWidth <= 768) {
+        submenuParents.forEach(el => { if (el !== item) el.classList.remove("open"); });
+        item.classList.toggle("open");
+      }
+    };
+  });
+}
+setupSubmenus();
+
 async function loadCategoriesMenu() {
   try {
     const res = await fetch("/api/categories");
     const categories = await res.json();
 
-    // Atualiza Menu Principal (itens horizontais) se existir na página
     const menuList = document.getElementById("menuList");
     if (menuList) {
       const firstItem = menuList.firstElementChild;
       if (firstItem && firstItem.classList.contains("has-submenu")) {
-        // Atualiza submenu do "Todos os Departamentos"
         const departmentsSubmenu = firstItem.querySelector(".submenu");
         if (departmentsSubmenu) {
           departmentsSubmenu.innerHTML = categories.map(cat => `
@@ -459,7 +470,6 @@ async function loadCategoriesMenu() {
           `).join("");
         }
 
-        // Atualiza itens principais
         menuList.innerHTML = "";
         menuList.appendChild(firstItem);
 
@@ -470,11 +480,11 @@ async function loadCategoriesMenu() {
         });
       }
     }
+    setupSubmenus();
   } catch (err) {
     console.error("Erro ao carregar categorias no menu:", err);
   }
 }
-
 
 document.getElementById('checkoutBtn').addEventListener("click", () => {
   location.href = "/checkout";

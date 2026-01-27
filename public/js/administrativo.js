@@ -2080,7 +2080,7 @@ async function loadCategoriasTable() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>#${cat.id}</td>
-        <td>${escapeHtml(cat.nome)}</td>
+        <td>${cat.nome}</td>
         <td>${cat.slug || "—"}</td>
         <td>
           <button class="delete" data-id="${cat.id}">Excluir</button>

@@ -5,9 +5,11 @@ const overlay = document.getElementById("overlay");
 const closeCart = document.getElementById("closeCart");
 const menuToggle = document.getElementById("menuToggle");
 const menuList = document.getElementById("menuList");
-const submenuParents = document.querySelectorAll(".has-submenu");
 const searchInput = document.getElementById("searchInput");
 const autocompleteList = document.getElementById("autocompleteList");
+
+// Movemos a declaração para podermos atualizar dinamicamente
+let submenuParents = document.querySelectorAll(".has-submenu");
 
 let currentCartId;
 let debounceTimeout;
@@ -34,15 +36,53 @@ menuToggle.addEventListener("click", () => {
 });
 
 // Submenus mobile
-submenuParents.forEach(item => {
-  item.addEventListener("click", e => {
-    if (window.innerWidth <= 768) {
-      e.preventDefault();
-      submenuParents.forEach(el => { if (el !== item) el.classList.remove("open"); });
-      item.classList.toggle("open");
-    }
+function setupSubmenus() {
+  submenuParents = document.querySelectorAll(".has-submenu");
+  submenuParents.forEach(item => {
+    item.onclick = (e) => { // Usando onclick para evitar múltiplos listeners se chamarmos setup várias vezes
+      if (window.innerWidth <= 768) {
+        // e.preventDefault(); // Comentado para permitir clique em links se houver
+        submenuParents.forEach(el => { if (el !== item) el.classList.remove("open"); });
+        item.classList.toggle("open");
+      }
+    };
   });
-});
+}
+setupSubmenus();
+
+// === RENDERIZAR CATEGORIAS DINÂMICAS ===
+async function loadCategoriesMenu() {
+  try {
+    const res = await fetch("/api/categories");
+    const categories = await res.json();
+
+    const menuList = document.getElementById("menuList");
+    if (menuList) {
+      const firstItem = menuList.firstElementChild;
+      if (firstItem && firstItem.classList.contains("has-submenu")) {
+        const departmentsSubmenu = firstItem.querySelector(".submenu");
+        if (departmentsSubmenu) {
+          departmentsSubmenu.innerHTML = categories.map(cat => `
+            <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
+          `).join("");
+        }
+
+        menuList.innerHTML = "";
+        menuList.appendChild(firstItem);
+
+        categories.forEach(cat => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+          menuList.appendChild(li);
+        });
+      }
+    }
+    setupSubmenus();
+  } catch (err) {
+    console.error("Erro ao carregar categorias no menu:", err);
+  }
+}
+loadCategoriesMenu();
 
 // === CARREGAR CARRINHO ===
 async function renderCart() {
@@ -558,8 +598,11 @@ async function loadCategoriesMenu() {
 }
 
 // === Executar ===
-carregarDestaques();
-loadCategoriesMenu();
+document.addEventListener("DOMContentLoaded", () => {
+  carregarDestaques();
+  loadCategoriesMenu();
+  renderCart();
+});
 
 document.getElementById("Capa_1").addEventListener("click", () => {
   window.open("https://wa.me/5511991765332");

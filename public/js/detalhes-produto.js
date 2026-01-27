@@ -496,6 +496,8 @@ async function initProductDetails() {
   }
 
   // Tabs
+  const menuList = document.getElementById("menuList");
+  let submenuParents = document.querySelectorAll(".has-submenu");
   const tabs = document.querySelectorAll(".tab");
   const contents = document.querySelectorAll(".tab-content");
   tabs.forEach((tab, index) => {
