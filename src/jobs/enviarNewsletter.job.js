@@ -9,7 +9,7 @@ cron.schedule("0 * * * *", async () => {
   });
   if (!novos.length) return;
 
-  const cupom = await Coupon.findOne({ where: { active: true }, order: [["createdAt", "DESC"]] });
+  const cupom = await Coupon.findOne({ where: { active: true }, order: [["id", "DESC"]] });
 
   for (const user of novos) {
     await transporter.sendMail({

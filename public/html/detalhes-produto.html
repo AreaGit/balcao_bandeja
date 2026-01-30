@@ -85,15 +85,8 @@
 
     <nav>
       <ul id="menuList">
-        <li class="has-submenu">
-          Todos os Departamentos <span class="arrow">▼</span>
-          <ul class="submenu">
-            <li>Balcão de Degustação</li>
-            <li>Balcão de Degustação MDF</li>
-            <li>Bandejas de Degustação</li>
-            <li>Mochila Pirulito</li>
-            <li>Wind Flag</li>
-          </ul>
+        <li>
+          <a href="/categories">Todos os Departamentos</a>
         </li>
         <li>
           <a href="/categories?categoria=Balcões">Balcão de Degustação</a> <span class="arrow"></span>
@@ -165,7 +158,13 @@
       <div class="prod-main-img">
         <img id="mainImage" src="" alt="Imagem principal do produto">
       </div>
-      <div class="prod-thumbs" id="thumbsContainer"></div>
+      <div class="prod-thumbs-carousel">
+        <button class="thumb-nav up" id="prevThumb">▲</button>
+        <div class="prod-thumbs-viewport">
+          <div class="prod-thumbs" id="thumbsContainer"></div>
+        </div>
+        <button class="thumb-nav down" id="nextThumb">▼</button>
+      </div>
     </div>
 
     <!-- INFORMAÇÕES -->
@@ -193,21 +192,18 @@
         <div id="shipping-result">Digite o CEP e clique em "Calcular" para ver o frete.</div>
       </div>
 
+      <!-- DESCRIÇÃO DO PRODUTO DENTRO DA CAIXINHA -->
+      <div class="prod-description-box">
+        <div class="tabs">
+          <button class="tab active">Descrição</button>
+        </div>
+        <div class="tab-content active" id="tabDescricao"></div>
+      </div>
+
     </div>
   </main>
 
-  <!-- ABA DE DETALHES -->
-  <section class="prod-tabs">
-    <div class="tabs">
-      <button class="tab active">Descrição</button>
-      <!--<button class="tab">Especificações</button>
-      <button class="tab">Avaliações</button>-->
-    </div>
-
-    <div class="tab-content active" id="tabDescricao"></div>
-    <!--<div class="tab-content" id="tabEspecificacoes"></div>
-    <div class="tab-content" id="tabAvaliacoes"></div>-->
-  </section>
+  <!-- Seção de tabs removida pois a descrição agora está dentro da caixinha -->
 
   <!-- RELACIONADOS -->
   <section class="prod-related">

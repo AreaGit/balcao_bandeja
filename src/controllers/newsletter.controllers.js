@@ -38,7 +38,7 @@ async function subscribe(req, res) {
     // 🔹 Buscar cupom ativo mais recente
     const cupom = await Coupon.findOne({
       where: { active: true },
-      order: [["createdAt", "DESC"]]
+      order: [["id", "DESC"]]
     });
 
     // 🔹 Definir cupom padrão caso não haja nenhum ativo

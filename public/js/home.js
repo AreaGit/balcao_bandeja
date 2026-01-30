@@ -570,16 +570,6 @@ async function loadCategoriesMenu() {
     const res = await fetch("/api/categories");
     const categories = await res.json();
 
-    // 1. Atualiza "Todos os Departamentos" (dropdown)
-    const departmentsSubmenu = document.querySelector(".has-submenu .submenu");
-    if (departmentsSubmenu) {
-      departmentsSubmenu.innerHTML = categories.map(cat => `
-        <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
-      `).join("");
-    }
-
-    // 2. Atualiza Menu Principal (itens horizontais)
-    // Limpamos os itens hardcoded EXCETO o primeiro (Todos os Departamentos)
     const menuList = document.getElementById("menuList");
     if (menuList) {
       const firstItem = menuList.firstElementChild;
@@ -592,6 +582,7 @@ async function loadCategoriesMenu() {
         menuList.appendChild(li);
       });
     }
+    setupSubmenus();
   } catch (err) {
     console.error("Erro ao carregar categorias no menu:", err);
   }

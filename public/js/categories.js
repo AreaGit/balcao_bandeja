@@ -1,5 +1,6 @@
 const cartBtn = document.getElementById("cartBtn");
 const cartSidebar = document.getElementById("cartSidebar");
+const menuToggle = document.getElementById("menuToggle");
 const menuList = document.getElementById("menuList");
 let submenuParents = document.querySelectorAll(".has-submenu");
 const overlay = document.getElementById("overlay");
@@ -20,6 +21,11 @@ function fecharCarrinho() {
   overlay.classList.remove("active");
   document.body.style.overflow = ""; // restaura scroll
 }
+
+// === MENU HAMBURGUER ===
+menuToggle.addEventListener("click", () => {
+  menuList.classList.toggle("active");
+});
 
 const productGrid = document.getElementById("productGrid");
 const priceRange = document.getElementById("priceRange");
@@ -462,23 +468,14 @@ async function loadCategoriesMenu() {
     const menuList = document.getElementById("menuList");
     if (menuList) {
       const firstItem = menuList.firstElementChild;
-      if (firstItem && firstItem.classList.contains("has-submenu")) {
-        const departmentsSubmenu = firstItem.querySelector(".submenu");
-        if (departmentsSubmenu) {
-          departmentsSubmenu.innerHTML = categories.map(cat => `
-            <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
-          `).join("");
-        }
+      menuList.innerHTML = "";
+      menuList.appendChild(firstItem);
 
-        menuList.innerHTML = "";
-        menuList.appendChild(firstItem);
-
-        categories.forEach(cat => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
-          menuList.appendChild(li);
-        });
-      }
+      categories.forEach(cat => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+        menuList.appendChild(li);
+      });
     }
     setupSubmenus();
   } catch (err) {

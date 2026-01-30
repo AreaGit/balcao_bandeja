@@ -7,7 +7,7 @@ async function createProduct(req, res, next) {
   try {
     const {
       nome, valor, valorPromocional, descricao, categoria,
-      cores, imagens, estoque, peso, altura, largura, comprimento,
+      cores, lonas, imagens, estoque, peso, altura, largura, comprimento,
       isLancamento, isMaisVendido
     } = req.body;
 
@@ -23,6 +23,7 @@ async function createProduct(req, res, next) {
       descricao: descricao || null,
       categoria: categoria || "Geral",
       cores: cores || [],
+      lonas: lonas || [],
       imagens: imagens || [],
       estoque: estoque || 0,
       peso: peso || "0",
@@ -172,7 +173,7 @@ async function updateProduct(req, res, next) {
     const { id } = req.params;
     const {
       nome, valor, valorPromocional, descricao, categoria,
-      cores, imagens, sales, estoque, peso, altura, largura, comprimento,
+      cores, lonas, imagens, sales, estoque, peso, altura, largura, comprimento,
       isLancamento, isMaisVendido
     } = req.body;
 
@@ -186,7 +187,7 @@ async function updateProduct(req, res, next) {
 
     await product.update({
       nome, valor, valorPromocional, descricao, categoria,
-      cores, imagens, sales, estoque, peso, altura, largura, comprimento,
+      cores, lonas, imagens, sales, estoque, peso, altura, largura, comprimento,
       isLancamento, isMaisVendido
     });
     res.json(product);

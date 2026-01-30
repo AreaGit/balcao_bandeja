@@ -2,38 +2,44 @@ const { DataTypes } = require("sequelize");
 const db = require("../config/database");
 
 const Product = db.define("Product", {
-  nome: { 
-    type: DataTypes.STRING, 
-    allowNull: false, 
-    validate: { notEmpty: true } 
+  nome: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: { notEmpty: true }
   },
 
-  valor: { 
-    type: DataTypes.DECIMAL(10, 2), 
+  valor: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
     defaultValue: 0.00,
     validate: { min: 0 }
   },
 
-  valorPromocional: { 
-    type: DataTypes.DECIMAL(10, 2), 
+  valorPromocional: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00
   },
 
-  descricao: { 
-    type: DataTypes.TEXT, 
+  descricao: {
+    type: DataTypes.TEXT,
     allowNull: true,
     defaultValue: ""
   },
 
-  categoria: { 
-    type: DataTypes.STRING, 
+  categoria: {
+    type: DataTypes.STRING,
     allowNull: true,
     defaultValue: "Geral"
   },
 
   cores: {
+    type: DataTypes.JSON,
+    allowNull: true,
+    defaultValue: []
+  },
+
+  lonas: {
     type: DataTypes.JSON,
     allowNull: true,
     defaultValue: []
@@ -45,50 +51,50 @@ const Product = db.define("Product", {
     defaultValue: []
   },
 
-  sales: { 
-    type: DataTypes.INTEGER, 
-    defaultValue: 0 
+  sales: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   },
 
   // Campos físicos para frete e cálculo de dimensões
-  largura: { 
-    type: DataTypes.DECIMAL(10, 2), 
+  largura: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00
   },
 
-  altura: { 
-    type: DataTypes.DECIMAL(10, 2), 
+  altura: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00
   },
 
-  comprimento: { 
-    type: DataTypes.DECIMAL(10, 2), 
+  comprimento: {
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
     defaultValue: 0.00
   },
 
-  peso: { 
-    type: DataTypes.DECIMAL(10, 3), 
+  peso: {
+    type: DataTypes.DECIMAL(10, 3),
     allowNull: true,
     defaultValue: 0.000
   },
 
-  estoque: { 
-    type: DataTypes.INTEGER, 
+  estoque: {
+    type: DataTypes.INTEGER,
     defaultValue: 0,
     validate: { min: 0 }
   },
 
-  isLancamento: { 
-    type: DataTypes.BOOLEAN, 
-    defaultValue: false 
+  isLancamento: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
 
-  isMaisVendido: { 
-    type: DataTypes.BOOLEAN, 
-    defaultValue: false 
+  isMaisVendido: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 
 }, {

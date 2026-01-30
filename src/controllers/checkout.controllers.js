@@ -17,7 +17,11 @@ async function formatCart(cartId) {
   const cart = await Cart.findByPk(cartId, { include: [{ model: CartItem, as: "items" }] });
   if (!cart) return null;
 
-  const totalFinal = cart.items.reduce((sum, item) => sum + item.precoUnitario * item.quantidade, 0);
+  const totalFinal = cart.items.reduce((sum, item) => {
+    let price = parseFloat(item.precoUnitario || 0);
+    // Embora o preço deva vir correto do CartItem, garantimos a lógica aqui também
+    return sum + (price * item.quantidade);
+  }, 0);
 
   return {
     id: cart.id,
@@ -306,7 +310,8 @@ exports.gerarBoleto = async (req, res) => {
         produtoId: item.productId,
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
-        cor: item.cor || null
+        cor: item.cor || null,
+        lona: item.lona || null
       });
     }
 
@@ -464,7 +469,8 @@ exports.finalizarPedido = async (req, res) => {
         produtoId: item.produtoId,
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
-        cor: item.cor || null
+        cor: item.cor || null,
+        lona: item.lona || null
       }, { transaction: t });
     }
 

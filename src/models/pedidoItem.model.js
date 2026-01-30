@@ -6,7 +6,8 @@ const PedidoItem = db.define("pedidoItem", {
     produtoId: { type: Sequelize.INTEGER, allowNull: false },
     quantidade: { type: Sequelize.INTEGER, allowNull: false },
     precoUnitario: { type: Sequelize.DECIMAL(10, 2), allowNull: false },
-    cor: { type: Sequelize.STRING, allowNull: true }
+    cor: { type: Sequelize.STRING, allowNull: true },
+    lona: { type: Sequelize.STRING, allowNull: true }
 });
 
 // CRIAR A TABELA

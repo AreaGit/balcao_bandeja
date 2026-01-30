@@ -568,6 +568,13 @@ async function confirmarCancelamento(id, statusAtual) {
 }
 
 // -------------------- HELPERS --------------------
+function getYouTubeId(url) {
+  if (!url || typeof url !== 'string') return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
 function escapeHtml(str = "") {
   return String(str)
     .replace(/&/g, "&amp;")
@@ -833,9 +840,16 @@ async function abrirModalDetalhesProduto(id) {
     modal.className = "modal modal-produto";
 
     const imagens = Array.isArray(produto.imagens) ? produto.imagens : (produto.imagem ? [produto.imagem] : []);
-    const imagensHTML = imagens.map((img, i) => `
-      <img src="${img}" alt="${produto.nome}" class="produto-detalhes-img ${i === 0 ? 'active' : ''}" style="${i === 0 ? '' : 'display:none;'} max-width:100%; max-height:400px; border-radius:12px; object-fit:contain;">
-    `).join("");
+    const imagensHTML = imagens.map((img, i) => {
+      const vId = getYouTubeId(img);
+      if (vId) {
+        return `
+          <div class="produto-detalhes-img ${i === 0 ? 'active' : ''}" style="${i === 0 ? '' : 'display:none;'} width:100%; max-height:400px;">
+            <iframe width="100%" height="300" src="https://www.youtube.com/embed/${vId}" frameborder="0" allowfullscreen></iframe>
+          </div>`;
+      }
+      return `<img src="${img}" alt="${produto.nome}" class="produto-detalhes-img ${i === 0 ? 'active' : ''}" style="${i === 0 ? '' : 'display:none;'} max-width:100%; max-height:400px; border-radius:12px; object-fit:contain;">`;
+    }).join("");
 
     modal.innerHTML = `
       <div class="pedido-header">
@@ -850,7 +864,11 @@ async function abrirModalDetalhesProduto(id) {
               ${imagensHTML || '<p>Sem imagens</p>'}
             </div>
             <div class="thumbs" style="display:flex; gap:8px; margin-top:12px; overflow-x:auto;">
-              ${imagens.map((img, i) => `<img src="${img}" class="thumb-img" data-index="${i}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; cursor:pointer; border:2px solid ${i === 0 ? 'var(--brand-accent)' : 'transparent'}; opacity:${i === 0 ? '1' : '0.6'};">`).join("")}
+              ${imagens.map((img, i) => {
+      const vId = getYouTubeId(img);
+      const thumbSrc = vId ? `https://img.youtube.com/vi/${vId}/hqdefault.jpg` : img;
+      return `<img src="${thumbSrc}" class="thumb-img" data-index="${i}" style="width:50px; height:50px; object-fit:cover; border-radius:8px; cursor:pointer; border:2px solid ${i === 0 ? 'var(--brand-accent)' : 'transparent'}; opacity:${i === 0 ? '1' : '0.6'};">`;
+    }).join("")}
             </div>
           </div>
           
@@ -872,6 +890,11 @@ async function abrirModalDetalhesProduto(id) {
             <div class="cores-bloco">
               <h4>Cores Disponíveis</h4>
               <p style="margin:0">${Array.isArray(produto.cores) ? produto.cores.join(", ") : (produto.cores || "—")}</p>
+            </div>
+
+            <div class="lonas-bloco">
+              <h4>Tipos de Lona</h4>
+              <p style="margin:0">${Array.isArray(produto.lonas) ? produto.lonas.map(l => (typeof l === 'string' ? l : `${l.nome} (R$ ${l.preco})`)).join(", ") : (produto.lonas || "—")}</p>
             </div>
           </div>
         </div>
@@ -962,6 +985,9 @@ async function openProdutoModal(id = null, initialData = null) {
 
   let imagensState = normalizeArray(produto.imagens || produto.imagem);
   const coresState = normalizeArray(produto.cores);
+  const lonasState = normalizeArray(produto.lonas);
+
+  const lonasFixas = ["Brilhante", "Fosca"];
 
   overlay.innerHTML = `
     <div class="modal modal-produto" style="width: min(900px, 95%);">
@@ -1055,6 +1081,31 @@ async function openProdutoModal(id = null, initialData = null) {
               `).join("")}
             </div>
           </div>
+
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Variações de Lona (Preço manual por tipo)</label>
+            <div class="lonas-config-grid" style="margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              ${lonasFixas.map(lona => {
+    const lonaData = lonasState.find(l => (typeof l === 'string' ? l : l.nome) === lona);
+    const isChecked = !!lonaData;
+    const price = lonaData && typeof lonaData === 'object' ? lonaData.preco : (produto.valor || 0);
+
+    return `
+                  <div class="lona-item-config" style="display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 12px; border: 1px solid var(--line);">
+                    <label class="checkbox-simple" style="margin: 0; flex-shrink: 0; color: #fff;">
+                      <input type="checkbox" name="prod_lonas_check" value="${lona}" ${isChecked ? "checked" : ""}>
+                      <span style="font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">${lona}</span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: auto; background: #0f1126; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line);">
+                      <span style="font-size: 11px; color: var(--brand-accent); font-weight: 800;">R$</span>
+                      <input type="number" step="0.01" class="lona-price-input" data-lona="${lona}" value="${price}" 
+                        style="width: 75px; background: transparent; border: none; color: #fff; font-size: 14px; font-weight: 700; outline: none; ${!isChecked ? 'opacity: 0.3; pointer-events: none;' : ''}">
+                    </div>
+                  </div>
+                `;
+  }).join("")}
+            </div>
+          </div>
         </div>
 
         <div class="form-section-title">📸 Galeria de Imagens</div>
@@ -1107,14 +1158,17 @@ async function openProdutoModal(id = null, initialData = null) {
       return;
     }
     imagensState.forEach((url, index) => {
+      const vId = getYouTubeId(url);
+      const previewSrc = vId ? `https://img.youtube.com/vi/${vId}/hqdefault.jpg` : url;
       const div = document.createElement("div");
       div.className = "img-box fade-in";
       div.draggable = true;
       div.dataset.index = index;
       div.innerHTML = `
-        <img src="${url}" alt="Preview" loading="lazy" />
+        <img src="${previewSrc}" alt="Preview" loading="lazy" />
         <button class="remove-img" data-index="${index}" title="Remover">×</button>
         <div class="drag-handle" title="Arraste para reordenar">⠿</div>
+        ${vId ? '<div style="position:absolute; bottom:5px; left:5px; background:rgba(0,0,0,0.7); color:white; font-size:10px; padding:2px 5px; border-radius:4px;">VIDEO</div>' : ''}
       `;
 
       // Eventos de Drag & Drop
@@ -1177,6 +1231,20 @@ async function openProdutoModal(id = null, initialData = null) {
     overlay.querySelector("#prod_nova_categoria").style.display = isNew ? "block" : "none";
   });
 
+  // Habilita/Desabilita input de preço conforme checkbox
+  overlay.querySelectorAll("input[name='prod_lonas_check']").forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      const priceInput = overlay.querySelector(`.lona-price-input[data-lona="${e.target.value}"]`);
+      if (e.target.checked) {
+        priceInput.style.opacity = "1";
+        priceInput.style.pointerEvents = "auto";
+      } else {
+        priceInput.style.opacity = "0.5";
+        priceInput.style.pointerEvents = "none";
+      }
+    });
+  });
+
   overlay.querySelector("#saveProduto").addEventListener("click", async () => {
     let categoria = overlay.querySelector("#prod_categoria").value;
     const novaCategoria = overlay.querySelector("#prod_nova_categoria").value.trim();
@@ -1200,6 +1268,11 @@ async function openProdutoModal(id = null, initialData = null) {
       isLancamento: overlay.querySelector("#prod_isLancamento").checked,
       isMaisVendido: overlay.querySelector("#prod_isMaisVendido").checked,
       cores: [...overlay.querySelectorAll("input[name='prod_cores']:checked")].map(cb => cb.value),
+      lonas: [...overlay.querySelectorAll("input[name='prod_lonas_check']:checked")].map(cb => {
+        const lonaNome = cb.value;
+        const priceInput = overlay.querySelector(`.lona-price-input[data-lona="${lonaNome}"]`);
+        return { nome: lonaNome, preco: parseFloat(priceInput.value) || 0 };
+      }),
       imagens: imagensState
     };
 
@@ -1279,7 +1352,7 @@ async function initCupons() {
 
       <table>
         <thead>
-          <tr><th>ID</th><th>Código</th><th>Descrição</th><th>Desconto (%)</th><th>Expira em</th><th>Ativo</th><th>Ações</th></tr>
+          <tr><th>ID</th><th>Código</th><th>Descrição</th><th>Desconto (%)</th><th>Frete Grátis</th><th>Expira em</th><th>Ativo</th><th>Ações</th></tr>
         </thead>
         <tbody id="cuponsTableBody"></tbody>
       </table>
@@ -1329,6 +1402,7 @@ function renderCuponsTable(cupons) {
       <td>${c.code}</td>
       <td>${c.description || "—"}</td>
       <td>${parseFloat(c.discount_percent).toFixed(2)}%</td>
+      <td>${c.is_free_shipping ? "Sim" : "Não"}</td>
       <td>${c.expires_at ? new Date(c.expires_at).toLocaleDateString("pt-BR") : "—"}</td>
       <td>${c.active ? "✅" : "❌"}</td>
       <td>
@@ -1370,6 +1444,12 @@ async function openCouponModal(id = null) {
         <option value="false" ${!coupon.active ? "selected" : ""}>Não</option>
       </select>
 
+      <label>Frete Grátis</label>
+      <select id="coupon_free_shipping">
+        <option value="false" ${!coupon.is_free_shipping ? "selected" : ""}>Não</option>
+        <option value="true" ${coupon.is_free_shipping ? "selected" : ""}>Sim</option>
+      </select>
+
       <div class="modal-actions">
         <button id="saveCoupon" class="update">${isNew ? "Criar Cupom" : "Salvar Alterações"}</button>
         <button id="closeCouponModal" class="success">Fechar</button>
@@ -1384,7 +1464,8 @@ async function openCouponModal(id = null) {
       description: document.getElementById("coupon_description").value.trim(),
       discount_percent: parseFloat(document.getElementById("coupon_discount").value) || 0,
       expires_at: document.getElementById("coupon_expiry").value || null,
-      active: document.getElementById("coupon_active").value === "true"
+      active: document.getElementById("coupon_active").value === "true",
+      is_free_shipping: document.getElementById("coupon_free_shipping").value === "true"
     };
 
     try {

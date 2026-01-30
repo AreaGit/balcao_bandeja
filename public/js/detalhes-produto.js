@@ -2,6 +2,8 @@ const cartBtn = document.getElementById("cartBtn");
 const cartSidebar = document.getElementById("cartSidebar");
 const overlay = document.getElementById("overlay");
 const closeCart = document.getElementById("closeCart");
+const menuToggle = document.getElementById("menuToggle");
+const menuList = document.getElementById("menuList");
 
 // === ANIMAÇÃO SUAVE DE ENTRADA E SAÍDA ===
 cartBtn.addEventListener("click", () => {
@@ -17,6 +19,13 @@ function fecharCarrinho() {
   cartSidebar.classList.remove("active");
   overlay.classList.remove("active");
   document.body.style.overflow = ""; // restaura scroll
+}
+
+// === MENU HAMBURGUER ===
+if (menuToggle) {
+  menuToggle.addEventListener("click", () => {
+    menuList.classList.toggle("active");
+  });
 }
 
 let currentCartId;
@@ -67,6 +76,8 @@ async function renderCart() {
           <img src="${item.imagem || "../assets/no-image.png"}" alt="${item.nome}" style="width:50px;height:50px;object-fit:cover;margin-right:10px;">
           <div class="info">
             <p><strong>${item.nome}</strong></p>
+            ${item.cor ? `<p style="font-size:12px; color:#666;">Cor: ${item.cor}</p>` : ""}
+            ${item.lona ? `<p style="font-size:12px; color:#666;">Lona: ${item.lona}</p>` : ""}
             <p>Qtd: 
               <input type="number" min="1" value="${item.quantidade}" data-id="${item.id}" class="update-qty">
             </p>
@@ -153,11 +164,11 @@ async function renderCart() {
 }
 
 // === Adicionar, atualizar e remover itens ===
-async function addToCart(productId, quantity = 1, cor = null) {
+async function addToCart(productId, quantity = 1, cor = null, lona = null) {
   const res = await fetch("/api/cart/item", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cartId: currentCartId, productId, quantity, cor })
+    body: JSON.stringify({ cartId: currentCartId, productId, quantity, cor, lona })
   });
 
   const cart = await res.json();
@@ -333,29 +344,234 @@ async function initProductDetails() {
       });
 
       // Inserir logo acima do preço
-      const priceElem = document.getElementById("productPrice");
-      prodInfo.insertBefore(colorLabel, priceElem);
-      prodInfo.insertBefore(colorSelect, priceElem);
+      const priceEl = document.getElementById("productPrice");
+      prodInfo.insertBefore(colorLabel, priceEl);
+      prodInfo.insertBefore(colorSelect, priceEl);
+    }
+
+    // Seleção de lonas
+    const oldLonaSelect = document.getElementById("lonaSelect");
+    if (oldLonaSelect) oldLonaSelect.remove();
+
+    if (product.lonas && product.lonas.length > 0) {
+      const lonaLabel = document.createElement("label");
+      lonaLabel.innerHTML = "Selecione o tipo de <strong>LONA:</strong>";
+      lonaLabel.setAttribute("for", "lonaSelect");
+      lonaLabel.style.display = "block";
+      lonaLabel.style.margin = "10px 0 5px 0";
+      lonaLabel.style.fontWeight = "600";
+
+      const lonaSelect = document.createElement("select");
+      lonaSelect.id = "lonaSelect";
+      lonaSelect.style.padding = "10px";
+      lonaSelect.style.width = "100%";
+      lonaSelect.style.border = "1px solid #ddd";
+      lonaSelect.style.borderRadius = "6px";
+      lonaSelect.style.fontSize = "16px";
+      lonaSelect.style.marginTop = "5px";
+      lonaSelect.style.marginBottom = "15px";
+      lonaSelect.style.backgroundColor = "rgba(0,0,0,0.1)";
+      lonaSelect.style.textTransform = "uppercase";
+
+      const defaultOption = document.createElement("option");
+      defaultOption.value = "";
+      defaultOption.textContent = "Selecione";
+      defaultOption.selected = true;
+      defaultOption.disabled = true;
+      lonaSelect.appendChild(defaultOption);
+
+      product.lonas.forEach(lona => {
+        const option = document.createElement("option");
+        const nome = typeof lona === 'string' ? lona : lona.nome;
+        option.value = nome;
+        option.textContent = nome;
+        lonaSelect.appendChild(option);
+      });
+
+      const priceEl = document.getElementById("productPrice");
+      prodInfo.insertBefore(lonaLabel, priceEl);
+      prodInfo.insertBefore(lonaSelect, priceEl);
+
+      // Evento para atualizar preço
+      lonaSelect.addEventListener("change", () => {
+        const selectedLona = lonaSelect.value;
+        const lonaData = product.lonas.find(l => l.nome === selectedLona);
+
+        if (lonaData && lonaData.preco > 0) {
+          priceEl.innerHTML = `<span style="font-size:24px; font-weight:bold;">R$ ${lonaData.preco.toFixed(2).replace(".", ",")}</span>`;
+        } else {
+          // Volta para o preço original
+          if (product.valorPromocional && product.valorPromocional < product.valor) {
+            priceEl.innerHTML = `
+              <span style=" color:#888; font-size:16px; margin-right:10px;">A partir de:</span>
+              <br>
+              <span id="promotionPrice" style=" font-size:24px; font-weight:bold;">R$ ${product.valor}</span>
+            `;
+          } else {
+            priceEl.innerHTML = `<span style="font-size:24px; font-weight:bold;">R$ ${product.valor}</span>`;
+          }
+        }
+      });
     }
 
 
     // Galeria de imagens
-    const mainImage = document.getElementById("mainImage");
+    const mainImgContainer = document.querySelector(".prod-main-img");
     const thumbsContainer = document.getElementById("thumbsContainer");
     thumbsContainer.innerHTML = "";
 
     if (product.imagens && product.imagens.length > 0) {
-      mainImage.src = product.imagens[0];
+      // Inicializa com a primeira imagem
+      updateMainMedia(product.imagens[0], product.nome);
 
       product.imagens.forEach((imgUrl, index) => {
+        const videoId = getYouTubeId(imgUrl);
         const thumb = document.createElement("img");
-        thumb.src = imgUrl;
-        thumb.alt = `${product.nome} ${index + 1}`;
-        thumb.addEventListener("click", () => {
-          mainImage.src = imgUrl;
-        });
+
+        if (videoId) {
+          thumb.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+          thumb.alt = `${product.nome} vídeo ${index + 1}`;
+          thumb.classList.add("video-thumb");
+
+          thumb.addEventListener("click", () => {
+            updateMainMedia(imgUrl, product.nome, true);
+            setActiveThumb(thumb);
+          });
+        } else {
+          thumb.src = imgUrl;
+          thumb.alt = `${product.nome} ${index + 1}`;
+          thumb.addEventListener("click", () => {
+            updateMainMedia(imgUrl, product.nome, false);
+            setActiveThumb(thumb);
+          });
+        }
+        if (index === 0) thumb.classList.add("active");
         thumbsContainer.appendChild(thumb);
       });
+
+      // Lógica do Carrossel Vertical
+      initThumbsCarousel(product.imagens.length);
+    }
+
+    function setActiveThumb(activeThumb) {
+      document.querySelectorAll(".prod-thumbs img").forEach(img => img.classList.remove("active"));
+      activeThumb.classList.add("active");
+    }
+
+    function initThumbsCarousel(totalItems) {
+      const prevBtn = document.getElementById("prevThumb");
+      const nextBtn = document.getElementById("nextThumb");
+      const container = document.getElementById("thumbsContainer");
+      let currentIndex = 0;
+
+      const getItemsVisible = () => {
+        const width = window.innerWidth;
+        if (width <= 480) return 3;
+        return 4;
+      };
+
+      // Ajusta as setas para horizontal no mobile
+      const updateOrientation = () => {
+        const isMobile = window.innerWidth <= 992;
+        if (isMobile) {
+          prevBtn.innerHTML = "◀";
+          nextBtn.innerHTML = "▶";
+          prevBtn.style.transform = "none";
+          nextBtn.style.transform = "none";
+        } else {
+          prevBtn.innerHTML = "▲";
+          nextBtn.innerHTML = "▼";
+        }
+        return isMobile;
+      };
+
+      let isMobile = updateOrientation();
+
+      function updateButtons() {
+        const itemsVisible = getItemsVisible();
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= totalItems - itemsVisible;
+
+        // Esconde setas se tiver menos imagens que o visível
+        if (totalItems <= itemsVisible) {
+          prevBtn.style.visibility = "hidden";
+          nextBtn.style.visibility = "hidden";
+        } else {
+          prevBtn.style.visibility = "visible";
+          nextBtn.style.visibility = "visible";
+        }
+      }
+
+      function scrollToIndex(index) {
+        isMobile = window.innerWidth <= 992;
+        const itemsVisible = getItemsVisible();
+
+        // Garante que o index não ultrapasse o limite
+        const maxIndex = Math.max(0, totalItems - itemsVisible);
+        currentIndex = Math.min(Math.max(0, index), maxIndex);
+
+        const thumbSize = isMobile ? 70 : 85;
+        const gap = isMobile ? 10 : 12;
+        const offset = currentIndex * (thumbSize + gap);
+
+        if (isMobile) {
+          container.style.transform = `translateX(-${offset}px)`;
+        } else {
+          container.style.transform = `translateY(-${offset}px)`;
+        }
+        updateButtons();
+      }
+
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) scrollToIndex(currentIndex - 1);
+      });
+
+      nextBtn.addEventListener("click", () => {
+        const itemsVisible = getItemsVisible();
+        if (currentIndex < totalItems - itemsVisible) scrollToIndex(currentIndex + 1);
+      });
+
+      // Reset no resize
+      window.addEventListener("resize", () => {
+        isMobile = updateOrientation();
+        scrollToIndex(0); // Volta ao início para evitar problemas de layout
+      });
+
+      updateButtons();
+    }
+
+    // Função auxiliar para atualizar a mídia principal (imagem ou vídeo)
+    function updateMainMedia(url, alt, isVideo = false) {
+      const videoId = getYouTubeId(url);
+
+      if (videoId || isVideo) {
+        const id = videoId || getYouTubeId(url);
+        if (id) {
+          mainImgContainer.innerHTML = `
+            <iframe
+              id="mainVideo"
+              width="100%"
+              height="400"
+              src="https://www.youtube.com/embed/${id}?autoplay=1"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          `;
+          return;
+        }
+      }
+
+      // Caso contrário, mostra imagem
+      mainImgContainer.innerHTML = `<img id="mainImage" src="${url}" alt="${alt}">`;
+    }
+
+    // Helper para extrair ID do YouTube
+    function getYouTubeId(url) {
+      if (!url || typeof url !== 'string') return null;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
     }
 
     function maskCEP(value) {
@@ -495,20 +711,6 @@ async function initProductDetails() {
     alert("Não foi possível carregar os detalhes do produto.");
   }
 
-  // Tabs
-  const menuList = document.getElementById("menuList");
-  let submenuParents = document.querySelectorAll(".has-submenu");
-  const tabs = document.querySelectorAll(".tab");
-  const contents = document.querySelectorAll(".tab-content");
-  tabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach(t => t.classList.remove("active"));
-      contents.forEach(c => c.classList.remove("active"));
-      tab.classList.add("active");
-      contents[index].classList.add("active");
-    });
-  });
-
   // Controle de quantidade
   const inputQty = document.getElementById("qty");
   document.getElementById("increase").addEventListener("click", () => {
@@ -525,13 +727,21 @@ async function initProductDetails() {
     const colorSelect = document.getElementById("colorSelect");
     const selectedColor = colorSelect ? colorSelect.value : null;
 
+    const lonaSelect = document.getElementById("lonaSelect");
+    const selectedLona = lonaSelect ? lonaSelect.value : null;
+
     // 🔒 Verifica se o produto tem variações e exige seleção
     if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
       alert("Por favor, selecione a cor antes de adicionar ao carrinho.");
       return;
     }
 
-    await addToCart(productId, parseInt(inputQty.value), selectedColor);
+    if (lonaSelect && (!selectedLona || selectedLona.trim() === "")) {
+      alert("Por favor, selecione o tipo de lona antes de adicionar ao carrinho.");
+      return;
+    }
+
+    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona);
     showCartAlert("Produto adicionado ao carrinho!");
   });
 
@@ -540,12 +750,20 @@ async function initProductDetails() {
     const colorSelect = document.getElementById("colorSelect");
     const selectedColor = colorSelect ? colorSelect.value : null;
 
+    const lonaSelect = document.getElementById("lonaSelect");
+    const selectedLona = lonaSelect ? lonaSelect.value : null;
+
     if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
       alert("Por favor, selecione a cor antes de comprar.");
       return;
     }
 
-    await addToCart(productId, parseInt(inputQty.value), selectedColor);
+    if (lonaSelect && (!selectedLona || selectedLona.trim() === "")) {
+      alert("Por favor, selecione o tipo de lona antes de comprar.");
+      return;
+    }
+
+    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona);
     showCartAlert("Produto adicionado ao carrinho!");
     setTimeout(() => (window.location.href = "/checkout"), 1500);
   });
@@ -580,25 +798,14 @@ async function loadCategoriesMenu() {
     const menuList = document.getElementById("menuList");
     if (menuList) {
       const firstItem = menuList.firstElementChild;
-      if (firstItem && firstItem.classList.contains("has-submenu")) {
-        // Atualiza submenu do "Todos os Departamentos"
-        const departmentsSubmenu = firstItem.querySelector(".submenu");
-        if (departmentsSubmenu) {
-          departmentsSubmenu.innerHTML = categories.map(cat => `
-            <li><a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a></li>
-          `).join("");
-        }
+      menuList.innerHTML = "";
+      menuList.appendChild(firstItem);
 
-        // Atualiza itens principais
-        menuList.innerHTML = "";
-        menuList.appendChild(firstItem);
-
-        categories.forEach(cat => {
-          const li = document.createElement("li");
-          li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
-          menuList.appendChild(li);
-        });
-      }
+      categories.forEach(cat => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="/categories?categoria=${encodeURIComponent(cat.nome)}">${cat.nome}</a>`;
+        menuList.appendChild(li);
+      });
     }
   } catch (err) {
     console.error("Erro ao carregar categorias no menu:", err);

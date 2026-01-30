@@ -37,7 +37,16 @@ async function formatCart(cartId) {
   // Subtotal dos itens
   let subtotal = 0;
   const formattedItems = cart.items.map(item => {
-    const precoUnitario = parseFloat(item.product.valor);
+    let precoUnitario = parseFloat(item.product.valor);
+
+    // Se houver uma lona selecionada e ela tiver um preço específico, usamos esse preço
+    if (item.lona && Array.isArray(item.product.lonas)) {
+      const lonaConfig = item.product.lonas.find(l => l.nome === item.lona);
+      if (lonaConfig && lonaConfig.preco > 0) {
+        precoUnitario = parseFloat(lonaConfig.preco);
+      }
+    }
+
     const totalItem = precoUnitario * item.quantity;
     subtotal += totalItem;
 
@@ -50,6 +59,7 @@ async function formatCart(cartId) {
       precoUnitario,
       quantidade: item.quantity,
       cor: item.cor,
+      lona: item.lona,
       totalItem
     };
   });
@@ -57,8 +67,15 @@ async function formatCart(cartId) {
   // Desconto aplicado
   const desconto = toNumber(cart.discountValue || 0);
 
+  // Frete grátis do cupom
+  let isFreeShipping = false;
+  if (cart.discountCode) {
+    const coupon = await Coupon.findOne({ where: { code: cart.discountCode } });
+    if (coupon?.is_free_shipping) isFreeShipping = true;
+  }
+
   // Total final = subtotal - desconto + frete
-  let totalFinal = subtotal - desconto + freteValor;
+  let totalFinal = subtotal - desconto + (isFreeShipping ? 0 : freteValor);
   if (totalFinal < 0) totalFinal = 0;
 
   return {
@@ -71,6 +88,7 @@ async function formatCart(cartId) {
     subtotal,
     desconto,
     totalFinal,
+    isFreeShipping,
     cupom: cart.discountCode || null
   };
 }
@@ -103,7 +121,7 @@ async function createOrGetCart(req, res) {
 // Adicionar item
 async function addItem(req, res) {
   try {
-    const { cartId, productId, quantity, cor } = req.body;
+    const { cartId, productId, quantity, cor, lona } = req.body;
 
     if (!quantity || quantity <= 0)
       return res.status(400).json({ error: "Quantidade inválida" });
@@ -123,7 +141,8 @@ async function addItem(req, res) {
       where: {
         cartId,
         productId,
-        cor: cor || { [Op.is]: null }
+        cor: cor || { [Op.is]: null },
+        lona: lona || { [Op.is]: null }
       }
     });
 
@@ -131,7 +150,7 @@ async function addItem(req, res) {
       item.quantity += quantity;
       await item.save();
     } else {
-      item = await CartItem.create({ cartId, productId, quantity, cor });
+      item = await CartItem.create({ cartId, productId, quantity, cor, lona });
     }
 
     const formatted = await formatCart(cartId);
@@ -269,8 +288,8 @@ async function applyCoupon(req, res) {
       subtotal += parseFloat(item.product.valor) * item.quantity;
     });
 
-    const desconto = subtotal * (parseFloat(coupon.discount_percent) / 100);
-    const frete = cart.frete ? parseFloat(cart.frete.price || 0) : 0;
+    const desconto = subtotal * (parseFloat(coupon.discount_percent || 0) / 100);
+    const frete = (cart.frete && !coupon.is_free_shipping) ? parseFloat(cart.frete.price || 0) : 0;
     const totalFinal = Math.max(subtotal - desconto + frete, 0);
 
     // 🔹 Atualizar carrinho com dados do cupom
@@ -288,6 +307,7 @@ async function applyCoupon(req, res) {
       },
       subtotal,
       desconto,
+      isFreeShipping: !!coupon.is_free_shipping,
       totalFinal
     });
 

@@ -97,6 +97,21 @@ function mostrarOpcoesFrete(fretes) {
 
   if (!opcoesValidas.length) { section.style.display = "none"; return; }
 
+  if (currentCart?.isFreeShipping) {
+    const divFree = document.createElement("div");
+    divFree.classList.add("frete-opcao", "frete-gratis-promo");
+    divFree.innerHTML = `
+      <p>
+        <span style="font-size:24px; vertical-align:middle; margin-right:6px;">🎁</span>
+        <strong>Promoção - Frete Grátis</strong>
+      </p>
+      <p>Preço: R$ 0,00</p>
+      <p>Prazo: Mesmo prazo do frete padrão</p>
+    `;
+    divFree.onclick = () => selecionarFrete({ price: 0, company: { name: 'Promoção' }, name: 'Frete Grátis' }, divFree);
+    divOpcoes.appendChild(divFree);
+  }
+
   opcoesValidas.forEach(frete => {
     const div = document.createElement("div");
     div.classList.add("frete-opcao");
@@ -154,7 +169,7 @@ function atualizarResumoCheckout() {
 
   resumoBox.innerHTML += `
     ${descontoCupom > 0 ? `<div class="summary-item desconto"><span>Cupom de desconto</span><span>-R$ ${descontoCupom.toFixed(2).replace(".", ",")}</span></div>` : ""}
-    <div class="summary-item"><span>Frete</span><span>R$ ${valorDoFrete.toFixed(2).replace(".", ",")}</span></div>
+    <div class="summary-item"><span>Frete</span><span>${valorDoFrete === 0 ? '<strong style="color:var(--brand-accent)">Grátis</strong>' : `R$ ${valorDoFrete.toFixed(2).replace(".", ",")}`}</span></div>
     ${descontoPix > 0 ? `<div class="summary-item desconto"><span>Desconto PIX (3%)</span><span>-R$ ${descontoPix.toFixed(2).replace(".", ",")}</span></div>` : ""}
     <div class="summary-total"><span>Total</span><span>R$ ${total.toFixed(2).replace(".", ",")}</span></div>
   `;
@@ -344,6 +359,7 @@ async function carregarResumoPedido() {
     if (freteObj) {
       freteSelecionado = freteObj;
       valorDoFrete = Number(freteObj?.custom_price ?? freteObj?.price ?? 0);
+      if (cart.isFreeShipping && freteObj.name === 'Frete Grátis') valorDoFrete = 0;
       mostrarOpcoesFrete([freteObj]);
     }
   } catch (error) {
@@ -643,7 +659,8 @@ async function finalizarPedido(formaPagamento) {
         produtoId: item.productId || item.id,
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
-        cor: item.cor || null
+        cor: item.cor || null,
+        lona: item.lona || null
       }))
     };
 

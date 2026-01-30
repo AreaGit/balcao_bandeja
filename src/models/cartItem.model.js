@@ -8,7 +8,8 @@ const CartItem = db.define("cartItem", {
   quantity: { type: Sequelize.INTEGER, defaultValue: 1, validate: { min: 1 } },
   cartId: { type: Sequelize.INTEGER, allowNull: false },
   productId: { type: Sequelize.INTEGER, allowNull: false },
-  cor: { type: Sequelize.STRING, allowNull: true }
+  cor: { type: Sequelize.STRING, allowNull: true },
+  lona: { type: Sequelize.STRING, allowNull: true }
 });
 
 // Associação com Product

@@ -6,6 +6,7 @@ const Coupon = db.define("Coupon", {
   code: { type: DataTypes.STRING(50), allowNull: false, unique: true },
   description: { type: DataTypes.STRING(100) },
   discount_percent: { type: DataTypes.DECIMAL(5, 2), allowNull: false },
+  is_free_shipping: { type: DataTypes.BOOLEAN, defaultValue: false },
   active: { type: DataTypes.BOOLEAN, defaultValue: true },
   expires_at: { type: DataTypes.DATE, allowNull: true }
 }, {
@@ -14,6 +15,6 @@ const Coupon = db.define("Coupon", {
 });
 
 //Coupon.sync({ force: true });
-Coupon.sync();
+Coupon.sync({ alter: true });
 
 module.exports = Coupon;

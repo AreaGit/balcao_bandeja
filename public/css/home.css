@@ -26,8 +26,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px 10%;
-  gap: 20px;
+  padding: 30px 5%;
+  gap: 15px;
 }
 
 .logo {
@@ -142,12 +142,23 @@ header {
 /* === MOBILE === */
 @media (max-width: 600px) {
   .search-bar {
-    max-width: 90%;
+    width: 100%;
   }
 
   .autocomplete-item img {
     width: 38px;
     height: 38px;
+  }
+
+  /* Esconde textos do suporte e login no celular pra não quebrar o header */
+  .actions .support p,
+  .actions .login p {
+    display: none;
+  }
+
+  .actions {
+    gap: 15px;
+    /* Reduz gap entre ícones */
   }
 }
 
@@ -868,18 +879,26 @@ button:active {
 @media (max-width: 768px) {
   .logo {
     display: flex;
-    margin: auto;
+    margin: 0 auto 15px auto;
+    justify-content: center;
+  }
+
+  .logo img {
+    max-height: 40px;
   }
 
   .top-header {
     flex-wrap: wrap;
+    padding: 20px 5%;
   }
 
   .search-bar {
-    width: 500px;
-    max-width: 100%;
+    width: 100%;
+    margin-top: 15px;
     order: 3;
     flex: 1 1 100%;
+    position: relative;
+    /* Garante que fique no fluxo */
   }
 
   .actions {
@@ -901,6 +920,11 @@ button:active {
     flex-direction: column;
     gap: 15px;
     padding: 20px;
+  }
+
+  nav ul li.has-submenu {
+    display: none;
+    /* Remove "Todos os Departamentos" no mobile */
   }
 
   nav ul.active {
@@ -945,9 +969,9 @@ button:active {
 /* Seção Benefícios */
 .store-benefits {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  padding: 30px 10%;
+  padding: 30px 5%;
   background: #f8f8f8;
   gap: 20px;
   flex-wrap: wrap;
@@ -1282,23 +1306,33 @@ button:active {
 
 .bs-item {
   min-width: 250px;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  /* Mantém largura no carrossel */
   background: #fff;
-  border-radius: 10px;
+  border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  padding: 10px;
-  transition: transform 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  transition: all 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  /* Deixa o container crescer se necessário, mas... */
+  min-height: 380px;
+  /* ...garante uma base mínima igual para todos */
 }
 
 .bs-item img {
-  max-width: 250px;
   width: 100%;
-  border-radius: 10px;
+  height: 200px;
+  /* Altura fixa para o container da imagem */
+  object-fit: contain;
+  background: #fdfdfd;
+  border-radius: 8px;
   transition: transform 0.3s ease;
-  margin: auto;
-  max-height: 280px;
+  margin: 0 auto 15px;
+  display: block;
 }
 
 .bs-item:hover {
@@ -1311,15 +1345,28 @@ button:active {
 }
 
 .bs-item h3 {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 10px 0 5px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: #1E1939;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  /* Limita a 2 linhas */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 40px;
+  /* Garante que 1 linha ocupe o espaço de 2 */
+  line-height: 1.25;
 }
 
 .bs-item p {
   color: #1E1939;
-  font-weight: 600;
-  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: auto;
+  /* Empurra o preço para o rodapé do card */
+  margin-bottom: 0;
 }
 
 .best-sellers-section .carousel-btn {

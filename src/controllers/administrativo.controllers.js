@@ -498,10 +498,10 @@ async function getCuponsPaginated(req, res) {
 // Criar cupom
 async function createCoupon(req, res) {
   try {
-    const { code, description, discount_percent, expires_at, active } = req.body;
+    const { code, description, discount_percent, expires_at, active, is_free_shipping } = req.body;
 
-    if (!code || !discount_percent)
-      return res.status(400).json({ error: "Código e percentual são obrigatórios" });
+    if (!code || (discount_percent === undefined && !is_free_shipping))
+      return res.status(400).json({ error: "Código e percentual ou frete grátis são obrigatórios" });
 
     const existing = await Coupon.findOne({ where: { code } });
     if (existing)
@@ -510,7 +510,8 @@ async function createCoupon(req, res) {
     const coupon = await Coupon.create({
       code,
       description,
-      discount_percent,
+      discount_percent: discount_percent || 0,
+      is_free_shipping: is_free_shipping ?? false,
       expires_at: expires_at || null,
       active: active ?? true
     });

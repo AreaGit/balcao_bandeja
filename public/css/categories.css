@@ -26,8 +26,8 @@ header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px 10%;
-  gap: 20px;
+  padding: 30px 5%;
+  gap: 15px;
 }
 
 .logo {
@@ -142,12 +142,23 @@ header {
 /* === MOBILE === */
 @media (max-width: 600px) {
   .search-bar {
-    max-width: 90%;
+    width: 100%;
   }
 
   .autocomplete-item img {
     width: 38px;
     height: 38px;
+  }
+
+  /* Esconde textos do suporte e login no celular pra não quebrar o header */
+  .actions .support p,
+  .actions .login p {
+    display: none;
+  }
+
+  .actions {
+    gap: 15px;
+    /* Reduz gap entre ícones */
   }
 }
 
@@ -868,18 +879,26 @@ button:active {
 @media (max-width: 768px) {
   .logo {
     display: flex;
-    margin: auto;
+    margin: 0 auto 15px auto;
+    justify-content: center;
+  }
+
+  .logo img {
+    max-height: 40px;
   }
 
   .top-header {
     flex-wrap: wrap;
+    padding: 20px 5%;
   }
 
   .search-bar {
-    width: 500px;
-    max-width: 100%;
+    width: 100%;
+    margin-top: 15px;
     order: 3;
     flex: 1 1 100%;
+    position: relative;
+    /* Garante que fique no fluxo */
   }
 
   .actions {
@@ -901,6 +920,11 @@ button:active {
     flex-direction: column;
     gap: 15px;
     padding: 20px;
+  }
+
+  nav ul li.has-submenu {
+    display: none;
+    /* Remove "Todos os Departamentos" no mobile */
   }
 
   nav ul.active {
@@ -976,7 +1000,16 @@ button:active {
   display: grid;
   grid-template-columns: 250px 1fr;
   gap: 30px;
-  padding: 40px;
+  padding: 40px 5%;
+}
+
+@media (max-width: 1024px) {
+  .cat-layout {
+    grid-template-columns: 1fr;
+    padding: 20px 5%;
+  }
+
+  /* .cat-sidebar removido daqui pois position: static agora é o padrão global */
 }
 
 /* SIDEBAR */
@@ -986,8 +1019,8 @@ button:active {
   padding: 25px 20px;
   border-radius: 16px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-  position: sticky;
-  top: 100px;
+  /* position: sticky; removido para não sobrepor produtos */
+  /* top: 100px; removido */
   align-self: start;
   display: flex;
   flex-direction: column;
