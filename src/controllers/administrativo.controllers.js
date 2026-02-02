@@ -393,6 +393,11 @@ async function createProduto(req, res) {
     if (data.imagens) data.imagens = normalizeArrayField(data.imagens);
     if (data.cores) data.cores = normalizeArrayField(data.cores);
 
+    // Forçar booleanos
+    if (data.isLancamento !== undefined) data.isLancamento = !!data.isLancamento;
+    if (data.isMaisVendido !== undefined) data.isMaisVendido = !!data.isMaisVendido;
+    if (data.permiteUploadArte !== undefined) data.permiteUploadArte = !!data.permiteUploadArte;
+
     // Criar produto
     const produto = await Produto.create(data);
 
@@ -432,6 +437,11 @@ async function updateProduto(req, res) {
     // Normalizar os campos JSON antes de salvar
     if (data.imagens) data.imagens = normalizeArrayField(data.imagens);
     if (data.cores) data.cores = normalizeArrayField(data.cores);
+
+    // Forçar booleanos
+    if (data.isLancamento !== undefined) data.isLancamento = !!data.isLancamento;
+    if (data.isMaisVendido !== undefined) data.isMaisVendido = !!data.isMaisVendido;
+    if (data.permiteUploadArte !== undefined) data.permiteUploadArte = !!data.permiteUploadArte;
 
     // Atualizar no banco
     await produto.update(data);

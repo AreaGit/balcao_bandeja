@@ -1,55 +1,47 @@
-require('isomorphic-fetch'); // or another library of choice.
-var Dropbox = require('dropbox').Dropbox;
-require('dotenv').config({ path: "../../.env" });
-var dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN_DROPBOX });
+const { Dropbox } = require('dropbox');
+require('dotenv').config();
 
+const dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN_DROPBOX });
 
-async function uploadFile(path, contents) {
-  dbx.filesUpload({
-  path: path,
-  contents: contents
-})
-.then(function(response) {
-    console.log(response);
-  })
-  .catch(function(error) {
-    console.log(error);
-  });
+/**
+ * Faz o upload de um arquivo para o Dropbox e retorna um link de compartilhamento público.
+ * @param {string} fileName Nome original do arquivo
+ * @param {Buffer} buffer Conteúdo do arquivo em buffer
+ * @returns {Promise<string>} URL de compartilhamento pública
+ */
+async function uploadFile(fileName, buffer) {
+  try {
+    const dropboxPath = `/artes-clientes/${Date.now()}_${fileName}`;
+
+    // 1. Upload do arquivo
+    const uploadResponse = await dbx.filesUpload({
+      path: dropboxPath,
+      contents: buffer
+    });
+
+    console.log('Upload concluído:', uploadResponse.result.name);
+
+    // 2. Tenta criar um link de compartilhamento público
+    try {
+      const shareResponse = await dbx.sharingCreateSharedLinkWithSettings({
+        path: dropboxPath,
+        settings: { requested_visibility: 'public' }
+      });
+      return shareResponse.result.url.replace('?dl=0', '?dl=1'); // Altera para download direto
+    } catch (shareError) {
+      // Se o link já existir, busca o link existente
+      if (shareError.error && shareError.error.error_summary && shareError.error.error_summary.includes('shared_link_already_exists')) {
+        const linksResponse = await dbx.sharingListSharedLinks({ path: dropboxPath });
+        if (linksResponse.result.links.length > 0) {
+          return linksResponse.result.links[0].url.replace('?dl=0', '?dl=1');
+        }
+      }
+      throw shareError;
+    }
+  } catch (error) {
+    console.error('Erro no upload para o Dropbox:', error);
+    throw error;
+  }
 }
-
-/*
- CRIAR PASTA
-dbx.filesCreateFolderV2({ path: '/files' })
-  .then(function(response) {
-    console.log(response);
-  })
-  .catch(function(error) {
-    console.log(error);
-  }); */
-
-/* 
-UPLOAD
-
-dbx.filesUpload({
-  path: '/files/arquivo.txt',
-  contents: 'Olá Dropbox!'
-});
-.then(function(response) {
-    console.log(response);
-  })
-  .catch(function(error) {
-    console.log(error);
-  });
-*/
-/*
-LISTAR
-dbx.filesListFolder({path: '/files'})
-  .then(function(response) {
-    console.log(response);
-  })
-  .catch(function(error) {
-    console.log(error);
-  });
-*/
 
 module.exports = { uploadFile };

@@ -8,7 +8,7 @@ async function createProduct(req, res, next) {
     const {
       nome, valor, valorPromocional, descricao, categoria,
       cores, lonas, imagens, estoque, peso, altura, largura, comprimento,
-      isLancamento, isMaisVendido
+      isLancamento, isMaisVendido, permiteUploadArte, gabaritoUrl
     } = req.body;
 
     // Se categoria foi enviada, garante que existe na tabela de categorias
@@ -31,7 +31,9 @@ async function createProduct(req, res, next) {
       largura: largura || "0",
       comprimento: comprimento || "0",
       isLancamento: !!isLancamento,
-      isMaisVendido: !!isMaisVendido
+      isMaisVendido: !!isMaisVendido,
+      permiteUploadArte: !!permiteUploadArte,
+      gabaritoUrl: gabaritoUrl || null
     });
 
     return res.status(201).json(product);
@@ -174,7 +176,7 @@ async function updateProduct(req, res, next) {
     const {
       nome, valor, valorPromocional, descricao, categoria,
       cores, lonas, imagens, sales, estoque, peso, altura, largura, comprimento,
-      isLancamento, isMaisVendido
+      isLancamento, isMaisVendido, permiteUploadArte, gabaritoUrl
     } = req.body;
 
     const product = await Product.findByPk(id);
@@ -188,7 +190,7 @@ async function updateProduct(req, res, next) {
     await product.update({
       nome, valor, valorPromocional, descricao, categoria,
       cores, lonas, imagens, sales, estoque, peso, altura, largura, comprimento,
-      isLancamento, isMaisVendido
+      isLancamento, isMaisVendido, permiteUploadArte, gabaritoUrl
     });
     res.json(product);
   } catch (err) {

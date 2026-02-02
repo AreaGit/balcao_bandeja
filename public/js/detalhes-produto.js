@@ -357,14 +357,20 @@ async function initProductDetails() {
     if (product.gabaritoUrl || product.permiteUploadArte) {
       extraOptions.style.display = "flex";
 
-      if (product.gabaritoUrl) {
+      if (product.gabaritoUrl && product.gabaritoUrl.trim() !== "") {
         gabaritoContainer.style.display = "flex";
         document.getElementById("btnGabarito").href = product.gabaritoUrl;
+      } else {
+        gabaritoContainer.style.display = "none";
       }
 
       if (product.permiteUploadArte) {
         uploadArteContainer.style.display = "flex";
+      } else {
+        uploadArteContainer.style.display = "none";
       }
+    } else {
+      extraOptions.style.display = "none";
     }
 
     // Seleção de lonas
@@ -803,11 +809,31 @@ async function initProductDetails() {
         return;
       }
 
-      // TODO: Implementar upload real para o Dropbox ou servidor
-      // Por enquanto, simulamos uma URL
-      console.log("Arquivo selecionado:", file.name);
-      document.getElementById("arteUrl").value = "uploads/" + file.name;
-      showToast("Arte selecionada: " + file.name);
+      showToast("Enviando arte...", "info");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await fetch("/api/upload/arte", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          document.getElementById("arteUrl").value = data.url;
+          showToast("Arte enviada com sucesso!");
+        } else {
+          showToast(data.error || "Erro ao enviar arte.", "error");
+          e.target.value = "";
+        }
+      } catch (error) {
+        console.error("Erro no upload:", error);
+        showToast("Erro de conexão ao enviar arte.", "error");
+        e.target.value = "";
+      }
     });
   }
 }

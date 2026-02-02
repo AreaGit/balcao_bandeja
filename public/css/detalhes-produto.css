@@ -1359,8 +1359,8 @@ button:active {
 
 /* === NOVAS OPÇÕES: GABARITO E ARTE === */
 .prod-extra-options {
-  display: flex !important;
-  /* Forçado por JS, mas usamos flex aqui */
+  display: none;
+  /* Controlado por JS, mudará para flex quando necessário */
   gap: 15px;
   margin-bottom: 25px;
   width: 100%;

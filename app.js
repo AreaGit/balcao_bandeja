@@ -18,6 +18,7 @@ const administrativoCarrinhoRoutes = require("./src/routes/administrativo.routes
 const contactRoutes = require("./src/routes/contact.routes");
 const newsletterRoutes = require("./src/routes/newsletter.routes");
 const categoryRoutes = require("./src/routes/category.routes");
+const uploadRoutes = require("./src/routes/upload.routes");
 require("./src/models/cart.model");
 require("./src/models/cartItem.model");
 require("./src/models/associations");
@@ -71,6 +72,7 @@ app.use("/api/admin/carrinhos", administrativoCarrinhoRoutes);
 app.use("/fale-conosco", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/upload", uploadRoutes);
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Servidor rodando em: http://localhost:${PORT}`);
