@@ -133,8 +133,17 @@ async function addItem(req, res) {
     if (!product) return res.status(404).json({ error: "Produto não encontrado" });
 
     // 🔹 Se o produto tiver variações obrigatórias (exemplo: cores)
-    if (product.variacoes && product.variacoes.includes("cor") && !cor) {
+    if (product.cores && Array.isArray(product.cores) && product.cores.length > 0 && !cor) {
       return res.status(400).json({ error: "Selecione uma cor antes de adicionar o produto ao carrinho." });
+    }
+
+    if (product.lonas && Array.isArray(product.lonas) && product.lonas.length > 0 && !lona) {
+      return res.status(400).json({ error: "Selecione o tipo de lona antes de adicionar o produto ao carrinho." });
+    }
+
+    // 🔹 Se o produto exigir upload de arte
+    if (product.permiteUploadArte && !arteUrl) {
+      return res.status(400).json({ error: "Por favor, faça o upload da sua arte antes de adicionar ao carrinho." });
     }
 
     let item = await CartItem.findOne({

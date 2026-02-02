@@ -29,6 +29,7 @@ if (menuToggle) {
 }
 
 let currentCartId;
+let productExigeArte = false;
 
 // === Renderizar Carrinho e carregar dados ===
 async function renderCart() {
@@ -195,7 +196,7 @@ async function removeCartItem(itemId) {
 document.getElementById("applyCouponBtn").addEventListener("click", async () => {
   const codigo = document.getElementById("couponCode").value.trim();
   if (!codigo) {
-    alert("Digite o código do cupom.");
+    showToast("Digite o código do cupom.", "error");
     return;
   }
 
@@ -252,11 +253,11 @@ document.getElementById("applyCouponBtn").addEventListener("click", async () => 
         }, 100);
       }, 400);
     } else {
-      alert(`❌ ${data.error}`);
+      showToast(data.error || "Erro ao aplicar cupom.", "error");
     }
   } catch (err) {
     console.error("Erro ao aplicar cupom:", err);
-    alert("Erro ao aplicar cupom. Tente novamente.");
+    showToast("Erro ao aplicar cupom. Tente novamente.", "error");
   }
 });
 
@@ -269,7 +270,7 @@ async function initProductDetails() {
   const productId = urlParams.get("id");
 
   if (!productId) {
-    alert("Produto não encontrado!");
+    showToast("Produto não encontrado!", "error");
     return;
   }
 
@@ -366,11 +367,14 @@ async function initProductDetails() {
 
       if (product.permiteUploadArte) {
         uploadArteContainer.style.display = "flex";
+        productExigeArte = true;
       } else {
         uploadArteContainer.style.display = "none";
+        productExigeArte = false;
       }
     } else {
       extraOptions.style.display = "none";
+      productExigeArte = false;
     }
 
     // Seleção de lonas
@@ -611,7 +615,7 @@ async function initProductDetails() {
       const cep = document.getElementById("cep").value.replace("-", "");
 
       if (!cep || cep.length < 8) {
-        alert("Digite um CEP válido.");
+        showToast("Digite um CEP válido.", "error");
         return;
       }
 
@@ -732,7 +736,7 @@ async function initProductDetails() {
 
   } catch (error) {
     console.error("Erro ao carregar detalhes do produto:", error);
-    alert("Não foi possível carregar os detalhes do produto.");
+    showToast("Não foi possível carregar os detalhes do produto.", "error");
   }
 
   // Controle de quantidade
@@ -756,19 +760,26 @@ async function initProductDetails() {
 
     // 🔒 Verifica se o produto tem variações e exige seleção
     if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
-      alert("Por favor, selecione a cor antes de adicionar ao carrinho.");
+      showToast("Por favor, selecione a cor antes de adicionar ao carrinho.", "error");
       return;
     }
 
     if (lonaSelect && (!selectedLona || selectedLona.trim() === "")) {
-      alert("Por favor, selecione o tipo de lona antes de adicionar ao carrinho.");
+      showToast("Por favor, selecione o tipo de lona antes de adicionar ao carrinho.", "error");
       return;
     }
 
-    const arteUrl = document.getElementById("arteUrl").value;
+    // 🔒 Verifica se o produto exige upload de arte
+    const arteUrlField = document.getElementById("arteUrl");
+    const arteUrl = arteUrlField ? arteUrlField.value : null;
+
+    if (productExigeArte && (!arteUrl || arteUrl.trim() === "")) {
+      showToast("Por favor, envie a sua arte antes de adicionar ao carrinho.", "error");
+      return;
+    }
 
     await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, arteUrl);
-    showCartAlert("Produto adicionado ao carrinho!");
+    showToast("Produto adicionado ao carrinho!");
   });
 
   // === Comprar agora ===
@@ -789,7 +800,14 @@ async function initProductDetails() {
       return;
     }
 
-    const arteUrl = document.getElementById("arteUrl").value;
+    // 🔒 Verifica se o produto exige upload de arte
+    const arteUrlField = document.getElementById("arteUrl");
+    const arteUrl = arteUrlField ? arteUrlField.value : null;
+
+    if (productExigeArte && (!arteUrl || arteUrl.trim() === "")) {
+      showToast("Por favor, envie a sua arte antes de finalizar a compra.", "error");
+      return;
+    }
 
     await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, arteUrl);
     showToast("Produto adicionado ao carrinho!");

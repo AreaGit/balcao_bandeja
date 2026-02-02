@@ -1,7 +1,13 @@
 const { Dropbox } = require('dropbox');
 require('dotenv').config();
 
-const dbx = new Dropbox({ accessToken: process.env.ACCESS_TOKEN_DROPBOX });
+const fetch = require('isomorphic-fetch');
+const dbx = new Dropbox({
+  clientId: process.env.DROPBOX_APP_KEY,
+  clientSecret: process.env.DROPBOX_APP_SECRET,
+  refreshToken: process.env.DROPBOX_REFRESH_TOKEN,
+  fetch
+});
 
 /**
  * Faz o upload de um arquivo para o Dropbox e retorna um link de compartilhamento público.
