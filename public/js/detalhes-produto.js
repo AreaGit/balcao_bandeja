@@ -825,6 +825,15 @@ async function initProductDetails() {
         if (response.ok) {
           document.getElementById("arteUrl").value = data.url;
           showToast("Arte enviada com sucesso!");
+
+          // Auto adicionar ao carrinho ao finalizar upload
+          const colorSelect = document.getElementById("colorSelect");
+          const selectedColor = colorSelect ? colorSelect.value : null;
+          const lonaSelect = document.getElementById("lonaSelect");
+          const selectedLona = lonaSelect ? lonaSelect.value : null;
+
+          await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, data.url);
+          showToast("Produto adicionado ao carrinho!");
         } else {
           showToast(data.error || "Erro ao enviar arte.", "error");
           e.target.value = "";
