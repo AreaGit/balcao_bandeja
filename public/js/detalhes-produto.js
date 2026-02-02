@@ -826,11 +826,21 @@ async function initProductDetails() {
           document.getElementById("arteUrl").value = data.url;
           showToast("Arte enviada com sucesso!");
 
-          // Auto adicionar ao carrinho ao finalizar upload
+          // Auto adicionar ao carrinho ao finalizar upload, mas só se as variações obrigatórias estiverem escolhidas
           const colorSelect = document.getElementById("colorSelect");
           const selectedColor = colorSelect ? colorSelect.value : null;
           const lonaSelect = document.getElementById("lonaSelect");
           const selectedLona = lonaSelect ? lonaSelect.value : null;
+
+          if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
+            showToast("Arte enviada! Selecione a cor para adicionar ao carrinho.", "info");
+            return;
+          }
+
+          if (lonaSelect && (!selectedLona || selectedLona.trim() === "")) {
+            showToast("Arte enviada! Selecione o tipo de lona para adicionar ao carrinho.", "info");
+            return;
+          }
 
           await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, data.url);
           showToast("Produto adicionado ao carrinho!");
