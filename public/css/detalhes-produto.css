@@ -952,24 +952,47 @@ button:active {
   }
 }
 
-#cartAlert {
+.toast {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4CAF50;
+  bottom: 30px;
+  right: 30px;
+  min-width: 250px;
+  padding: 16px 24px;
+  border-radius: 12px;
   color: white;
-  padding: 12px 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  z-index: 2000;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 1000;
+  transform: translateY(20px) scale(0.9);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  pointer-events: none;
 }
 
-#cartAlert.show {
+.toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  pointer-events: all;
+}
+
+.toast-success {
+  background: #1E1939;
+  border-left: 5px solid #E7FF14;
+}
+
+.toast-error {
+  background: #e63946;
+  border-left: 5px solid #ff9b9b;
+}
+
+.toast-info {
+  background: #1E1939;
+  border-left: 5px solid #0077cc;
 }
 
 /* CONTAINER PRINCIPAL */
@@ -1332,6 +1355,107 @@ button:active {
 
 .btn-buy:hover {
   background: #d6f000;
+}
+
+/* === NOVAS OPÇÕES: GABARITO E ARTE === */
+.prod-extra-options {
+  display: flex !important;
+  /* Forçado por JS, mas usamos flex aqui */
+  gap: 15px;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.extra-option-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.gabarito-card {
+  background: #fdfdfd;
+}
+
+.upload-card {
+  background: #E7FF14;
+  border-color: #E7FF14;
+}
+
+.extra-option-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #1E1939;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-subtitle {
+  font-size: 11px;
+  color: #555;
+  margin-bottom: 15px;
+  line-height: 1.2;
+}
+
+.btn-extra {
+  background: #1E1939;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.btn-extra:hover {
+  background: #E7FF14;
+  color: #1E1939;
+}
+
+.custom-file-upload {
+  background: #1E1939;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  width: 100%;
+  transition: all 0.3s;
+}
+
+.custom-file-upload:hover {
+  background: #fff;
+  color: #1E1939;
+}
+
+#inputArte {
+  display: none;
+}
+
+/* Responsividade Extra Options */
+@media (max-width: 500px) {
+  .prod-extra-options {
+    flex-direction: column;
+  }
+
+  .extra-option-card {
+    width: 100%;
+  }
 }
 
 /* Cálculo de frete */

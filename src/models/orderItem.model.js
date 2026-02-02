@@ -8,7 +8,8 @@ const OrderItem = sequelize.define("OrderItem", {
   productId: { type: DataTypes.INTEGER, allowNull: false },
   nome: { type: DataTypes.STRING, allowNull: false },
   precoUnitario: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
-  quantidade: { type: DataTypes.INTEGER, defaultValue: 1 }
+  quantidade: { type: DataTypes.INTEGER, defaultValue: 1 },
+  arteUrl: { type: DataTypes.STRING, allowNull: true }
 }, {
   tableName: "order_items",
   timestamps: true

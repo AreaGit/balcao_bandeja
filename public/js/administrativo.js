@@ -399,10 +399,13 @@ async function abrirModalDetalhesPedido(id) {
       const preco = parseFloat(item.precoUnitario || item.produto?.valor || 0);
       const subtotal = preco * (item.quantidade || 0);
       return `
-        <div class="pedido-item">
-          <div>
-            <p class="pedido-item-nome">${item.produto?.nome || "Produto"}</p>
+        <div class="pedido-item" style="border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 12px;">
+          <div style="flex: 1;">
+            <p class="pedido-item-nome" style="font-weight: 700; color: var(--brand-accent);">${item.produto?.nome || "Produto"}</p>
             <p class="pedido-item-qtd">Qtd: ${item.quantidade}</p>
+            ${item.cor ? `<p style="font-size: 13px; color: #ccc;">Cor: ${item.cor}</p>` : ""}
+            ${item.lona ? `<p style="font-size: 13px; color: #ccc;">Lona: ${item.lona}</p>` : ""}
+            ${item.arteUrl ? `<p style="margin-top: 8px;"><a href="${item.arteUrl}" target="_blank" style="color: var(--brand-accent); font-weight: 700; text-decoration: underline; font-size: 13px;">🎨 Ver Arte do Cliente</a></p>` : ""}
           </div>
           <div class="pedido-item-valores">
             <p>Preço: R$ ${preco.toFixed(2)}</p>
@@ -1064,6 +1067,14 @@ async function openProdutoModal(id = null, initialData = null) {
             <input type="checkbox" id="prod_isMaisVendido" ${produto.isMaisVendido ? "checked" : ""}>
             <span>Mais Vendido</span>
           </label>
+          <label class="checkbox-group" id="group_permiteUploadArte">
+            <input type="checkbox" id="prod_permiteUploadArte" ${produto.permiteUploadArte ? "checked" : ""}>
+            <span>Permitir Upload de Arte</span>
+          </label>
+          <div class="form-group" style="grid-column: span 1;">
+            <label>URL do Gabarito</label>
+            <input id="prod_gabaritoUrl" type="text" value="${produto.gabaritoUrl || ""}" placeholder="Ex: https://dropbox.com/s/...">
+          </div>
           <div class="form-group" style="grid-column: span 2;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <label style="margin: 0;">Cores Disponíveis</label>
@@ -1267,6 +1278,8 @@ async function openProdutoModal(id = null, initialData = null) {
       comprimento: overlay.querySelector("#prod_comprimento").value || "0",
       isLancamento: overlay.querySelector("#prod_isLancamento").checked,
       isMaisVendido: overlay.querySelector("#prod_isMaisVendido").checked,
+      permiteUploadArte: overlay.querySelector("#prod_permiteUploadArte").checked,
+      gabaritoUrl: overlay.querySelector("#prod_gabaritoUrl").value.trim(),
       cores: [...overlay.querySelectorAll("input[name='prod_cores']:checked")].map(cb => cb.value),
       lonas: [...overlay.querySelectorAll("input[name='prod_lonas_check']:checked")].map(cb => {
         const lonaNome = cb.value;

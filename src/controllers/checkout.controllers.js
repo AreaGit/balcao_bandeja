@@ -311,7 +311,8 @@ exports.gerarBoleto = async (req, res) => {
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
         cor: item.cor || null,
-        lona: item.lona || null
+        lona: item.lona || null,
+        arteUrl: item.arteUrl || null
       });
     }
 
@@ -470,7 +471,8 @@ exports.finalizarPedido = async (req, res) => {
         quantidade: item.quantidade,
         precoUnitario: item.precoUnitario,
         cor: item.cor || null,
-        lona: item.lona || null
+        lona: item.lona || null,
+        arteUrl: item.arteUrl || null
       }, { transaction: t });
     }
 

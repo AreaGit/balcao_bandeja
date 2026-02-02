@@ -173,6 +173,24 @@
       <p class="prod-price" id="productPrice"></p>
       <p class="prod-short" id="productShort"></p>
 
+      <!-- Novas Opções: Gabarito e Arte -->
+      <div id="extraOptions" class="prod-extra-options" style="display: none;">
+        <div id="gabaritoContainer" class="extra-option-card gabarito-card">
+          <p class="card-title">📄 Gabarito</p>
+          <a id="btnGabarito" href="#" target="_blank" class="btn-extra">Baixar Gabarito</a>
+        </div>
+
+        <div id="uploadArteContainer" class="extra-option-card upload-card">
+          <p class="card-title">🎨 Sua Arte</p>
+          <p class="card-subtitle">PDF, JPG, PNG ou ZIP (Até 50MB)</p>
+          <label for="inputArte" class="custom-file-upload">
+            Selecionar Arquivo
+          </label>
+          <input type="file" id="inputArte" accept=".pdf,.jpg,.jpeg,.png,.zip">
+          <input type="hidden" id="arteUrl">
+        </div>
+      </div>
+
       <div class="prod-actions">
         <div class="qty-box">
           <button class="qty-btn" id="decrease">-</button>
@@ -234,7 +252,7 @@
 
   <script src="../js/detalhes-produto.js"></script>
 
-  <div id="cartAlert">Produto adicionado ao carrinho!</div>
+  <div id="cartAlert" class="toast"></div>
 </body>
 
 </html>

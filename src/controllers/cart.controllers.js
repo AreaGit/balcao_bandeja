@@ -60,6 +60,7 @@ async function formatCart(cartId) {
       quantidade: item.quantity,
       cor: item.cor,
       lona: item.lona,
+      arteUrl: item.arteUrl,
       totalItem
     };
   });
@@ -118,10 +119,9 @@ async function createOrGetCart(req, res) {
   }
 }
 
-// Adicionar item
 async function addItem(req, res) {
   try {
-    const { cartId, productId, quantity, cor, lona } = req.body;
+    const { cartId, productId, quantity, cor, lona, arteUrl } = req.body;
 
     if (!quantity || quantity <= 0)
       return res.status(400).json({ error: "Quantidade inválida" });
@@ -150,7 +150,7 @@ async function addItem(req, res) {
       item.quantity += quantity;
       await item.save();
     } else {
-      item = await CartItem.create({ cartId, productId, quantity, cor, lona });
+      item = await CartItem.create({ cartId, productId, quantity, cor, lona, arteUrl });
     }
 
     const formatted = await formatCart(cartId);

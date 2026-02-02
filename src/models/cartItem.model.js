@@ -9,7 +9,8 @@ const CartItem = db.define("cartItem", {
   cartId: { type: Sequelize.INTEGER, allowNull: false },
   productId: { type: Sequelize.INTEGER, allowNull: false },
   cor: { type: Sequelize.STRING, allowNull: true },
-  lona: { type: Sequelize.STRING, allowNull: true }
+  lona: { type: Sequelize.STRING, allowNull: true },
+  arteUrl: { type: Sequelize.STRING, allowNull: true }
 });
 
 // Associação com Product

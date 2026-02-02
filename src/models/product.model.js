@@ -95,6 +95,16 @@ const Product = db.define("Product", {
   isMaisVendido: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+
+  permiteUploadArte: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+
+  gabaritoUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 
 }, {

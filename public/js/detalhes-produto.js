@@ -164,11 +164,11 @@ async function renderCart() {
 }
 
 // === Adicionar, atualizar e remover itens ===
-async function addToCart(productId, quantity = 1, cor = null, lona = null) {
+async function addToCart(productId, quantity = 1, cor = null, lona = null, arteUrl = null) {
   const res = await fetch("/api/cart/item", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ cartId: currentCartId, productId, quantity, cor, lona })
+    body: JSON.stringify({ cartId: currentCartId, productId, quantity, cor, lona, arteUrl })
   });
 
   const cart = await res.json();
@@ -347,6 +347,24 @@ async function initProductDetails() {
       const priceEl = document.getElementById("productPrice");
       prodInfo.insertBefore(colorLabel, priceEl);
       prodInfo.insertBefore(colorSelect, priceEl);
+    }
+
+    // Configura Gabarito e Upload de Arte
+    const extraOptions = document.getElementById("extraOptions");
+    const gabaritoContainer = document.getElementById("gabaritoContainer");
+    const uploadArteContainer = document.getElementById("uploadArteContainer");
+
+    if (product.gabaritoUrl || product.permiteUploadArte) {
+      extraOptions.style.display = "flex";
+
+      if (product.gabaritoUrl) {
+        gabaritoContainer.style.display = "flex";
+        document.getElementById("btnGabarito").href = product.gabaritoUrl;
+      }
+
+      if (product.permiteUploadArte) {
+        uploadArteContainer.style.display = "flex";
+      }
     }
 
     // Seleção de lonas
@@ -741,7 +759,9 @@ async function initProductDetails() {
       return;
     }
 
-    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona);
+    const arteUrl = document.getElementById("arteUrl").value;
+
+    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, arteUrl);
     showCartAlert("Produto adicionado ao carrinho!");
   });
 
@@ -754,31 +774,61 @@ async function initProductDetails() {
     const selectedLona = lonaSelect ? lonaSelect.value : null;
 
     if (colorSelect && (!selectedColor || selectedColor.trim() === "")) {
-      alert("Por favor, selecione a cor antes de comprar.");
+      showToast("Por favor, selecione a cor antes de comprar.", "error");
       return;
     }
 
     if (lonaSelect && (!selectedLona || selectedLona.trim() === "")) {
-      alert("Por favor, selecione o tipo de lona antes de comprar.");
+      showToast("Por favor, selecione o tipo de lona antes de comprar.", "error");
       return;
     }
 
-    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona);
-    showCartAlert("Produto adicionado ao carrinho!");
+    const arteUrl = document.getElementById("arteUrl").value;
+
+    await addToCart(productId, parseInt(inputQty.value), selectedColor, selectedLona, arteUrl);
+    showToast("Produto adicionado ao carrinho!");
     setTimeout(() => (window.location.href = "/checkout"), 1500);
   });
 
+  // === Upload de Arte ===
+  const inputArte = document.getElementById("inputArte");
+  if (inputArte) {
+    inputArte.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 50 * 1024 * 1024) {
+        showToast("Arquivo muito grande. Limite: 50MB", "error");
+        e.target.value = "";
+        return;
+      }
+
+      // TODO: Implementar upload real para o Dropbox ou servidor
+      // Por enquanto, simulamos uma URL
+      console.log("Arquivo selecionado:", file.name);
+      document.getElementById("arteUrl").value = "uploads/" + file.name;
+      showToast("Arte selecionada: " + file.name);
+    });
+  }
 }
 
 
-function showCartAlert(message) {
-  const alertBox = document.getElementById("cartAlert");
+function showToast(message, type = "success") {
+  const alertBox = document.getElementById("cartAlert"); // Reutilizando o elemento existente
+
+  // Remove classes de tipo anteriores
+  alertBox.classList.remove("toast-success", "toast-error", "toast-info");
+
+  // Adiciona a nova classe de tipo
+  alertBox.className = "toast"; // Reset
+  alertBox.classList.add(`toast-${type}`);
+
   alertBox.textContent = message;
   alertBox.classList.add("show");
 
   setTimeout(() => {
     alertBox.classList.remove("show");
-  }, 2000);
+  }, 3000);
 }
 
 // === Inicialização ===
