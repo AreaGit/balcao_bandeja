@@ -827,6 +827,12 @@ async function initProductDetails() {
         return;
       }
 
+      if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+        showToast("Por favor, selecione apenas arquivos PDF.", "error");
+        e.target.value = "";
+        return;
+      }
+
       showToast("Enviando arte...", "info");
 
       const formData = new FormData();
